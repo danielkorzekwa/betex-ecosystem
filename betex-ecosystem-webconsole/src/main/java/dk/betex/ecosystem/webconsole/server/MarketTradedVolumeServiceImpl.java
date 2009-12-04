@@ -2,12 +2,16 @@ package dk.betex.ecosystem.webconsole.server;
 
 import javax.servlet.ServletException;
 
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.util.MathUtils;
+
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import dk.betex.ecosystem.webconsole.client.model.HeatMapModel;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
 import dk.bot.betfairservice.BetFairService;
 import dk.bot.betfairservice.DefaultBetFairServiceFactoryBean;
+import dk.bot.betfairservice.model.BFMarketDetails;
 import dk.bot.betfairservice.model.BFMarketTradedVolume;
 
 /**
@@ -44,11 +48,32 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	
 	@Override
 	public HeatMapModel getMarketTradedVolume(int marketId) {
+		try {
 		BFMarketTradedVolume bfMarketTradedVolume = betfairService.getMarketTradedVolume(marketId);
+		BFMarketDetails marketDetails = betfairService.getMarketDetails(marketId);
 		
 		HeatMapModel marketTradedVolume = MarketTradedVolumeFactory
 				.createHeatMap(bfMarketTradedVolume);
+		
+		/**Replace selectionId with selectionName*/
+		for(int i=0;i<marketTradedVolume.getxAxisLabels().length;i++) {
+			int selectionId = Integer.parseInt(marketTradedVolume.getxAxisLabels()[i]);
+			String selectionName = marketDetails.getSelectionName(selectionId);
+			marketTradedVolume.getxAxisLabels()[i]=selectionName;
+		}
+		
+		/**Change probabilities to prices*/
+		for(int i=0;i<marketTradedVolume.getyAxisLabels().length;i++) {
+			double price = Double.parseDouble(marketTradedVolume.getyAxisLabels()[i])/100d;
+			marketTradedVolume.getyAxisLabels()[i] = "" + MathUtils.round(1d/price,2);
+		}
+		
 		return marketTradedVolume;
+		}
+		catch(Exception e) {
+			LogFactory.getLog(this.getClass()).error("Can't get market traded volume for market: " + marketId,e);
+			throw new RuntimeException(e);
+		}
 	}
 
 }

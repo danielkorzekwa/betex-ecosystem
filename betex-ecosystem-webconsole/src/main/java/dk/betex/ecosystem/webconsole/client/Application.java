@@ -70,7 +70,7 @@ public class Application implements EntryPoint {
 										@Override
 										public void onFailure(Throwable t) {
 											GWT.log("failed", t);
-											Window.alert("GetMarketTradedVolume failed. " + t.getLocalizedMessage());
+											Window.alert("GetMarketTradedVolume failed. " + t.getMessage());
 										}
 									});
 
@@ -94,8 +94,9 @@ public class Application implements EntryPoint {
 		Panel panel = RootPanel.get();
 
 		final Options options = BioHeatMap.Options.create();
-		options.setCellWidth(15);
-		options.setCellHeight(2);
+		options.setCellWidth(20);
+		options.setCellHeight(4);
+		options.setNumberOfColors(256);
 
 		final DataTable dataModel = createDataModel(heatMapModel);
 		final BioHeatMap bioHeatMap = new BioHeatMap(dataModel, options);
@@ -131,13 +132,14 @@ public class Application implements EntryPoint {
 		DataTable data = DataTable.create();
 		data.addColumn(ColumnType.STRING, "Price");
 		for (int runnerIndex = 0; runnerIndex < heatMapModel.getxAxisLabels().length; runnerIndex++) {
-			data.addColumn(ColumnType.NUMBER, "r" + heatMapModel.getxAxisLabels()[runnerIndex]);
+			data.addColumn(ColumnType.NUMBER, heatMapModel.getxAxisLabels()[runnerIndex]);
 		}
 		int numOfPrices = heatMapModel.getyAxisLabels().length;
 		data.addRows(numOfPrices);
 		for (int priceIndex = 0; priceIndex < numOfPrices; priceIndex++) {
 			
-			data.setValue(priceIndex, 0, "" + heatMapModel.getyAxisLabels()[priceIndex]);
+			String xAxisLabel = priceIndex % 5 ==0 ? "" + heatMapModel.getyAxisLabels()[priceIndex]: "";
+			data.setValue(priceIndex, 0, xAxisLabel);
 			for (int runnerIndex = 0; runnerIndex < heatMapModel.getxAxisLabels().length; runnerIndex++) {
 				data.setValue(priceIndex, runnerIndex + 1, heatMapModel.getValues()[runnerIndex][priceIndex]);
 			}

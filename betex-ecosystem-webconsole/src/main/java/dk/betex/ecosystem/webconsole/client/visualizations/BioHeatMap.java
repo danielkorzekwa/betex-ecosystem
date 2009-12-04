@@ -37,6 +37,10 @@ public class BioHeatMap extends Visualization<BioHeatMap.Options> {
 		public final native void setCellHeight(int cellHeight) /*-{
 	      this.cellHeight = cellHeight;
 	    }-*/;
+		
+		public final native void setNumberOfColors(int numberOfColors)/*-{
+	      this.numberOfColors = numberOfColors;
+	    }-*/;
 	}
 	
 	public BioHeatMap() {

@@ -14,7 +14,8 @@ import dk.betex.ecosystem.webconsole.client.model.HeatMapModel;
 @RemoteServiceRelativePath( "MarketTradedVolume" )
 public interface MarketTradedVolumeService extends RemoteService{
 
-	/**Returns traded volume for all runners in a particular market grouped by probability (0..1).
+	/**
+	 * Returns traded volume for all runners in a particular market grouped by prices representing 100 probabilities (0..1).
 	 * 
 	 * @param marketId
 	 * @return
