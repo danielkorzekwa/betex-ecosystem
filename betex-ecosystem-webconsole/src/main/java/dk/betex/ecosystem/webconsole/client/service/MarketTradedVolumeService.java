@@ -3,9 +3,9 @@ package dk.betex.ecosystem.webconsole.client.service;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
-import dk.betex.ecosystem.webconsole.client.model.MarketTradedVolume;
+import dk.betex.ecosystem.webconsole.client.model.HeatMapModel;
 
-/** Returns traded volume at each price on all of the runners in a particular market.
+/** Returns traded volume for all runners in a particular market grouped by probability (0..1).
  * 
  * @author korzekwad
  *
@@ -14,19 +14,12 @@ import dk.betex.ecosystem.webconsole.client.model.MarketTradedVolume;
 @RemoteServiceRelativePath( "MarketTradedVolume" )
 public interface MarketTradedVolumeService extends RemoteService{
 
-	/**Returns traded volume at each price on all of the runners in a particular market
-	 * Prices with 0 traded volume are not returned.
+	/**Returns traded volume for all runners in a particular market grouped by probability (0..1).
+	 * 
 	 * @param marketId
 	 * @return
 	 */
-	public MarketTradedVolume getMarketTradedVolume(int marketId);
-	
-	/**Returns traded volume at each price on all of the runners in a particular market
-	 * Prices with 0 traded volume are also returned.
-	 * @param marketId
-	 * @return
-	 */
-	public MarketTradedVolume getMarketTradedVolumeForAllPrices(int marketId);
+	public HeatMapModel getMarketTradedVolume(int marketId);
 	
 	
 }

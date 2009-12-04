@@ -1,6 +1,6 @@
 package dk.betex.ecosystem.webconsole.server;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,16 +8,14 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.betex.ecosystem.webconsole.client.model.MarketTradedVolume;
-import dk.betex.ecosystem.webconsole.client.model.PriceTradedVolume;
-import dk.betex.ecosystem.webconsole.client.model.RunnerTradedVolume;
+import dk.betex.ecosystem.webconsole.client.model.HeatMapModel;
 import dk.bot.betfairservice.model.BFMarketTradedVolume;
 import dk.bot.betfairservice.model.BFPriceTradedVolume;
 import dk.bot.betfairservice.model.BFRunnerTradedVolume;
 
 public class MarketTradedVolumeFactoryTest {
 
-	private BFMarketTradedVolume bfMarketTradedVolume;
+	private BFMarketTradedVolume marketTradedVolume;
 
 	@Before
 	public void setUp() {
@@ -33,116 +31,40 @@ public class MarketTradedVolumeFactoryTest {
 		pricesTradedVolume.add(new BFPriceTradedVolume(3.6, 65.12));
 		runnersTradedVolume.add(new BFRunnerTradedVolume(106, pricesTradedVolume));
 
-		bfMarketTradedVolume = new BFMarketTradedVolume(12, runnersTradedVolume);
+		marketTradedVolume = new BFMarketTradedVolume(12, runnersTradedVolume);
 	}
 
 	@Test
-	public void testCreate() {
-		MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume);
+	public void testCreateHeatMap() {
 
-		assertEquals(bfMarketTradedVolume.getMarketId(), marketTradedVolume.getMarketId());
+		HeatMapModel heapMap = MarketTradedVolumeFactory
+				.createHeatMap(marketTradedVolume);
 
-		assertEquals(bfMarketTradedVolume.getRunnerTradedVolume().size(), marketTradedVolume.getRunnerTradedVolume()
-				.size());
+		assertEquals(marketTradedVolume.getRunnerTradedVolume().size(), heapMap.getxAxisLabels().length);
+		assertEquals(101, heapMap.getyAxisLabels().length);
 
-		for (int runnerIndex = 0; runnerIndex < bfMarketTradedVolume.getRunnerTradedVolume().size(); runnerIndex++) {
-			BFRunnerTradedVolume bfRunnerTradedVolume = bfMarketTradedVolume.getRunnerTradedVolume().get(runnerIndex);
-			RunnerTradedVolume runnerTradedVolume = marketTradedVolume.getRunnerTradedVolume().get(runnerIndex);
-
-			assertEquals(bfRunnerTradedVolume.getSelectionId(), runnerTradedVolume.getSelectionId());
-			assertEquals(bfRunnerTradedVolume.getPriceTradedVolume().size(), runnerTradedVolume.getPriceTradedVolume()
-					.size());
-
-			for (int priceIndex = 0; priceIndex < bfRunnerTradedVolume.getPriceTradedVolume().size(); priceIndex++) {
-				BFPriceTradedVolume bfPriceTradedVolume = bfRunnerTradedVolume.getPriceTradedVolume().get(priceIndex);
-				PriceTradedVolume priceTradedVolume = runnerTradedVolume.getPriceTradedVolume().get(priceIndex);
-
-				assertEquals(bfPriceTradedVolume.getPrice(), priceTradedVolume.getPrice(), 0);
-				assertEquals(bfPriceTradedVolume.getTradedVolume(), priceTradedVolume.getTradedVolume(), 0);
-			}
-
-		}
-	}
-
-	@Test
-	public void testCreateNormalized() {
-		MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume);
-		MarketTradedVolume normalizedMarketTradedVolume = MarketTradedVolumeFactory
-				.createNormalized(marketTradedVolume);
-
-		assertEquals(marketTradedVolume.getMarketId(), normalizedMarketTradedVolume.getMarketId());
-
-		assertEquals(marketTradedVolume.getRunnerTradedVolume().size(), normalizedMarketTradedVolume
-				.getRunnerTradedVolume().size());
-
+		assertEquals(marketTradedVolume.getRunnerTradedVolume().size(), heapMap.getValues().length);	
 		for (int runnerIndex = 0; runnerIndex < marketTradedVolume.getRunnerTradedVolume().size(); runnerIndex++) {
-			RunnerTradedVolume runnerTradedVolume = marketTradedVolume.getRunnerTradedVolume().get(runnerIndex);
-			RunnerTradedVolume normalizedRunnerTradedVolume = normalizedMarketTradedVolume.getRunnerTradedVolume().get(
-					runnerIndex);
-
-			assertEquals(runnerTradedVolume.getSelectionId(), normalizedRunnerTradedVolume.getSelectionId());
-			assertEquals(347, normalizedRunnerTradedVolume.getPriceTradedVolume().size());
-
-			for (int priceIndex = 0; priceIndex < normalizedRunnerTradedVolume.getPriceTradedVolume().size(); priceIndex++) {
-				PriceTradedVolume normalizedPriceTradedVolume = normalizedRunnerTradedVolume.getPriceTradedVolume()
-						.get(priceIndex);
-
-				if (runnerTradedVolume.getSelectionId() == 105 && normalizedPriceTradedVolume.getPrice() == 2.1) {
-					assertEquals(35.32, normalizedPriceTradedVolume.getTradedVolume(), 0);
+			BFRunnerTradedVolume runnerTradedVolume = marketTradedVolume.getRunnerTradedVolume().get(runnerIndex);
+			
+			assertEquals(101,heapMap.getValues()[runnerIndex].length);
+			for (int priceIndex = 0; priceIndex < heapMap.getValues()[runnerIndex].length; priceIndex++) {
+				double normalizedPriceTradedVolume = heapMap.getValues()[runnerIndex][priceIndex];
+					
+				if (runnerTradedVolume.getSelectionId() == 105 && priceIndex == 47) {
+					assertEquals(35.32, normalizedPriceTradedVolume, 0);
 				}
-				else if (runnerTradedVolume.getSelectionId() == 105 && normalizedPriceTradedVolume.getPrice() == 2.2) {
-					assertEquals(765.56, normalizedPriceTradedVolume.getTradedVolume(), 0);
+				else if (runnerTradedVolume.getSelectionId() == 105 && priceIndex == 45) {
+					assertEquals(765.56, normalizedPriceTradedVolume, 0);
 				}
-				else if (runnerTradedVolume.getSelectionId() == 106 && normalizedPriceTradedVolume.getPrice() == 3.4) {
-					assertEquals(43.24, normalizedPriceTradedVolume.getTradedVolume(), 0);
+				else if (runnerTradedVolume.getSelectionId() == 106 && priceIndex == 29) {
+					assertEquals(43.24, normalizedPriceTradedVolume, 0);
 				}
-				else if (runnerTradedVolume.getSelectionId() == 106 && normalizedPriceTradedVolume.getPrice() == 3.6) {
-					assertEquals(65.12, normalizedPriceTradedVolume.getTradedVolume(), 0);
+				else if (runnerTradedVolume.getSelectionId() == 106 && priceIndex == 27) {
+					assertEquals(65.12, normalizedPriceTradedVolume, 0);
 				}
 				else {
-					assertEquals(0, normalizedPriceTradedVolume.getTradedVolume(), 0);
-				}
-			}
-		}
-	}
-	
-	@Test
-	public void testCreateNormalizedProbs() {
-		MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume);
-		MarketTradedVolume normalizedMarketTradedVolume = MarketTradedVolumeFactory
-				.createNormalizedAsProbs(marketTradedVolume);
-
-		assertEquals(marketTradedVolume.getMarketId(), normalizedMarketTradedVolume.getMarketId());
-
-		assertEquals(marketTradedVolume.getRunnerTradedVolume().size(), normalizedMarketTradedVolume
-				.getRunnerTradedVolume().size());
-
-		for (int runnerIndex = 0; runnerIndex < marketTradedVolume.getRunnerTradedVolume().size(); runnerIndex++) {
-			RunnerTradedVolume runnerTradedVolume = marketTradedVolume.getRunnerTradedVolume().get(runnerIndex);
-			RunnerTradedVolume normalizedRunnerTradedVolume = normalizedMarketTradedVolume.getRunnerTradedVolume().get(
-					runnerIndex);
-
-			assertEquals(runnerTradedVolume.getSelectionId(), normalizedRunnerTradedVolume.getSelectionId());
-			assertEquals(101, normalizedRunnerTradedVolume.getPriceTradedVolume().size());
-
-			for (int priceIndex = 0; priceIndex < normalizedRunnerTradedVolume.getPriceTradedVolume().size(); priceIndex++) {
-				PriceTradedVolume normalizedPriceTradedVolume = normalizedRunnerTradedVolume.getPriceTradedVolume()
-						.get(priceIndex);
-
-				if (runnerTradedVolume.getSelectionId() == 105 && normalizedPriceTradedVolume.getPrice() == 47) {
-					assertEquals(35.32, normalizedPriceTradedVolume.getTradedVolume(), 0);
-				}
-				else if (runnerTradedVolume.getSelectionId() == 105 && normalizedPriceTradedVolume.getPrice() == 45) {
-					assertEquals(765.56, normalizedPriceTradedVolume.getTradedVolume(), 0);
-				}
-				else if (runnerTradedVolume.getSelectionId() == 106 && normalizedPriceTradedVolume.getPrice() == 29) {
-					assertEquals(43.24, normalizedPriceTradedVolume.getTradedVolume(), 0);
-				}
-				else if (runnerTradedVolume.getSelectionId() == 106 && normalizedPriceTradedVolume.getPrice() == 27) {
-					assertEquals(65.12, normalizedPriceTradedVolume.getTradedVolume(), 0);
-				}
-				else {
-					assertEquals(0, normalizedPriceTradedVolume.getTradedVolume(), 0);
+					assertEquals("selectionId=" + runnerTradedVolume.getSelectionId() + ", priceIndex=" + priceIndex,0, normalizedPriceTradedVolume, 0);
 				}
 			}
 		}

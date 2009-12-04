@@ -18,9 +18,7 @@ import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 import com.google.gwt.visualization.client.visualizations.PieChart;
 
-import dk.betex.ecosystem.webconsole.client.model.MarketTradedVolume;
-import dk.betex.ecosystem.webconsole.client.model.PriceTradedVolume;
-import dk.betex.ecosystem.webconsole.client.model.RunnerTradedVolume;
+import dk.betex.ecosystem.webconsole.client.model.HeatMapModel;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeServiceAsync;
 import dk.betex.ecosystem.webconsole.client.visualizations.BioHeatMap;
@@ -60,12 +58,12 @@ public class Application implements EntryPoint {
 							marketId = Integer.parseInt(marketIdTextBox.getValue());
 
 							/** Get market traded volume. */
-							service.getMarketTradedVolumeForAllPrices(marketId,
-									new AsyncCallback<MarketTradedVolume>() {
+							service.getMarketTradedVolume(marketId,
+									new AsyncCallback<HeatMapModel>() {
 
 										@Override
-										public void onSuccess(MarketTradedVolume marketTradedVolume) {
-											buildMarketTradedVolumeVisualization(marketTradedVolume);
+										public void onSuccess(HeatMapModel heatMapModel) {
+											buildMarketTradedVolumeVisualization(heatMapModel);
 											statusBar.setText("Please wait...DONE");	
 										}
 
@@ -91,7 +89,7 @@ public class Application implements EntryPoint {
 
 	}
 
-	private void buildMarketTradedVolumeVisualization(MarketTradedVolume marketTradedVolume) {
+	private void buildMarketTradedVolumeVisualization(HeatMapModel heatMapModel) {
 
 		Panel panel = RootPanel.get();
 
@@ -99,7 +97,7 @@ public class Application implements EntryPoint {
 		options.setCellWidth(15);
 		options.setCellHeight(2);
 
-		final DataTable dataModel = createDataModel(marketTradedVolume);
+		final DataTable dataModel = createDataModel(heatMapModel);
 		final BioHeatMap bioHeatMap = new BioHeatMap(dataModel, options);
 		panel.add(bioHeatMap);
 
@@ -128,26 +126,20 @@ public class Application implements EntryPoint {
 	}
 
 	/** Normalised market traded volume (each runner has list of all betfair prices. */
-	private DataTable createDataModel(MarketTradedVolume marketTradedVolume) {
+	private DataTable createDataModel(HeatMapModel heatMapModel) {
 
 		DataTable data = DataTable.create();
 		data.addColumn(ColumnType.STRING, "Price");
-		for (int runnerIndex = 0; runnerIndex < marketTradedVolume.getRunnerTradedVolume().size(); runnerIndex++) {
-			data.addColumn(ColumnType.NUMBER, "r" + runnerIndex);
+		for (int runnerIndex = 0; runnerIndex < heatMapModel.getxAxisLabels().length; runnerIndex++) {
+			data.addColumn(ColumnType.NUMBER, "r" + heatMapModel.getxAxisLabels()[runnerIndex]);
 		}
-		int numOfPrices = marketTradedVolume.getRunnerTradedVolume().get(0).getPriceTradedVolume().size();
+		int numOfPrices = heatMapModel.getyAxisLabels().length;
 		data.addRows(numOfPrices);
 		for (int priceIndex = 0; priceIndex < numOfPrices; priceIndex++) {
-			double rowPrice = marketTradedVolume.getRunnerTradedVolume().get(0).getPriceTradedVolume().get(priceIndex)
-					.getPrice();
-			data.setValue(priceIndex, 0, "" + rowPrice);
-			for (int runnerIndex = 0; runnerIndex < marketTradedVolume.getRunnerTradedVolume().size(); runnerIndex++) {
-				RunnerTradedVolume runnerTradedVolume = marketTradedVolume.getRunnerTradedVolume().get(runnerIndex);
-				PriceTradedVolume priceTradedVolume = runnerTradedVolume.getPriceTradedVolume().get(priceIndex);
-				if (priceTradedVolume.getPrice() != rowPrice) {
-					throw new IllegalStateException("Data consistency error!. rowPrice != runner price");
-				}
-				data.setValue(priceIndex, runnerIndex + 1, priceTradedVolume.getTradedVolume());
+			
+			data.setValue(priceIndex, 0, "" + heatMapModel.getyAxisLabels()[priceIndex]);
+			for (int runnerIndex = 0; runnerIndex < heatMapModel.getxAxisLabels().length; runnerIndex++) {
+				data.setValue(priceIndex, runnerIndex + 1, heatMapModel.getValues()[runnerIndex][priceIndex]);
 			}
 		}
 

@@ -1,22 +1,14 @@
 package dk.betex.ecosystem.webconsole.server;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import javax.servlet.ServletException;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
-import dk.betex.ecosystem.webconsole.client.model.MarketTradedVolume;
-import dk.betex.ecosystem.webconsole.client.model.PriceTradedVolume;
-import dk.betex.ecosystem.webconsole.client.model.RunnerTradedVolume;
+import dk.betex.ecosystem.webconsole.client.model.HeatMapModel;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
 import dk.bot.betfairservice.BetFairService;
-import dk.bot.betfairservice.BetFairUtil;
 import dk.bot.betfairservice.DefaultBetFairServiceFactoryBean;
 import dk.bot.betfairservice.model.BFMarketTradedVolume;
-import dk.bot.betfairservice.model.LoginResponse;
 
 /**
  * Returns traded volume at each price on all of the runners in a particular market.
@@ -49,23 +41,14 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 			throw new RuntimeException(e);
 		}
 	}
-
+	
 	@Override
-	public MarketTradedVolume getMarketTradedVolume(int marketId) {
+	public HeatMapModel getMarketTradedVolume(int marketId) {
 		BFMarketTradedVolume bfMarketTradedVolume = betfairService.getMarketTradedVolume(marketId);
-		MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume);
-
+		
+		HeatMapModel marketTradedVolume = MarketTradedVolumeFactory
+				.createHeatMap(bfMarketTradedVolume);
 		return marketTradedVolume;
-	}
-
-	@Override
-	public MarketTradedVolume getMarketTradedVolumeForAllPrices(int marketId) {
-		BFMarketTradedVolume bfMarketTradedVolume = betfairService.getMarketTradedVolume(marketId);
-		MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume);
-
-		MarketTradedVolume normalizedMarketTradedVolume = MarketTradedVolumeFactory
-				.createNormalizedAsProbs(marketTradedVolume);
-		return normalizedMarketTradedVolume;
 	}
 
 }
