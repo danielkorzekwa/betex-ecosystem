@@ -1,8 +1,5 @@
 package dk.betex.ecosystem.marketdatacollector.dao;
 
-import java.util.Date;
-import java.util.List;
-
 import org.jcouchdb.document.ViewResult;
 
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
@@ -26,5 +23,5 @@ public interface MarketTradedVolumeDao {
 	 * @param to Epoch time in milliseconds from 01.01.1970
 	 * @return
 	 */
-	public ViewResult<MarketTradedVolume> getMarketTradedVolume(int marketId, long from, long to);
+	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to);
 }

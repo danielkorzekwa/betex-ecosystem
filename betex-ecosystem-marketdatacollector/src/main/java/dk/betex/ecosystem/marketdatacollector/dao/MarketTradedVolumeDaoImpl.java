@@ -1,14 +1,10 @@
 package dk.betex.ecosystem.marketdatacollector.dao;
 
 import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 import org.jcouchdb.db.Database;
 import org.jcouchdb.db.Options;
 import org.jcouchdb.document.ViewResult;
-import org.svenson.ClassNameBasedTypeMapper;
-import org.svenson.JSONParser;
 
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
 
@@ -41,7 +37,7 @@ public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao{
 	 * @param to
 	 */
 	@Override
-	public ViewResult<MarketTradedVolume> getMarketTradedVolume(int marketId, long from, long to) {
+	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to) {
 		String fn = "{\"map\" : \"function(doc) {emit([doc.marketId,doc.timestamp],doc);}\"}";
 		Options options = new Options().startKey(Arrays.asList(marketId,from)).endKey(Arrays.asList(marketId,to));
 		ViewResult<MarketTradedVolume> marketTradedVolume = database.queryAdHocView(MarketTradedVolume.class, fn, options,null);

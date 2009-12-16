@@ -1,10 +1,8 @@
 package dk.betex.ecosystem.marketdatacollector.dao;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.jcouchdb.db.Database;
@@ -24,33 +22,33 @@ public class MarketTradedVolumeDaoImplTest {
 	@Before
 	public void setUp() {
 		database = new Database("10.2.2.72", "market_traded_volume_test");
-		 marketTradedVolueDao = new MarketTradedVolumeDaoImpl(database);	 
+		marketTradedVolueDao = new MarketTradedVolumeDaoImpl(database);
 	}
-	
-	
+
 	@Test
 	public void testAddGetMarketTradedVolume() {
-		
-		/**Add market traded volume to the couch db.*/
-		MarketTradedVolume marketTradedVolume = createMarketTradedVolume();
-		marketTradedVolueDao.addMarketTradedVolume(marketTradedVolume);
-		
-		/**Get market traded volume from the couch db and check if it's correct.*/
-		ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(marketTradedVolume
-				.getMarketId(), marketTradedVolume.getTimestamp(), marketTradedVolume.getTimestamp());
-		
-		assertEquals(1, marketTradedVolumeList.getRows().size());
-		
-		assertEquals(marketTradedVolume.getMarketId(), marketTradedVolumeList.getRows().get(0).getValue().getMarketId());
-		assertEquals(marketTradedVolume.getTimestamp(), marketTradedVolumeList.getRows().get(0).getValue().getTimestamp());
 
-		assertEquals(marketTradedVolume.getRunnerTradedVolume().size(), marketTradedVolumeList.getRows().get(0).getValue()
-				.getRunnerTradedVolume().size());
+		/** Add market traded volume to the couch db. */
+		MarketTradedVolume marketTradedVolume = createMarketTradedVolume(1).get(0);
+		marketTradedVolueDao.addMarketTradedVolume(marketTradedVolume);
+
+		/** Get market traded volume from the couch db and check if it's correct. */
+		ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(
+				marketTradedVolume.getMarketId(), marketTradedVolume.getTimestamp(), marketTradedVolume.getTimestamp());
+
+		assertEquals(1, marketTradedVolumeList.getRows().size());
+
+		assertEquals(marketTradedVolume.getMarketId(), marketTradedVolumeList.getRows().get(0).getValue().getMarketId());
+		assertEquals(marketTradedVolume.getTimestamp(), marketTradedVolumeList.getRows().get(0).getValue()
+				.getTimestamp());
+
+		assertEquals(marketTradedVolume.getRunnerTradedVolume().size(), marketTradedVolumeList.getRows().get(0)
+				.getValue().getRunnerTradedVolume().size());
 
 		for (int runnerIndex = 0; runnerIndex < marketTradedVolume.getRunnerTradedVolume().size(); runnerIndex++) {
 			RunnerTradedVolume runnerTradedVolume = marketTradedVolume.getRunnerTradedVolume().get(runnerIndex);
-			RunnerTradedVolume runnerTradedVolumeDB = marketTradedVolumeList.getRows().get(0).getValue().getRunnerTradedVolume().get(
-					runnerIndex);
+			RunnerTradedVolume runnerTradedVolumeDB = marketTradedVolumeList.getRows().get(0).getValue()
+					.getRunnerTradedVolume().get(runnerIndex);
 
 			assertEquals(runnerTradedVolume.getSelectionId(), runnerTradedVolumeDB.getSelectionId());
 			assertEquals(runnerTradedVolume.getPriceTradedVolume().size(), runnerTradedVolumeDB.getPriceTradedVolume()
@@ -66,23 +64,108 @@ public class MarketTradedVolumeDaoImplTest {
 		}
 
 	}
-	
-	private MarketTradedVolume createMarketTradedVolume() {
-		List<RunnerTradedVolume> runnersTradedVolume = new ArrayList<RunnerTradedVolume>();
 
-		List<PriceTradedVolume> pricesTradedVolume = new ArrayList<PriceTradedVolume>();
-		pricesTradedVolume.add(new PriceTradedVolume(2.1, 35.32));
-		pricesTradedVolume.add(new PriceTradedVolume(2.2, 765.56));
-		runnersTradedVolume.add(new RunnerTradedVolume(105, pricesTradedVolume));
+	@Test
+	public void testGetMarketTradedVolumeMarketWithTwoRecords() {
+		/** Add market traded volume to the couch db. */
+		List<MarketTradedVolume> marketTradedVolumeList = createMarketTradedVolume(2);
+		marketTradedVolueDao.addMarketTradedVolume(marketTradedVolumeList.get(0));
+		marketTradedVolueDao.addMarketTradedVolume(marketTradedVolumeList.get(1));
 
-		pricesTradedVolume = new ArrayList<PriceTradedVolume>();
-		pricesTradedVolume.add(new PriceTradedVolume(3.4, 43.24));
-		pricesTradedVolume.add(new PriceTradedVolume(3.6, 65.12));
-		runnersTradedVolume.add(new RunnerTradedVolume(106, pricesTradedVolume));
+		/** Get market traded volume from the couch db and check if it's correct. */
+		ViewResult<MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
+				marketTradedVolumeList.get(0).getMarketId(), marketTradedVolumeList.get(0).getTimestamp(),
+				marketTradedVolumeList.get(1).getTimestamp());
 
-		MarketTradedVolume marketTradedVolume = new MarketTradedVolume((int) (System.currentTimeMillis() / 1000),
-				runnersTradedVolume,System.currentTimeMillis());
+		assertEquals(2, marketTradedVolume.getRows().size());
 
-		return marketTradedVolume;
+		assertEquals(marketTradedVolumeList.get(0).getMarketId(), marketTradedVolume.getRows().get(0).getValue()
+				.getMarketId());
+		assertEquals(marketTradedVolumeList.get(0).getTimestamp(), marketTradedVolume.getRows().get(0).getValue()
+				.getTimestamp());
+
+		assertEquals(marketTradedVolumeList.get(1).getMarketId(), marketTradedVolume.getRows().get(1).getValue()
+				.getMarketId());
+		assertEquals(marketTradedVolumeList.get(1).getTimestamp(), marketTradedVolume.getRows().get(1).getValue()
+				.getTimestamp());
+
+	}
+
+	@Test
+	public void testGetMarketTradedVolumeMarketWith20Records() {
+		/** Add market traded volume to the couch db. */
+		List<MarketTradedVolume> marketTradedVolumeList = createMarketTradedVolume(20);
+		for (MarketTradedVolume marketTradedVolume : marketTradedVolumeList) {
+			marketTradedVolueDao.addMarketTradedVolume(marketTradedVolume);
+		}
+
+		/** Get market traded volume from the couch db and check if it's correct. */
+		ViewResult<MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
+				marketTradedVolumeList.get(0).getMarketId(), marketTradedVolumeList.get(0).getTimestamp(),
+				marketTradedVolumeList.get(19).getTimestamp());
+
+		assertEquals(20, marketTradedVolume.getRows().size());
+
+	}
+
+	@Test
+	public void testGetMarketTradedVolumeMarketWith20RecordsGetAll() {
+		/** Add market traded volume to the couch db. */
+		List<MarketTradedVolume> marketTradedVolumeList = createMarketTradedVolume(20);
+		for (MarketTradedVolume marketTradedVolume : marketTradedVolumeList) {
+			marketTradedVolueDao.addMarketTradedVolume(marketTradedVolume);
+		}
+
+		/** Get market traded volume from the couch db and check if it's correct. */
+		ViewResult<MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
+				marketTradedVolumeList.get(0).getMarketId(), 0, Long.MAX_VALUE);
+
+		assertEquals(20, marketTradedVolume.getRows().size());
+
+	}
+
+	/**
+	 * Generates timestamped marketTradedVolume records for one market.
+	 * 
+	 * @param numberOfRecords
+	 *            Number of timestamped records to be generated
+	 * @return
+	 */
+	private List<MarketTradedVolume> createMarketTradedVolume(int numberOfRecords) {
+
+		/** Sleep for a while to guarantee unique marketId. */
+		try {
+			Thread.sleep(10);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+		long marketId = System.currentTimeMillis();
+
+		List<MarketTradedVolume> marketTradedVolumeList = new ArrayList<MarketTradedVolume>();
+		for (int i = 0; i < numberOfRecords; i++) {
+			List<RunnerTradedVolume> runnersTradedVolume = new ArrayList<RunnerTradedVolume>();
+
+			List<PriceTradedVolume> pricesTradedVolume = new ArrayList<PriceTradedVolume>();
+			pricesTradedVolume.add(new PriceTradedVolume(2.1, 35.32));
+			pricesTradedVolume.add(new PriceTradedVolume(2.2, 765.56));
+			runnersTradedVolume.add(new RunnerTradedVolume(105, pricesTradedVolume));
+
+			pricesTradedVolume = new ArrayList<PriceTradedVolume>();
+			pricesTradedVolume.add(new PriceTradedVolume(3.4, 43.24));
+			pricesTradedVolume.add(new PriceTradedVolume(3.6, 65.12));
+			runnersTradedVolume.add(new RunnerTradedVolume(106, pricesTradedVolume));
+
+			/** Sleep for a while to guarantee unique timestamp */
+			try {
+				Thread.sleep(10);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+			MarketTradedVolume marketTradedVolume = new MarketTradedVolume(marketId, runnersTradedVolume, System
+					.currentTimeMillis());
+			marketTradedVolumeList.add(marketTradedVolume);
+		}
+
+		return marketTradedVolumeList;
 	}
 }
