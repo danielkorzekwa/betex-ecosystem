@@ -111,6 +111,12 @@
 				<version>0.5-SNAPSHOT</version>
 			</dependency>
 
+			<dependency>
+				<groupId>com.google.code.jcouchdb</groupId>
+				<artifactId>jcouchdb</artifactId>
+				<version>0.10.0-3</version>
+			</dependency>
+
 			<!-- Test dependencies -->
 			<dependency>
 				<groupId>junit</groupId>

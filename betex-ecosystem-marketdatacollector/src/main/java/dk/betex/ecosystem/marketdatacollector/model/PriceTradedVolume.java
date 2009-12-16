@@ -2,13 +2,15 @@ package dk.betex.ecosystem.marketdatacollector.model;
 
 import java.io.Serializable;
 
+import org.jcouchdb.document.BaseDocument;
+
 /**
  * Represents traded volume for the given price on the given runner in a particular market.
  *
  * @author korzekwad
  *
  */
-public class PriceTradedVolume implements Serializable{
+public class PriceTradedVolume extends BaseDocument implements Serializable{
 
         private double price;
         private double tradedVolume;
@@ -30,12 +32,17 @@ public class PriceTradedVolume implements Serializable{
         public double getPrice() {
                 return price;
         }
-
         public double getTradedVolume() {
                 return tradedVolume;
         }
+        public void setPrice(double price) {
+			this.price = price;
+        }
+		public void setTradedVolume(double tradedVolume) {
+			this.tradedVolume = tradedVolume;
+		}
 
-        @Override
+		@Override
         public String toString() {
                 return "PriceTradedVolume [price=" + price + ", tradedVolume=" + tradedVolume + "]";
         }

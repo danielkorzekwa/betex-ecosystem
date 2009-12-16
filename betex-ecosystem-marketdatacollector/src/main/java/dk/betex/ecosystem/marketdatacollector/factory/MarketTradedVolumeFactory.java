@@ -1,13 +1,11 @@
 package dk.betex.ecosystem.marketdatacollector.factory;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
 import dk.betex.ecosystem.marketdatacollector.model.PriceTradedVolume;
 import dk.betex.ecosystem.marketdatacollector.model.RunnerTradedVolume;
-import dk.bot.betfairservice.BetFairUtil;
 import dk.bot.betfairservice.model.BFMarketTradedVolume;
 import dk.bot.betfairservice.model.BFPriceTradedVolume;
 import dk.bot.betfairservice.model.BFRunnerTradedVolume;
@@ -20,7 +18,13 @@ import dk.bot.betfairservice.model.BFRunnerTradedVolume;
  */
 public class MarketTradedVolumeFactory {
 
-        public static MarketTradedVolume create(BFMarketTradedVolume bfMarketTradedVolume) {
+	/**
+	 * 
+	 * @param bfMarketTradedVolume
+	 * @param timestamp The time when the market traded volume was obtained from the betting exchange.
+	 * @return
+	 */
+        public static MarketTradedVolume create(BFMarketTradedVolume bfMarketTradedVolume, Date timestamp) {
 
                 List<RunnerTradedVolume> runnerTradedVolume = new ArrayList<RunnerTradedVolume>();
                 for (BFRunnerTradedVolume bfRunnerTradedVolume : bfMarketTradedVolume.getRunnerTradedVolume()) {
@@ -35,88 +39,7 @@ public class MarketTradedVolumeFactory {
                 }
 
                 MarketTradedVolume marketTradedVolume = new MarketTradedVolume(bfMarketTradedVolume.getMarketId(),
-                                runnerTradedVolume);
+                                runnerTradedVolume,timestamp.getTime());
                 return marketTradedVolume;
         }
-
-        /**
-         * Returns market traded volume for all valid betfair prices.
-         * 
-         * @param marketTradedVolume
-         *            contains only runner prices with traded volume bigger than 0.
-         * @return
-         */
-        public static MarketTradedVolume createNormalized(MarketTradedVolume marketTradedVolume) {
-                List<Double> allPrices = BetFairUtil.getAllPricesForPriceRanges(BetFairUtil.getPriceRanges());
-
-                List<RunnerTradedVolume> normalizedRunnerTradedVolume = new ArrayList<RunnerTradedVolume>();
-                for (RunnerTradedVolume runnerTradedVolume : marketTradedVolume.getRunnerTradedVolume()) {
-
-                        /** key - price, value - traded volume */
-                        Map<Double, Double> pricesTradedVolumeMap = new HashMap<Double, Double>();
-                        for (PriceTradedVolume priceTradedVolume : runnerTradedVolume.getPriceTradedVolume()) {
-                                pricesTradedVolumeMap.put(priceTradedVolume.getPrice(), priceTradedVolume.getTradedVolume());
-                        }
-
-                        List<PriceTradedVolume> normalizedPriceTradedVolume = new ArrayList<PriceTradedVolume>();
-                        for (Double price : allPrices) {
-                                Double tradedVolume = pricesTradedVolumeMap.get(price);
-                                if (tradedVolume == null) {
-                                        tradedVolume = 0d;
-                                }
-                                normalizedPriceTradedVolume.add(new PriceTradedVolume(price, tradedVolume));
-                        }
-
-                        normalizedRunnerTradedVolume.add(new RunnerTradedVolume(runnerTradedVolume.getSelectionId(),
-                                        normalizedPriceTradedVolume));
-                }
-
-                MarketTradedVolume normalizedMarketTradedVolume = new MarketTradedVolume(marketTradedVolume.getMarketId(),
-                                normalizedRunnerTradedVolume);
-                return normalizedMarketTradedVolume;
-        }
-
-        /**
-         * Returns market traded volume for probabilities 0,1,2...100.
-         * 
-         * @param marketTradedVolume
-         *            contains only runner prices with traded volume bigger than 0.
-         * @return
-         */
-        public static MarketTradedVolume createNormalizedAsProbs(MarketTradedVolume marketTradedVolume) {
-
-                List<Integer> allProbabilities = new ArrayList<Integer>();
-                for (int i = 0; i <= 100; i++) {
-                        allProbabilities.add(i);
-                }
-
-                List<RunnerTradedVolume> normalizedRunnerTradedVolume = new ArrayList<RunnerTradedVolume>();
-                for (RunnerTradedVolume runnerTradedVolume : marketTradedVolume.getRunnerTradedVolume()) {
-
-                        /** key - probability from 0..100, value - traded volume */
-                        Map<Integer, Double> pricesTradedVolumeMap = new HashMap<Integer, Double>();
-                        for (PriceTradedVolume priceTradedVolume : runnerTradedVolume.getPriceTradedVolume()) {
-                                int prob = (int)((1/priceTradedVolume.getPrice())*100);
-                                pricesTradedVolumeMap.put(prob, priceTradedVolume.getTradedVolume());
-                        }
-
-                        List<PriceTradedVolume> normalizedPriceTradedVolume = new ArrayList<PriceTradedVolume>();
-                        for (int prob : allProbabilities) {
-                                Double tradedVolume = pricesTradedVolumeMap.get(prob);
-                                if (tradedVolume == null) {
-                                        tradedVolume = 0d;
-                                }
-                                
-                                normalizedPriceTradedVolume.add(new PriceTradedVolume(prob, tradedVolume));
-                        }
-
-                        normalizedRunnerTradedVolume.add(new RunnerTradedVolume(runnerTradedVolume.getSelectionId(),
-                                        normalizedPriceTradedVolume));
-                }
-
-                MarketTradedVolume normalizedMarketTradedVolume = new MarketTradedVolume(marketTradedVolume.getMarketId(),
-                                normalizedRunnerTradedVolume);
-                return normalizedMarketTradedVolume;
-        }
-
 }
