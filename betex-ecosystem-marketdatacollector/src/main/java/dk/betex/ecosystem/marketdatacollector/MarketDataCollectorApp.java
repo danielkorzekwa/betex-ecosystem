@@ -50,6 +50,10 @@ public class MarketDataCollectorApp {
 		long interval = -1;
 		try {
 			interval = Long.parseLong(intervalData) *1000;
+			if(interval<1000) {
+				System.out.println("Minumum interval is 1 second.");
+				interval=1000;
+			}
 		} catch (NumberFormatException e) {
 			System.out.println("Can't parse polling interval: " + intervalData);
 			System.exit(-1);
