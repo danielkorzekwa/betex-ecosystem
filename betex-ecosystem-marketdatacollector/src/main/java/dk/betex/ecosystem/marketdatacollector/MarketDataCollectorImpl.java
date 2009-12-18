@@ -2,6 +2,9 @@ package dk.betex.ecosystem.marketdatacollector;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import dk.betex.ecosystem.marketdatacollector.task.StoreMarketTradedVolumeTask;
 
 /**
@@ -11,6 +14,8 @@ import dk.betex.ecosystem.marketdatacollector.task.StoreMarketTradedVolumeTask;
  * 
  */
 public class MarketDataCollectorImpl implements MarketDataCollector {
+
+	private static Logger logger = LoggerFactory.getLogger(MarketDataCollectorImpl.class);
 
 	/** What is the market that the traded volume is collected for. */
 	private final long marketId;
@@ -52,15 +57,16 @@ public class MarketDataCollectorImpl implements MarketDataCollector {
 
 		@Override
 		public void run() {
-			try {
 
-				while (!stopped.get()) {
-					storeMarketTradedVolumeTask.execute(marketId);
+			while (!stopped.get()) {
+				try {
 					Thread.sleep(intervalInMillis);
+					storeMarketTradedVolumeTask.execute(marketId);
+				} catch (Exception e) {
+					logger.error("MArketDataCollector error", e);
 				}
-			} catch (Exception e) {
-				throw new RuntimeException(e);
 			}
+
 		}
 	}
 }

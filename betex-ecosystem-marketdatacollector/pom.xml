@@ -19,7 +19,7 @@
 			<testResource>
 				<filtering>false</filtering>
 				<directory>src/test/java</directory>
-			</testResource>	
+			</testResource>
 		</testResources>
 	</build>
 
@@ -41,6 +41,11 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 
 		<!-- test -->

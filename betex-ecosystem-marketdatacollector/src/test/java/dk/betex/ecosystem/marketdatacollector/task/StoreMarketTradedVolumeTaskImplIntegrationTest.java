@@ -22,7 +22,7 @@ import dk.bot.betfairservice.BetFairService;
 import dk.bot.betfairservice.model.BFMarketData;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration
+@ContextConfiguration(locations="/StoreMarketTradedVolumeTask-spring.xml")
 public class StoreMarketTradedVolumeTaskImplIntegrationTest {
 
 	@Resource

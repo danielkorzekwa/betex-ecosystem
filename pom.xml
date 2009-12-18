@@ -129,6 +129,12 @@
 				<version>${spring.version}</version>
 			</dependency>
 
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>1.5.10</version>
+			</dependency>
+
 			<!-- Test dependencies -->
 			<dependency>
 				<groupId>org.springframework</groupId>
