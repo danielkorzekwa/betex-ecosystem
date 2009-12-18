@@ -1,0 +1,24 @@
+<assembly>
+	<id></id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<fileSets>
+		<fileSet>
+			<directory>src/main/assembly/dist</directory>
+			<outputDirectory></outputDirectory>
+			<includes>
+				<include>**/*</include>
+			</includes>
+			<filtered>true</filtered>
+		</fileSet>
+		
+	</fileSets>
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>lib</outputDirectory>
+			<unpack>false</unpack>
+			<scope>runtime</scope>
+		</dependencySet>
+	</dependencySets>
+</assembly>
