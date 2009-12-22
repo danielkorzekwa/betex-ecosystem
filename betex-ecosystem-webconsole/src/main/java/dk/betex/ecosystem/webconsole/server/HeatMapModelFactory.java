@@ -1,9 +1,9 @@
 package dk.betex.ecosystem.webconsole.server;
 
+import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
+import dk.betex.ecosystem.marketdatacollector.model.PriceTradedVolume;
+import dk.betex.ecosystem.marketdatacollector.model.RunnerTradedVolume;
 import dk.betex.ecosystem.webconsole.client.model.HeatMapModel;
-import dk.bot.betfairservice.model.BFMarketTradedVolume;
-import dk.bot.betfairservice.model.BFPriceTradedVolume;
-import dk.bot.betfairservice.model.BFRunnerTradedVolume;
 
 /**
  * Creates MarketTradedVolume object.
@@ -11,7 +11,7 @@ import dk.bot.betfairservice.model.BFRunnerTradedVolume;
  * @author korzekwad
  * 
  */
-public class MarketTradedVolumeFactory {
+public class HeatMapModelFactory {
 
 	/**
 	 * Returns market traded volume for probabilities 0,1,2...100.
@@ -20,7 +20,7 @@ public class MarketTradedVolumeFactory {
 	 *            
 	 * @return
 	 */
-	public static HeatMapModel createHeatMap(BFMarketTradedVolume marketTradedVolume) {
+	public static HeatMapModel createHeatMap(MarketTradedVolume marketTradedVolume) {
 
 		HeatMapModel heatMapModel = new HeatMapModel();
 
@@ -45,9 +45,9 @@ public class MarketTradedVolumeFactory {
 		double[][] values = new double[xAxisSize][yAxisSize];
 		for (int runnerIndex = 0; runnerIndex < marketTradedVolume.getRunnerTradedVolume().size(); runnerIndex++) {
 
-			BFRunnerTradedVolume runnerTradedVolume = marketTradedVolume.getRunnerTradedVolume().get(runnerIndex);
+			RunnerTradedVolume runnerTradedVolume = marketTradedVolume.getRunnerTradedVolume().get(runnerIndex);
 
-			for (BFPriceTradedVolume priceTradedVolume : runnerTradedVolume.getPriceTradedVolume()) {
+			for (PriceTradedVolume priceTradedVolume : runnerTradedVolume.getPriceTradedVolume()) {
 				int prob = (int) ((1 / priceTradedVolume.getPrice()) * 100);
 
 				values[runnerIndex][prob] = priceTradedVolume.getTradedVolume();

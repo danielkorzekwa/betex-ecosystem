@@ -101,6 +101,11 @@
 		<dependencies>
 
 			<!-- #### START OF INTERNAL DEPENDENCIES #### -->
+			<dependency>
+				<groupId>dk.betex.ecosystem</groupId>
+				<artifactId>betex-ecosystem-marketdatacollector</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 			<!-- #### END OF INTERNAL DEPENDENCIES #### -->
 
@@ -159,6 +164,12 @@
 			<name>dk-maven2 maven repository (snapshots)</name>
 			<url>http://dk-maven2-repo.googlecode.com/svn/maven-repo/snapshots</url>
 		</repository>
+		<repository>
+			<id>dist.codehaus.org-mule</id>
+			<name>dist.codehaus.org-mule</name>
+			<url>http://dist.codehaus.org/mule/dependencies/maven2/</url>
+		</repository>
+
 	</repositories>
 
 </project>
