@@ -60,5 +60,20 @@ public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao {
 				MarketTradedVolume.class, options, null);
 		return marketTradedVolume;
 	}
+	
+	@Override
+	public long getNumOfRecords(long marketId) {
+		Options options = new Options();
+		options.group(true);
+		options.key(marketId);
+		ViewResult<Long> queryView = database.queryView("default/countRecordsByMarketId", Long.class, options , null);
+		
+		if(queryView.getRows().size()==1) {
+		return ((Long)queryView.getRows().get(0).getValue()).longValue();
+		}
+		else {
+			return 0;
+		}
+	}
 
 }

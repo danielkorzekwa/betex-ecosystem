@@ -24,4 +24,11 @@ public interface MarketTradedVolumeDao {
 	 * @return
 	 */
 	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to);
+	
+	/**Returns number of timestamped traded volume records in the database for the given market
+	 * 
+	 * @param marketId
+	 * @return
+	 */
+	public long getNumOfRecords(long marketId);
 }

@@ -123,6 +123,30 @@ public class MarketTradedVolumeDaoImplTest {
 		assertEquals(20, marketTradedVolume.getRows().size());
 
 	}
+	
+	@Test
+	public void testGetNumOfRecordsWith20Records() {
+		/** Add market traded volume to the couch db. */
+		List<MarketTradedVolume> marketTradedVolumeList = createMarketTradedVolume(24);
+		for (MarketTradedVolume marketTradedVolume : marketTradedVolumeList) {
+			marketTradedVolueDao.addMarketTradedVolume(marketTradedVolume);
+		}
+
+		/** Get market traded volume from the couch db and check if it's correct. */
+		long numOfRecords = marketTradedVolueDao.getNumOfRecords(marketTradedVolumeList.get(0).getMarketId());
+
+		assertEquals(24, numOfRecords);
+	}
+	
+	@Test
+	public void testGetNumOfRecordsWith0Records() {
+		
+		/** Get market traded volume from the couch db and check if it's correct. */
+		long numOfRecords = marketTradedVolueDao.getNumOfRecords(-1234);
+
+		assertEquals(0, numOfRecords);
+	}
+	
 
 	/**
 	 * Generates timestamped marketTradedVolume records for one market.
