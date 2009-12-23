@@ -64,12 +64,12 @@ public class MarketDataCollectorImplIntegrationTest {
 	public void test() throws Exception {
 		/** Check if market traded volume is stored in database */
 		ViewResult<MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket
-				.getMarketId(), 0, Long.MAX_VALUE);
+				.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 
 		/** Wait 3 seconds, then check if some traded volume records are written to the database. */
 		Thread.sleep(3000);
 		ViewResult<MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket
-				.getMarketId(), 0, Long.MAX_VALUE);
+				.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 		assertTrue("Atleast 4 marketTradedVolume records should be stored in the database.", marketTradedVolumeAfter
 				.getRows().size() >= marketTradedVolumeBefore.getRows().size() + 4);
 
@@ -79,10 +79,10 @@ public class MarketDataCollectorImplIntegrationTest {
 		 */
 		marketDataCollector.stop();
 		Thread.sleep(1000);
-		int before = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0, Long.MAX_VALUE).getRows()
+		int before = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE).getRows()
 				.size();
 		Thread.sleep(3000);
-		int after = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0, Long.MAX_VALUE).getRows()
+		int after = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE).getRows()
 				.size();
 		assertEquals(before, after);
 	}

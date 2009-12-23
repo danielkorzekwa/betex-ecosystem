@@ -52,12 +52,12 @@ public class StoreMarketTradedVolumeTaskImplIntegrationTest {
 			fail("Cannot run test because of betfair market not found on the betting exchange");
 		}
 		
-		ViewResult<MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE);
+		ViewResult<MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
 		
 		storeMarketTradedVolumeTask.execute(hrMarket.getMarketId());
 		
 		/**Check if market traded volume is stored in db*/
-		ViewResult<MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE);
+		ViewResult<MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
 		
 		assertEquals(marketTradedVolumeBefore.getRows().size()+1, marketTradedVolumeAfter.getRows().size());
 	}
@@ -69,13 +69,13 @@ public class StoreMarketTradedVolumeTaskImplIntegrationTest {
 			fail("Cannot run test because of betfair market not found on the betting exchange");
 		}
 		
-		ViewResult<MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE);
+		ViewResult<MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
 		
 		storeMarketTradedVolumeTask.execute(hrMarket.getMarketId());
 		storeMarketTradedVolumeTask.execute(hrMarket.getMarketId());
 		
 		/**Check if market traded volume is stored in db*/
-		ViewResult<MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE);
+		ViewResult<MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
 		
 		assertEquals(marketTradedVolumeBefore.getRows().size()+2, marketTradedVolumeAfter.getRows().size());
 	}

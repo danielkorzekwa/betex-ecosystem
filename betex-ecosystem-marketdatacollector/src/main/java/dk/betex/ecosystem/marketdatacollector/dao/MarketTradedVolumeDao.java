@@ -21,9 +21,10 @@ public interface MarketTradedVolumeDao {
 	 * @param marketId
 	 * @param from Epoch time in milliseconds from 01.01.1970
 	 * @param to Epoch time in milliseconds from 01.01.1970
+	 * @param limit Maximum number of records to be returned. Useful for pagination.
 	 * @return
 	 */
-	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to);
+	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to,int limit);
 	
 	/**Returns number of timestamped traded volume records in the database for the given market
 	 * 

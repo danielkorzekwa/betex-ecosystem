@@ -46,16 +46,18 @@ public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao {
 		database.createDocument(marketTradedVolume);
 	}
 
-	/**
-	 * Returns a history of market traded volume for a given market and period of time.
+	/**Returns history of market traded volume for a given market and period of time.
 	 * 
 	 * @param marketId
-	 * @param from
-	 * @param to
+	 * @param from Epoch time in milliseconds from 01.01.1970
+	 * @param to Epoch time in milliseconds from 01.01.1970
+	 * @param limit Maximum number of records to be returned. Useful for pagination.
+	 * @return
 	 */
 	@Override
-	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to) {
+	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to,int limit) {
 		Options options = new Options().startKey(Arrays.asList(marketId, from)).endKey(Arrays.asList(marketId, to));
+		options.limit(limit);
 		ViewResult<MarketTradedVolume> marketTradedVolume = database.queryView("default/byMarketId",
 				MarketTradedVolume.class, options, null);
 		return marketTradedVolume;

@@ -34,7 +34,7 @@ public class MarketTradedVolumeDaoImplTest {
 
 		/** Get market traded volume from the couch db and check if it's correct. */
 		ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(
-				marketTradedVolume.getMarketId(), marketTradedVolume.getTimestamp(), marketTradedVolume.getTimestamp());
+				marketTradedVolume.getMarketId(), marketTradedVolume.getTimestamp(), marketTradedVolume.getTimestamp(),Integer.MAX_VALUE);
 
 		assertEquals(1, marketTradedVolumeList.getRows().size());
 
@@ -75,7 +75,7 @@ public class MarketTradedVolumeDaoImplTest {
 		/** Get market traded volume from the couch db and check if it's correct. */
 		ViewResult<MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
 				marketTradedVolumeList.get(0).getMarketId(), marketTradedVolumeList.get(0).getTimestamp(),
-				marketTradedVolumeList.get(1).getTimestamp());
+				marketTradedVolumeList.get(1).getTimestamp(),Integer.MAX_VALUE);
 
 		assertEquals(2, marketTradedVolume.getRows().size());
 
@@ -102,7 +102,7 @@ public class MarketTradedVolumeDaoImplTest {
 		/** Get market traded volume from the couch db and check if it's correct. */
 		ViewResult<MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
 				marketTradedVolumeList.get(0).getMarketId(), marketTradedVolumeList.get(0).getTimestamp(),
-				marketTradedVolumeList.get(19).getTimestamp());
+				marketTradedVolumeList.get(19).getTimestamp(),Integer.MAX_VALUE);
 
 		assertEquals(20, marketTradedVolume.getRows().size());
 
@@ -118,9 +118,25 @@ public class MarketTradedVolumeDaoImplTest {
 
 		/** Get market traded volume from the couch db and check if it's correct. */
 		ViewResult<MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
-				marketTradedVolumeList.get(0).getMarketId(), 0, Long.MAX_VALUE);
+				marketTradedVolumeList.get(0).getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 
 		assertEquals(20, marketTradedVolume.getRows().size());
+
+	}
+	
+	@Test
+	public void testGetMarketTradedVolumeMarketWith20RecordsGet10() {
+		/** Add market traded volume to the couch db. */
+		List<MarketTradedVolume> marketTradedVolumeList = createMarketTradedVolume(20);
+		for (MarketTradedVolume marketTradedVolume : marketTradedVolumeList) {
+			marketTradedVolueDao.addMarketTradedVolume(marketTradedVolume);
+		}
+
+		/** Get market traded volume from the couch db and check if it's correct. */
+		ViewResult<MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
+				marketTradedVolumeList.get(0).getMarketId(), 0, Long.MAX_VALUE,10);
+
+		assertEquals(10, marketTradedVolume.getRows().size());
 
 	}
 	
