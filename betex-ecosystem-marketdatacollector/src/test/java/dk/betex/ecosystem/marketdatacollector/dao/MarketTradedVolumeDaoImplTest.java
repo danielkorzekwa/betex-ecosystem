@@ -1,6 +1,7 @@
 package dk.betex.ecosystem.marketdatacollector.dao;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -148,7 +149,7 @@ public class MarketTradedVolumeDaoImplTest {
 			marketTradedVolueDao.addMarketTradedVolume(marketTradedVolume);
 		}
 
-		/** Get market traded volume from the couch db and check if it's correct. */
+		/** Get number of traded volume records from the couch db and check if it's correct. */
 		long numOfRecords = marketTradedVolueDao.getNumOfRecords(marketTradedVolumeList.get(0).getMarketId());
 
 		assertEquals(24, numOfRecords);
@@ -161,6 +162,31 @@ public class MarketTradedVolumeDaoImplTest {
 		long numOfRecords = marketTradedVolueDao.getNumOfRecords(-1234);
 
 		assertEquals(0, numOfRecords);
+	}
+	
+	@Test
+	public void testGetTimeRange() {
+		/** Add market traded volume to the couch db. */
+		List<MarketTradedVolume> marketTradedVolumeList = createMarketTradedVolume(24);
+		for (MarketTradedVolume marketTradedVolume : marketTradedVolumeList) {
+			marketTradedVolueDao.addMarketTradedVolume(marketTradedVolume);
+		}
+
+		/** Get time range of traded volume for market and check if it's correct. */
+		List<Long> timeRange = marketTradedVolueDao.getTimeRange(marketTradedVolumeList.get(0).getMarketId());
+
+		assertEquals(marketTradedVolumeList.get(0).getTimestamp(), timeRange.get(0).longValue());
+		assertEquals(marketTradedVolumeList.get(marketTradedVolumeList.size()-1).getTimestamp(), timeRange.get(1).longValue());
+	}
+	
+	@Test
+	public void testGetTimeRangeMarketDataNotFound() {
+	
+		/** Get time range of traded volume for market and check if it's correct. */
+		List<Long> timeRange = marketTradedVolueDao.getTimeRange(-1234);
+
+		assertNull(timeRange);
+		
 	}
 	
 

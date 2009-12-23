@@ -2,6 +2,7 @@ package dk.betex.ecosystem.marketdatacollector.dao;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 import org.jcouchdb.db.Database;
 import org.jcouchdb.db.Options;
@@ -23,7 +24,7 @@ public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao {
 	public MarketTradedVolumeDaoImpl(Database database) {
 		this.database = database;
 
-		/** Update design docs in database*/
+		/** Update design docs in database */
 		try {
 			File designDocsLocation;
 			designDocsLocation = new File(this.getClass().getClassLoader().getResource("designdocs").toURI());
@@ -46,36 +47,53 @@ public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao {
 		database.createDocument(marketTradedVolume);
 	}
 
-	/**Returns history of market traded volume for a given market and period of time.
+	/**
+	 * Returns history of market traded volume for a given market and period of time.
 	 * 
 	 * @param marketId
-	 * @param from Epoch time in milliseconds from 01.01.1970
-	 * @param to Epoch time in milliseconds from 01.01.1970
-	 * @param limit Maximum number of records to be returned. Useful for pagination.
+	 * @param from
+	 *            Epoch time in milliseconds from 01.01.1970
+	 * @param to
+	 *            Epoch time in milliseconds from 01.01.1970
+	 * @param limit
+	 *            Maximum number of records to be returned. Useful for pagination.
 	 * @return
 	 */
 	@Override
-	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to,int limit) {
+	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to, int limit) {
 		Options options = new Options().startKey(Arrays.asList(marketId, from)).endKey(Arrays.asList(marketId, to));
 		options.limit(limit);
 		ViewResult<MarketTradedVolume> marketTradedVolume = database.queryView("default/byMarketId",
 				MarketTradedVolume.class, options, null);
 		return marketTradedVolume;
 	}
-	
+
 	@Override
 	public long getNumOfRecords(long marketId) {
 		Options options = new Options();
 		options.group(true);
 		options.key(marketId);
-		ViewResult<Long> queryView = database.queryView("default/countRecordsByMarketId", Long.class, options , null);
-		
-		if(queryView.getRows().size()==1) {
-		return ((Long)queryView.getRows().get(0).getValue()).longValue();
-		}
-		else {
+		ViewResult<Long> queryView = database.queryView("default/countRecordsByMarketId", Long.class, options, null);
+
+		if (queryView.getRows().size() == 1) {
+			return ((Long) queryView.getRows().get(0).getValue()).longValue();
+		} else {
 			return 0;
 		}
 	}
 
+	@Override
+	public List<Long> getTimeRange(long marketId) {
+		Options options = new Options();
+		options.group(true);
+		options.key(marketId);
+		ViewResult<List> queryView = database.queryView("default/getTimeRangeByMarketId", List.class, options , null);
+		
+		if(queryView.getRows().size()==1) {	
+		return queryView.getRows().get(0).getValue();
+		}
+		else {
+			return null;
+		}
+	}
 }
