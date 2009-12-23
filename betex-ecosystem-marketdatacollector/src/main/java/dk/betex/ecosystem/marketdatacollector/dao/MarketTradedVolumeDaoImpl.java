@@ -1,28 +1,44 @@
 package dk.betex.ecosystem.marketdatacollector.dao;
 
+import java.io.File;
 import java.util.Arrays;
 
 import org.jcouchdb.db.Database;
 import org.jcouchdb.db.Options;
 import org.jcouchdb.document.ViewResult;
+import org.jcouchdb.util.CouchDBUpdater;
 
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
 
-/** Data access object for a market traded volume on a betting exchange.
- *  Stores data in the Apache CouchDB.
+/**
+ * Data access object for a market traded volume on a betting exchange. Stores data in the Apache CouchDB.
  * 
  * @author korzekwad
- *
+ * 
  */
-public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao{
+public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao {
 
 	private final Database database;
 
 	public MarketTradedVolumeDaoImpl(Database database) {
 		this.database = database;
+
+		/** Update design docs in database*/
+		try {
+			File designDocsLocation;
+			designDocsLocation = new File(this.getClass().getClassLoader().getResource("designdocs").toURI());
+			CouchDBUpdater updater = new CouchDBUpdater();
+			updater.setDatabase(database);
+			updater.setDesignDocumentDir(designDocsLocation);
+			updater.updateDesignDocuments();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
 	}
-	
-	/**Add time stamped record of market traded volume to the database.
+
+	/**
+	 * Add time stamped record of market traded volume to the database.
 	 * 
 	 */
 	@Override
@@ -30,7 +46,8 @@ public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao{
 		database.createDocument(marketTradedVolume);
 	}
 
-	/**Returns a history of market traded volume for a given market and period of time.
+	/**
+	 * Returns a history of market traded volume for a given market and period of time.
 	 * 
 	 * @param marketId
 	 * @param from
@@ -38,9 +55,9 @@ public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao{
 	 */
 	@Override
 	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to) {
-		String fn = "{\"map\" : \"function(doc) {emit([doc.marketId,doc.timestamp],doc);}\"}";
-		Options options = new Options().startKey(Arrays.asList(marketId,from)).endKey(Arrays.asList(marketId,to));
-		ViewResult<MarketTradedVolume> marketTradedVolume = database.queryAdHocView(MarketTradedVolume.class, fn, options,null);
+		Options options = new Options().startKey(Arrays.asList(marketId, from)).endKey(Arrays.asList(marketId, to));
+		ViewResult<MarketTradedVolume> marketTradedVolume = database.queryView("default/byMarketId",
+				MarketTradedVolume.class, options, null);
 		return marketTradedVolume;
 	}
 
