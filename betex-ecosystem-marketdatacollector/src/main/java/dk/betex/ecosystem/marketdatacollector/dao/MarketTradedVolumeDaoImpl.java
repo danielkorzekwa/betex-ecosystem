@@ -23,19 +23,6 @@ public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao {
 
 	public MarketTradedVolumeDaoImpl(Database database) {
 		this.database = database;
-
-		/** Update design docs in database */
-		try {
-			File designDocsLocation;
-			designDocsLocation = new File(this.getClass().getClassLoader().getResource("designdocs").toURI());
-			CouchDBUpdater updater = new CouchDBUpdater();
-			updater.setDatabase(database);
-			updater.setDesignDocumentDir(designDocsLocation);
-			updater.updateDesignDocuments();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
 	}
 
 	/**
@@ -63,7 +50,7 @@ public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao {
 	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to, int limit) {
 		Options options = new Options().startKey(Arrays.asList(marketId, from)).endKey(Arrays.asList(marketId, to));
 		options.limit(limit);
-		ViewResult<MarketTradedVolume> marketTradedVolume = database.queryView("default/byMarketId",
+		ViewResult<MarketTradedVolume> marketTradedVolume = database.queryView("default/byMarketIdAndTimestamp",
 				MarketTradedVolume.class, options, null);
 		return marketTradedVolume;
 	}
