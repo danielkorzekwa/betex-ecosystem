@@ -28,6 +28,8 @@ import dk.bot.betfairservice.model.BFMarketTradedVolume;
 /**
  * Returns traded volume at each price on all of the runners in a particular market.
  * 
+ * A few methods to get traded volume from betfair exchange as well as from database are available.
+ * 
  * @author korzekwad
  * 
  */
@@ -93,15 +95,17 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	}
 	
 	/**
-	 * Returns history of traded volume for a given market.
+	 * Returns history of traded volume for a given market and period of time.
 	 * 
 	 * @param marketId
+	 * @param from Get market traded history from the given time.
+	 * @param to Get market traded history to the given time.
 	 * @param limit Max number of records to be returned by this method.
 	 * @return
 	 */
-	public List<BioHeatMapModel> getMarketTradedVolumeHistory(int marketId, int limit) {
+	public List<BioHeatMapModel> getMarketTradedVolumeHistory(int marketId, long from, long to, int limit) {
 				
-		ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(marketId, 0, Long.MAX_VALUE,limit);
+		ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(marketId, from, to,limit);
 		ArrayList<BioHeatMapModel> heatMapList = new ArrayList<BioHeatMapModel>();
 		
 		for(ValueRow<MarketTradedVolume> valueRow: marketTradedVolumeList.getRows()) {
