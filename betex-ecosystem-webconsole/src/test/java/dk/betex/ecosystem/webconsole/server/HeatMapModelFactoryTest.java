@@ -11,7 +11,7 @@ import org.junit.Test;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
 import dk.betex.ecosystem.marketdatacollector.model.PriceTradedVolume;
 import dk.betex.ecosystem.marketdatacollector.model.RunnerTradedVolume;
-import dk.betex.ecosystem.webconsole.client.model.HeatMapModel;
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
 import dk.bot.betfairservice.model.BFRunnerTradedVolume;
 
 public class HeatMapModelFactoryTest {
@@ -38,7 +38,7 @@ public class HeatMapModelFactoryTest {
 	@Test
 	public void testCreateHeatMap() {
 
-		HeatMapModel heapMap = HeatMapModelFactory
+		BioHeatMapModel heapMap = HeatMapModelFactory
 				.createHeatMap(marketTradedVolume);
 
 		assertEquals(marketTradedVolume.getRunnerTradedVolume().size(), heapMap.getxAxisLabels().length);

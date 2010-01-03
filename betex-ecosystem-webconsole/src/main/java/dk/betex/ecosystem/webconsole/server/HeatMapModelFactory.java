@@ -3,7 +3,7 @@ package dk.betex.ecosystem.webconsole.server;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
 import dk.betex.ecosystem.marketdatacollector.model.PriceTradedVolume;
 import dk.betex.ecosystem.marketdatacollector.model.RunnerTradedVolume;
-import dk.betex.ecosystem.webconsole.client.model.HeatMapModel;
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
 
 /**
  * Creates MarketTradedVolume object.
@@ -20,9 +20,9 @@ public class HeatMapModelFactory {
 	 *            
 	 * @return
 	 */
-	public static HeatMapModel createHeatMap(MarketTradedVolume marketTradedVolume) {
+	public static BioHeatMapModel createHeatMap(MarketTradedVolume marketTradedVolume) {
 
-		HeatMapModel heatMapModel = new HeatMapModel();
+		BioHeatMapModel heatMapModel = new BioHeatMapModel();
 
 		/** Set x-axis labels */
 		int xAxisSize = marketTradedVolume.getRunnerTradedVolume().size();

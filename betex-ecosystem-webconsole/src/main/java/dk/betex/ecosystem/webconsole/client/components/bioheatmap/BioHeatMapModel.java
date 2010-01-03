@@ -1,13 +1,13 @@
-package dk.betex.ecosystem.webconsole.client.model;
+package dk.betex.ecosystem.webconsole.client.components.bioheatmap;
 
 import java.io.Serializable;
 
-/** Data model for a heat map chart.
+/** Data model for the bioheatmap panel.
  * 
  * @author korzekwad
  *
  */
-public class HeatMapModel implements Serializable{
+public class BioHeatMapModel implements Serializable{
 
 	/** Labels for x-axis.*/
 	private String[] xAxisLabels;
@@ -15,7 +15,7 @@ public class HeatMapModel implements Serializable{
 	/** Labels for y-axis.*/
 	private String[] yAxisLabels;
 	
-	/**[x][y] - value for (x,y) coordinates of a heat map chart.*/
+	/**[x][y] - value for (x,y) coordinates of a heat map.*/
 	private double[][] values;
 
 	public String[] getxAxisLabels() {

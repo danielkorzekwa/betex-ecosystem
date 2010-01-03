@@ -18,7 +18,7 @@ import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDaoImpl;
 import dk.betex.ecosystem.marketdatacollector.factory.MarketTradedVolumeFactory;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
-import dk.betex.ecosystem.webconsole.client.model.HeatMapModel;
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
 import dk.bot.betfairservice.BetFairService;
 import dk.bot.betfairservice.DefaultBetFairServiceFactoryBean;
@@ -61,14 +61,14 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	}
 	
 	@Override
-	public HeatMapModel getMarketTradedVolume(int marketId) {
+	public BioHeatMapModel getMarketTradedVolume(int marketId) {
 		try {
 		BFMarketTradedVolume bfMarketTradedVolume = betfairService.getMarketTradedVolume(marketId);
 		BFMarketDetails marketDetails = betfairService.getMarketDetails(marketId);
 		
 		MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume, new Date(System.currentTimeMillis()));
 		
-		HeatMapModel marketHeatMap = HeatMapModelFactory
+		BioHeatMapModel marketHeatMap = HeatMapModelFactory
 				.createHeatMap(marketTradedVolume);
 		
 		/**Replace selectionId with selectionName*/
@@ -96,17 +96,18 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	 * Returns history of traded volume for a given market.
 	 * 
 	 * @param marketId
+	 * @param limit Max number of records to be returned by this method.
 	 * @return
 	 */
-	public List<HeatMapModel> getMarketTradedVolumeHistory(int marketId) {
+	public List<BioHeatMapModel> getMarketTradedVolumeHistory(int marketId, int limit) {
 				
-		ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(marketId, 0, Long.MAX_VALUE);
-		ArrayList<HeatMapModel> heatMapList = new ArrayList<HeatMapModel>();
+		ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(marketId, 0, Long.MAX_VALUE,limit);
+		ArrayList<BioHeatMapModel> heatMapList = new ArrayList<BioHeatMapModel>();
 		
 		for(ValueRow<MarketTradedVolume> valueRow: marketTradedVolumeList.getRows()) {
 			MarketTradedVolume marketTradedVolume =  valueRow.getValue();
 			
-			HeatMapModel marketHeatMap = HeatMapModelFactory
+			BioHeatMapModel marketHeatMap = HeatMapModelFactory
 					.createHeatMap(marketTradedVolume);
 				
 			/**Change probabilities to prices*/
@@ -119,6 +120,16 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 		}
 		
 		return heatMapList;
+	}
+	
+	@Override
+	public long getNumOfRecords(long marketId) {
+		return marketTradedVolueDao.getNumOfRecords(marketId);
+	}
+	
+	@Override
+	public List<Long> getTimeRange(long marketId) {
+		return marketTradedVolueDao.getTimeRange(marketId);
 	}
 
 }
