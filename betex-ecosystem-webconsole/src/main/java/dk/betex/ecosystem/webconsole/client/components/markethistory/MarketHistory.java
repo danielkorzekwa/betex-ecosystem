@@ -23,7 +23,7 @@ import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeServiceAsync;
 
 /**
- * Displays market traded volume based on a historical data. Slider bar is available to move forward/backwards over the
+ * Displays market traded volume as a bioHeatMap for a historical data. Slider bar is available to move forward/backwards over the
  * time.
  * 
  * @author korzekwad
@@ -49,7 +49,7 @@ public class MarketHistory extends Composite {
 		initWidget(mainPanel);
 	}
 
-	/** Displays heat map animation for a market traded volume based on a historical data */
+	/** Displays heat map animation for a market traded volume for a historical data. */
 	private class DisplayMarketHeatMapAction implements ClickHandler {
 
 		@Override

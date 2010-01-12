@@ -19,7 +19,7 @@
 
 	<properties>
 		<!-- convenience to define GWT version in one place -->
-		<gwt.version>1.7.1</gwt.version>
+		<gwt.version>2.0.0</gwt.version>	
 	</properties>
 
 	<dependencies>
@@ -46,6 +46,7 @@
 			<version>${gwt.version}</version>
 			<scope>provided</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>com.google.gwt</groupId>
 			<artifactId>gwt-incubator</artifactId>
@@ -72,7 +73,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>gwt-maven-plugin</artifactId>
-				<version>1.1</version>
+				<version>1.2</version>
 				<configuration>
 					<runTarget>
 						betexecosystem/Application.html
