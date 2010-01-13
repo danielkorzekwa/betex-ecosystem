@@ -6,8 +6,8 @@ import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.visualization.client.VisualizationUtils;
 import com.google.gwt.visualization.client.visualizations.PieChart;
 
-import dk.betex.ecosystem.webconsole.client.components.markethistory.MarketHistory;
-import dk.betex.ecosystem.webconsole.client.components.marketview.MarketView;
+import dk.betex.ecosystem.webconsole.client.modules.markethistory.MarketHistory;
+import dk.betex.ecosystem.webconsole.client.modules.marketview.MarketView;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.

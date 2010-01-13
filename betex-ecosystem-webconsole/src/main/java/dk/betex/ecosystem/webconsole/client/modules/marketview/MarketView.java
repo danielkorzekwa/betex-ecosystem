@@ -1,4 +1,4 @@
-package dk.betex.ecosystem.webconsole.client.components.marketview;
+package dk.betex.ecosystem.webconsole.client.modules.marketview;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
