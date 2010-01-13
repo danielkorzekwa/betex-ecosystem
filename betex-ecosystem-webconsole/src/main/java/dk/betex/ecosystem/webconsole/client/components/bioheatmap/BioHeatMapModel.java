@@ -1,13 +1,13 @@
 package dk.betex.ecosystem.webconsole.client.components.bioheatmap;
 
-import java.io.Serializable;
+import com.google.gwt.user.client.rpc.IsSerializable;
 
 /** Data model for the bioheatmap panel.
  * 
  * @author korzekwad
  *
  */
-public class BioHeatMapModel implements Serializable{
+public class BioHeatMapModel implements IsSerializable{
 
 	/** Labels for x-axis.*/
 	private String[] xAxisLabels;
@@ -40,6 +40,17 @@ public class BioHeatMapModel implements Serializable{
 
 	public void setValues(double[][] values) {
 		this.values = values;
+	}
+	
+	/**Returns sum of all values for all cells in the matrix.*/
+	public double getTotal() {
+		double total=0;
+		for(int i=0;i<values.length;i++) {
+			for(int j=0;j<values[i].length;j++) {
+				total += values[i][j];
+			}
+		}
+		return total;
 	}
 	
 }
