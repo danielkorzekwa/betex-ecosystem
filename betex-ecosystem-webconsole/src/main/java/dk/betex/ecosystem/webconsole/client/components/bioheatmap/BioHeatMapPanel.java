@@ -1,6 +1,5 @@
 package dk.betex.ecosystem.webconsole.client.components.bioheatmap;
 
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
