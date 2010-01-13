@@ -147,7 +147,9 @@ public class MarketHistory extends Composite {
 										bioHeatMapPanel = new BioHeatMapPanel(bioHeatMapModel.get(0));
 										mainPanel.add(bioHeatMapPanel);
 									} else {
-										bioHeatMapPanel.update(bioHeatMapModel.get(0));
+										mainPanel.remove(bioHeatMapPanel);
+										bioHeatMapPanel = new BioHeatMapPanel(bioHeatMapModel.get(0));
+										mainPanel.add(bioHeatMapPanel);
 									}
 									GWT.log("getMarketTradedVolumeHistory success", null);
 								}
