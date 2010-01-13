@@ -52,6 +52,19 @@ public class MarketTradedVolume extends BaseDocument implements Serializable {
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
+	
+	/**Returns total traded volume on market.*/
+	public double getTotalTradedVolume() {
+		double totalTradedVolume=0;
+		
+		for(RunnerTradedVolume tradedVolume: this.runnerTradedVolume) {
+			for(PriceTradedVolume priceTradedVolume: tradedVolume.getPriceTradedVolume()) {
+				totalTradedVolume+=priceTradedVolume.getTradedVolume();
+			}
+		}
+		
+		return totalTradedVolume;
+	}
 
 	@Override
 	public String toString() {

@@ -50,7 +50,7 @@ public class HeatMapModelFactory {
 			for (PriceTradedVolume priceTradedVolume : runnerTradedVolume.getPriceTradedVolume()) {
 				int prob = (int) ((1 / priceTradedVolume.getPrice()) * 100);
 
-				values[runnerIndex][prob] = priceTradedVolume.getTradedVolume();
+				values[runnerIndex][prob] += priceTradedVolume.getTradedVolume();
 			}
 		}
 		heatMapModel.setValues(values);
