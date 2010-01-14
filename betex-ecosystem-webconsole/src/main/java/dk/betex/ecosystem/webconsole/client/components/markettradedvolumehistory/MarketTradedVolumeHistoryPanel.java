@@ -4,9 +4,14 @@ import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ChangeListener;
+import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
@@ -21,13 +26,16 @@ import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeServiceAsync;
 
 /**
- * Displays history of market traded volume as bio heat map. Slider bar allows to move forward/backwards over the
- * time (similar to playing videos).
+ * Displays history of market traded volume as bio heat map. Slider bar allows to move forward/backwards over the time
+ * (similar to playing videos).
  * 
  * @author korzekwad
  * 
  */
 public class MarketTradedVolumeHistoryPanel extends Composite {
+
+	private final static String PLAY = "play";
+	private final static String PAUSE = "pause";
 
 	private final MarketTradedVolumeServiceAsync service = GWT.create(MarketTradedVolumeService.class);
 
@@ -39,16 +47,21 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 	private Panel mainPanel = new VerticalPanel();
 	private BioHeatMapPanel bioHeatMapPanel;
 	private Label legendLabel = new Label("");
+	private Button playButton = new Button(PLAY);
+	private TextBox playSpeed = new TextBox();
+	private Label errorLabel = new Label();
 	private SliderBar slider;
 
-	/**The range min/max allows to zoom in/out inside the market traded volume and to analyse given range of probabilities in more details.
+	/**
+	 * The range min/max allows to zoom in/out inside the market traded volume and to analyse given range of
+	 * probabilities in more details.
 	 * 
 	 * @param marketId
 	 * @param timeRange
 	 * @param minProb
 	 * @param maxProb
 	 */
-	public MarketTradedVolumeHistoryPanel(int marketId, List<Long> timeRange,double minProb, double maxProb) {
+	public MarketTradedVolumeHistoryPanel(int marketId, List<Long> timeRange, double minProb, double maxProb) {
 		this.marketId = marketId;
 		this.timeRange = timeRange;
 		this.minProb = minProb;
@@ -59,7 +72,12 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 
 	private void build() {
 		mainPanel.setWidth("100%");
-	
+
+		mainPanel.add(playButton);
+		playSpeed.setText("20");
+		mainPanel.add(playSpeed);
+		mainPanel.add(errorLabel);
+
 		slider = new SliderBar(timeRange.get(0), timeRange.get(timeRange.size() - 1));
 		slider.setStepSize(1.0);
 		slider.setCurrentValue(timeRange.get(0));
@@ -69,19 +87,50 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 		mainPanel.add(legendLabel);
 		mainPanel.add(slider);
 
+		playButton.addClickHandler(new PlayPauseAction(sliderChangeListener));
+
 		initWidget(mainPanel);
+	}
+
+	private class PlayPauseAction implements ClickHandler {
+
+		private final Timer timer;
+		private final SliderChangeListener sliderChangeListener;
+
+		public PlayPauseAction(SliderChangeListener listener) {
+			this.sliderChangeListener = listener;
+			timer = new Timer() {
+
+				@Override
+				public void run() {
+					slider.setCurrentValue(slider.getCurrentValue() + 100*Integer.parseInt(playSpeed.getText()));
+						sliderChangeListener.onChange(slider);
+				}
+			};
+		}
+
+		@Override
+		public void onClick(ClickEvent arg0) {
+			if (playButton.getText().equals(PLAY)) {
+				timer.scheduleRepeating(100);
+				playButton.setText(PAUSE);
+			} else if (playButton.getText().equals(PAUSE)) {
+				timer.cancel();
+				playButton.setText(PLAY);
+			}
+		}
 	}
 
 	private class SliderChangeListener implements ChangeListener {
 		@Override
 		public void onChange(Widget arg0) {
-			service.getMarketTradedVolumeHistory(marketId, (long) slider.getCurrentValue(), Long.MAX_VALUE, 1,minProb,maxProb,
-					new AsyncCallback<List<BioHeatMapModel>>() {
+			service.getMarketTradedVolumeHistory(marketId, (long) slider.getCurrentValue(), Long.MAX_VALUE, 1, minProb,
+					maxProb, new AsyncCallback<List<BioHeatMapModel>>() {
 
 						@Override
 						public void onFailure(Throwable t) {
 							GWT.log("failed", t);
-							Window.alert("GetMarketTradedVolumeHistory failed. " + t.getMessage());
+							errorLabel.setText(new Date() + ": " + t.getLocalizedMessage());
 						}
 
 						@Override
@@ -105,6 +154,5 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 					});
 		}
 	}
-	
-	
+
 }
