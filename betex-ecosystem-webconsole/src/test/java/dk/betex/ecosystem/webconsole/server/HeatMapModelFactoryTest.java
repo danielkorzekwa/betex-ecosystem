@@ -39,7 +39,7 @@ public class HeatMapModelFactoryTest {
 	public void testCreateHeatMap() {
 
 		BioHeatMapModel heapMap = HeatMapModelFactory
-				.createHeatMap(marketTradedVolume);
+				.createHeatMap(marketTradedVolume,0,1);
 
 		assertEquals(marketTradedVolume.getRunnerTradedVolume().size(), heapMap.getxAxisLabels().length);
 		assertEquals(101, heapMap.getyAxisLabels().length);

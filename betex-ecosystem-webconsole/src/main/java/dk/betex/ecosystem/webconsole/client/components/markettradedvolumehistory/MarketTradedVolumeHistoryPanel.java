@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.widgetideas.client.SliderBar;
@@ -32,22 +33,33 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 
 	private final int marketId;
 	private final List<Long> timeRange;
+	private final double minProb;
+	private final double maxProb;
 
 	private Panel mainPanel = new VerticalPanel();
 	private BioHeatMapPanel bioHeatMapPanel;
 	private Label legendLabel = new Label("");
 	private SliderBar slider;
 
-	public MarketTradedVolumeHistoryPanel(int marketId, List<Long> timeRange) {
+	/**The range min/max allows to zoom in/out inside the market traded volume and to analyse given range of probabilities in more details.
+	 * 
+	 * @param marketId
+	 * @param timeRange
+	 * @param minProb
+	 * @param maxProb
+	 */
+	public MarketTradedVolumeHistoryPanel(int marketId, List<Long> timeRange,double minProb, double maxProb) {
 		this.marketId = marketId;
 		this.timeRange = timeRange;
+		this.minProb = minProb;
+		this.maxProb = maxProb;
 
 		build();
 	}
 
 	private void build() {
 		mainPanel.setWidth("100%");
-
+	
 		slider = new SliderBar(timeRange.get(0), timeRange.get(timeRange.size() - 1));
 		slider.setStepSize(1.0);
 		slider.setCurrentValue(timeRange.get(0));
@@ -63,7 +75,7 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 	private class SliderChangeListener implements ChangeListener {
 		@Override
 		public void onChange(Widget arg0) {
-			service.getMarketTradedVolumeHistory(marketId, (long) slider.getCurrentValue(), Long.MAX_VALUE, 1,
+			service.getMarketTradedVolumeHistory(marketId, (long) slider.getCurrentValue(), Long.MAX_VALUE, 1,minProb,maxProb,
 					new AsyncCallback<List<BioHeatMapModel>>() {
 
 						@Override
@@ -93,4 +105,6 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 					});
 		}
 	}
+	
+	
 }

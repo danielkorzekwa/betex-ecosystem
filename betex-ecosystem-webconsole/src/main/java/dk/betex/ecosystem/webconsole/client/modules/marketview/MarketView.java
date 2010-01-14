@@ -34,6 +34,7 @@ public class MarketView extends Composite {
 
 	public MarketView() {
 
+		mainPanel.add(new Label("Enter marketId:"));
 		mainPanel.add(marketIdTextBox);
 		final Button displayMarket = new Button("Display market.");
 		mainPanel.add(displayMarket);

@@ -14,13 +14,19 @@ import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapMode
 public class HeatMapModelFactory {
 
 	/**
-	 * Returns market traded volume for probabilities 0,1,2...100.
+	 * Returns market traded volume in a form of bio heat map. The range min/max allows to zoom in/out inside the
+	 * market traded volume and to analyse given range of probabilities in more details.
 	 * 
 	 * @param marketTradedVolume
-	 *            
+	 * @param min
+	 *            Minimum probability of traded volume that the heat map model is created for. From 0 to 1
+	 * @param max
+	 *            Maximum probability of traded volume that the heat map model is created for. From 0 to 1
+	 * 
+	 * 
 	 * @return
 	 */
-	public static BioHeatMapModel createHeatMap(MarketTradedVolume marketTradedVolume) {
+	public static BioHeatMapModel createHeatMap(MarketTradedVolume marketTradedVolume, double min, double max) {
 
 		BioHeatMapModel heatMapModel = new BioHeatMapModel();
 
@@ -37,7 +43,7 @@ public class HeatMapModelFactory {
 		int yAxisSize = 101;
 		String[] yAxisLabels = new String[yAxisSize];
 		for (int i = 0; i < yAxisSize; i++) {
-			yAxisLabels[i] = "" + i;
+			yAxisLabels[i] = "" + ((double)i/100  * (max - min) + min);
 		}
 		heatMapModel.setyAxisLabels(yAxisLabels);
 
@@ -48,13 +54,15 @@ public class HeatMapModelFactory {
 			RunnerTradedVolume runnerTradedVolume = marketTradedVolume.getRunnerTradedVolume().get(runnerIndex);
 
 			for (PriceTradedVolume priceTradedVolume : runnerTradedVolume.getPriceTradedVolume()) {
-				int prob = (int) ((1 / priceTradedVolume.getPrice()) * 100);
-
-				values[runnerIndex][prob] += priceTradedVolume.getTradedVolume();
+				double prob = 1 / priceTradedVolume.getPrice();
+				if (prob >= min && prob <= max) {
+					double scaledProb = (prob - min) / (max - min);
+					values[runnerIndex][(int) (scaledProb * 100)] += priceTradedVolume.getTradedVolume();
+				}
 			}
 		}
 		heatMapModel.setValues(values);
-		
+
 		return heatMapModel;
 	}
 

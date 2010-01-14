@@ -41,12 +41,14 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	@Override
 	public void init() throws ServletException {
 
-		/**Init betfair service*/
+		/** Init betfair service */
 		DefaultBetFairServiceFactoryBean betfairServiceFactoryBean = new DefaultBetFairServiceFactoryBean();
 		String user = System.getenv("dk.betex.ecosystem.webconsole.bfUser");
-		if(user==null) throw new IllegalStateException("System property is not set: dk.betex.ecosystem.webconsole.bfUser");
+		if (user == null)
+			throw new IllegalStateException("System property is not set: dk.betex.ecosystem.webconsole.bfUser");
 		String pass = System.getenv("dk.betex.ecosystem.webconsole.bfPass");
-		if(pass==null) throw new IllegalStateException("System property is not set: dk.betex.ecosystem.webconsole.bfPass");
+		if (pass == null)
+			throw new IllegalStateException("System property is not set: dk.betex.ecosystem.webconsole.bfPass");
 		betfairServiceFactoryBean.setUser(user);
 		betfairServiceFactoryBean.setPassword(pass);
 		betfairServiceFactoryBean.setProductId(82);
@@ -56,81 +58,85 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		
-		/**Init marketTradedVolumeDao*/
+
+		/** Init marketTradedVolumeDao */
 		Database database = new Database("10.2.2.72", "market_traded_volume");
 		marketTradedVolueDao = new MarketTradedVolumeDaoImpl(database);
 	}
-	
+
 	@Override
 	public BioHeatMapModel getMarketTradedVolume(int marketId) {
 		try {
-		BFMarketTradedVolume bfMarketTradedVolume = betfairService.getMarketTradedVolume(marketId);
-		BFMarketDetails marketDetails = betfairService.getMarketDetails(marketId);
-		
-		MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume, new Date(System.currentTimeMillis()));
-		
-		BioHeatMapModel marketHeatMap = HeatMapModelFactory
-				.createHeatMap(marketTradedVolume);
-		
-		/**Replace selectionId with selectionName*/
-		for(int i=0;i<marketHeatMap.getxAxisLabels().length;i++) {
-			int selectionId = Integer.parseInt(marketHeatMap.getxAxisLabels()[i]);
-			String selectionName = marketDetails.getSelectionName(selectionId);
-			marketHeatMap.getxAxisLabels()[i]=selectionName;
-		}
-		
-		/**Change probabilities to prices*/
-		for(int i=0;i<marketHeatMap.getyAxisLabels().length;i++) {
-			double price = Double.parseDouble(marketHeatMap.getyAxisLabels()[i])/100d;
-			marketHeatMap.getyAxisLabels()[i] = "" + MathUtils.round(1d/price,2);
-		}
-		
-		return marketHeatMap;
-		}
-		catch(Exception e) {
-			LogFactory.getLog(this.getClass()).error("Can't get market traded volume for market: " + marketId,e);
+			BFMarketTradedVolume bfMarketTradedVolume = betfairService.getMarketTradedVolume(marketId);
+			BFMarketDetails marketDetails = betfairService.getMarketDetails(marketId);
+
+			MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume, new Date(
+					System.currentTimeMillis()));
+
+			BioHeatMapModel marketHeatMap = HeatMapModelFactory.createHeatMap(marketTradedVolume, 0, 100);
+
+			/** Replace selectionId with selectionName */
+			for (int i = 0; i < marketHeatMap.getxAxisLabels().length; i++) {
+				int selectionId = Integer.parseInt(marketHeatMap.getxAxisLabels()[i]);
+				String selectionName = marketDetails.getSelectionName(selectionId);
+				marketHeatMap.getxAxisLabels()[i] = selectionName;
+			}
+
+			/** Change probabilities to prices */
+			for (int i = 0; i < marketHeatMap.getyAxisLabels().length; i++) {
+				double price = Double.parseDouble(marketHeatMap.getyAxisLabels()[i]) / 100d;
+				marketHeatMap.getyAxisLabels()[i] = "" + MathUtils.round(1d / price, 2);
+			}
+
+			return marketHeatMap;
+		} catch (Exception e) {
+			LogFactory.getLog(this.getClass()).error("Can't get market traded volume for market: " + marketId, e);
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	/**
-	 * Returns history of traded volume for a given market and period of time.
+	 * Returns history of traded volume for a given market and period of time. The range min/max allows to zoom in/out
+	 * inside the market traded volume and to analyse given range of probabilities in more details.
 	 * 
 	 * @param marketId
-	 * @param from Get market traded history from the given time.
-	 * @param to Get market traded history to the given time.
-	 * @param limit Max number of records to be returned by this method.
+	 * @param from
+	 *            Get market traded history from the given time.
+	 * @param to
+	 *            Get market traded history to the given time.
+	 * @param limit
+	 *            Max number of records to be returned by this method.
 	 * @return
 	 */
-	public List<BioHeatMapModel> getMarketTradedVolumeHistory(int marketId, long from, long to, int limit) {
-				
-		ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(marketId, from, to,limit);
+	public List<BioHeatMapModel> getMarketTradedVolumeHistory(int marketId, long from, long to, int limit,
+			double probMin, double probMax) {
+
+		ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(marketId,
+				from, to, limit);
 		ArrayList<BioHeatMapModel> heatMapList = new ArrayList<BioHeatMapModel>();
-		
-		for(ValueRow<MarketTradedVolume> valueRow: marketTradedVolumeList.getRows()) {
-			MarketTradedVolume marketTradedVolume =  valueRow.getValue();
-			
-			BioHeatMapModel marketHeatMap = HeatMapModelFactory
-					.createHeatMap(marketTradedVolume);
-				
-			/**Change probabilities to prices*/
-			for(int i=0;i<marketHeatMap.getyAxisLabels().length;i++) {
-				double price = Double.parseDouble(marketHeatMap.getyAxisLabels()[i])/100d;
-				marketHeatMap.getyAxisLabels()[i] = "" + MathUtils.round(1d/price,2);
+
+		for (ValueRow<MarketTradedVolume> valueRow : marketTradedVolumeList.getRows()) {
+			MarketTradedVolume marketTradedVolume = valueRow.getValue();
+
+			BioHeatMapModel marketHeatMap = HeatMapModelFactory.createHeatMap(marketTradedVolume, probMin, probMax);
+
+			/** Change probabilities to prices */
+			for (int i = 0; i < marketHeatMap.getyAxisLabels().length; i++) {
+				double prob = Double.parseDouble(marketHeatMap.getyAxisLabels()[i]);
+				marketHeatMap.getyAxisLabels()[i] = "" + MathUtils.round(1d / prob, 2);
 			}
-			
+
 			heatMapList.add(marketHeatMap);
 		}
-		
+
 		return heatMapList;
 	}
-	
+
 	@Override
 	public long getNumOfRecords(long marketId) {
 		return marketTradedVolueDao.getNumOfRecords(marketId);
 	}
-	
+
 	@Override
 	public List<Long> getTimeRange(long marketId) {
 		return marketTradedVolueDao.getTimeRange(marketId);

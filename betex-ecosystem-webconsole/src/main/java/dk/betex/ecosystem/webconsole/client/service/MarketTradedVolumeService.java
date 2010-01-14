@@ -28,15 +28,19 @@ public interface MarketTradedVolumeService extends RemoteService {
 	public BioHeatMapModel getMarketTradedVolume(int marketId);
 
 	/**
-	 * Returns history of traded volume for a given market and period of time.
+	 * Returns history of traded volume for a given market and period of time. The range min/max allows to zoom in/out
+	 * inside the market traded volume and to analyse given range of probabilities in more details.
 	 * 
 	 * @param marketId
-	 * @param from Get market traded history from the given time.
-	 * @param to Get market traded history to the given time.
-	 * @param limit Max number of records to be returned by this method.
+	 * @param from
+	 *            Get market traded history from the given time.
+	 * @param to
+	 *            Get market traded history to the given time.
+	 * @param limit
+	 *            Max number of records to be returned by this method.
 	 * @return
 	 */
-	public List<BioHeatMapModel> getMarketTradedVolumeHistory(int marketId, long from, long to, int limit);
+	public List<BioHeatMapModel> getMarketTradedVolumeHistory(int marketId, long from, long to, int limit,double probMin, double probMax);
 	
 	/**Returns number of time stamped traded volume records in the database for the given market.
 	 * 

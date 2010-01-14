@@ -9,6 +9,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -30,11 +31,19 @@ public class MarketHistory extends Composite {
 
 	private final VerticalPanel mainPanel = new VerticalPanel();
 	private final TextBox marketIdTextBox = new TextBox();
+	private final TextBox minProb = new TextBox();
+	private final TextBox maxProb = new TextBox();
 	private final Panel heatMapPanel = new VerticalPanel();
 
 	public MarketHistory() {
-
+		
+		mainPanel.add(new Label("Enter marketId, min and max probabilities:"));
 		mainPanel.add(marketIdTextBox);
+		minProb.setText("0");
+		maxProb.setText("1");
+		mainPanel.add(minProb);
+		mainPanel.add(maxProb);
+		
 		final Button displayMarket = new Button("Display market.");
 		mainPanel.add(displayMarket);
 		mainPanel.add(heatMapPanel);
@@ -65,7 +74,7 @@ public class MarketHistory extends Composite {
 
 					@Override
 					public void onSuccess(final List<Long> timeRange) {
-						heatMapPanel.add(new MarketTradedVolumeHistoryPanel(marketId, timeRange));
+						heatMapPanel.add(new MarketTradedVolumeHistoryPanel(marketId, timeRange,Double.parseDouble(minProb.getText()),Double.parseDouble(maxProb.getText())));
 					}
 				});
 
