@@ -34,6 +34,8 @@ public class MarketHistory extends Composite {
 	private final TextBox minProb = new TextBox();
 	private final TextBox maxProb = new TextBox();
 	private final Panel heatMapPanel = new VerticalPanel();
+	
+	private MarketTradedVolumeHistoryPanel marketTradedVolumeHistoryPanel;
 
 	public MarketHistory() {
 		
@@ -74,7 +76,11 @@ public class MarketHistory extends Composite {
 
 					@Override
 					public void onSuccess(final List<Long> timeRange) {
-						heatMapPanel.add(new MarketTradedVolumeHistoryPanel(marketId, timeRange,Double.parseDouble(minProb.getText()),Double.parseDouble(maxProb.getText())));
+						if(marketTradedVolumeHistoryPanel!=null) {
+							marketTradedVolumeHistoryPanel.stopAnimation();
+						}
+						marketTradedVolumeHistoryPanel = new MarketTradedVolumeHistoryPanel(marketId, timeRange,Double.parseDouble(minProb.getText()),Double.parseDouble(maxProb.getText()));
+						heatMapPanel.add(marketTradedVolumeHistoryPanel);
 					}
 				});
 

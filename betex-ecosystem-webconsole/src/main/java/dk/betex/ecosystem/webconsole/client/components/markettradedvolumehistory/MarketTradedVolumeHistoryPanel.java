@@ -51,6 +51,8 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 	private TextBox playSpeed = new TextBox();
 	private Label errorLabel = new Label();
 	private SliderBar slider;
+	
+	private PlayPauseAction playPauseAction;
 
 	/**
 	 * The range min/max allows to zoom in/out inside the market traded volume and to analyse given range of
@@ -68,6 +70,11 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 		this.maxProb = maxProb;
 
 		build();
+	}
+	
+	/**Stop animation of historical data.*/
+	public void stopAnimation() {
+		playPauseAction.stopAnimation();
 	}
 
 	private void build() {
@@ -87,7 +94,8 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 		mainPanel.add(legendLabel);
 		mainPanel.add(slider);
 
-		playButton.addClickHandler(new PlayPauseAction(sliderChangeListener));
+		playPauseAction = new PlayPauseAction(sliderChangeListener);
+		playButton.addClickHandler(playPauseAction);
 
 		initWidget(mainPanel);
 	}
@@ -108,7 +116,12 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 				}
 			};
 		}
-
+		
+		/**Stop animation of historical data.*/
+		public void stopAnimation() {
+			timer.cancel();
+		}
+		
 		@Override
 		public void onClick(ClickEvent arg0) {
 			if (playButton.getText().equals(PLAY)) {
