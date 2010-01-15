@@ -1,0 +1,14 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui">
+
+	<g:VerticalPanel>
+		<g:Label text="MarketId" />
+		<g:TextBox ui:field="marketIdTextBox" />
+		<g:Button ui:field="displayMarketButton" text="Display market" />
+
+		<g:Label ui:field="statusBar" />
+		<g:VerticalPanel ui:field="heatMapPanel" />
+	</g:VerticalPanel>
+
+</ui:UiBinder> 

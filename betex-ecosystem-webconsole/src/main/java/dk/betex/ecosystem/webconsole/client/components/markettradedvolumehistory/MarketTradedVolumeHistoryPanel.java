@@ -6,17 +6,19 @@ import java.util.List;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiFactory;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ChangeListener;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.widgetideas.client.SliderBar;
 
@@ -34,8 +36,13 @@ import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeServiceAsy
  */
 public class MarketTradedVolumeHistoryPanel extends Composite {
 
-	private final static String PLAY = "play";
-	private final static String PAUSE = "pause";
+	interface MyUiBinder extends UiBinder<Widget, MarketTradedVolumeHistoryPanel> {
+	}
+
+	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
+
+	private final static String PLAY = "Play";
+	private final static String PAUSE = "Pause";
 
 	private final MarketTradedVolumeServiceAsync service = GWT.create(MarketTradedVolumeService.class);
 
@@ -44,16 +51,17 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 	private final double minProb;
 	private final double maxProb;
 
-	private Panel mainPanel = new VerticalPanel();
+	@UiField Panel mainPanel;
+	@UiField Button playButton;
+	@UiField TextBox playSpeed;
+	@UiField Label errorLabel;
+	@UiField Label legendLabel;
+	@UiField SliderBar slider;
 	private BioHeatMapPanel bioHeatMapPanel;
-	private Label legendLabel = new Label("");
-	private Button playButton = new Button(PLAY);
-	private TextBox playSpeed = new TextBox();
-	private Label errorLabel = new Label();
-	private SliderBar slider;
 	
-	private PlayPauseAction playPauseAction;
-
+	/**Plays animation of historical market data.*/
+	private final Timer timer;
+	
 	/**
 	 * The range min/max allows to zoom in/out inside the market traded volume and to analyse given range of
 	 * probabilities in more details.
@@ -69,71 +77,44 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 		this.minProb = minProb;
 		this.maxProb = maxProb;
 
-		build();
-	}
-	
-	/**Stop animation of historical data.*/
-	public void stopAnimation() {
-		playPauseAction.stopAnimation();
-	}
+		initWidget(uiBinder.createAndBindUi(this));
 
-	private void build() {
-		mainPanel.setWidth("100%");
-
-		mainPanel.add(playButton);
-		playSpeed.setText("20");
-		mainPanel.add(playSpeed);
-		mainPanel.add(errorLabel);
-
-		slider = new SliderBar(timeRange.get(0), timeRange.get(timeRange.size() - 1));
-		slider.setStepSize(1.0);
-		slider.setCurrentValue(timeRange.get(0));
-		SliderChangeListener sliderChangeListener = new SliderChangeListener();
+		final SliderChangeListener sliderChangeListener = new SliderChangeListener();
 		slider.addChangeListener(sliderChangeListener);
 		sliderChangeListener.onChange(slider);
-		mainPanel.add(legendLabel);
-		mainPanel.add(slider);
 
-		playPauseAction = new PlayPauseAction(sliderChangeListener);
-		playButton.addClickHandler(playPauseAction);
-
-		initWidget(mainPanel);
-	}
-
-	private class PlayPauseAction implements ClickHandler {
-
-		private final Timer timer;
-		private final SliderChangeListener sliderChangeListener;
-
-		public PlayPauseAction(SliderChangeListener listener) {
-			this.sliderChangeListener = listener;
-			timer = new Timer() {
-
-				@Override
-				public void run() {
-					slider.setCurrentValue(slider.getCurrentValue() + 100*Integer.parseInt(playSpeed.getText()));
-						sliderChangeListener.onChange(slider);
-				}
-			};
-		}
-		
-		/**Stop animation of historical data.*/
-		public void stopAnimation() {
-			timer.cancel();
-		}
-		
-		@Override
-		public void onClick(ClickEvent arg0) {
-			if (playButton.getText().equals(PLAY)) {
-				timer.scheduleRepeating(100);
-				playButton.setText(PAUSE);
-			} else if (playButton.getText().equals(PAUSE)) {
-				timer.cancel();
-				playButton.setText(PLAY);
+		timer = new Timer() {
+			@Override
+			public void run() {
+				slider.setCurrentValue(slider.getCurrentValue() + 100 * Integer.parseInt(playSpeed.getText()));
+				//sliderChangeListener.onChange(slider);
 			}
-		}
+		};
+		playButton.setText(PLAY);
 	}
 
+	/** Stop animation of historical data. */
+	public void stopAnimation() {
+		timer.cancel();
+	}
+
+	/** Used by MyUiBinder to instantiate SliderBar */
+	@UiFactory
+	SliderBar makeSliderBar() { // method name is insignificant
+		return new SliderBar(timeRange.get(0), timeRange.get(timeRange.size() - 1));
+	}
+	
+	@UiHandler("playButton")
+	public void onClick(ClickEvent arg0) {
+		if (playButton.getText().equals(PLAY)) {
+			timer.scheduleRepeating(100);
+			playButton.setText(PAUSE);
+		} else if (playButton.getText().equals(PAUSE)) {
+			timer.cancel();
+			playButton.setText(PLAY);
+		}
+	}
+	
 	private class SliderChangeListener implements ChangeListener {
 		@Override
 		public void onChange(Widget arg0) {
