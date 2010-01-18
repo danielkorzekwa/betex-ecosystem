@@ -50,7 +50,7 @@ public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao {
 	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to, int limit) {
 		Options options = new Options().startKey(Arrays.asList(marketId, from)).endKey(Arrays.asList(marketId, to));
 		options.limit(limit);
-		ViewResult<MarketTradedVolume> marketTradedVolume = database.queryView("default/byMarketIdAndTimestamp",
+		ViewResult<MarketTradedVolume> marketTradedVolume = database.queryView("markettradedvolume/byMarketIdAndTimestamp",
 				MarketTradedVolume.class, options, null);
 		return marketTradedVolume;
 	}
@@ -60,7 +60,7 @@ public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao {
 		Options options = new Options();
 		options.group(true);
 		options.key(marketId);
-		ViewResult<Long> queryView = database.queryView("default/countRecordsByMarketId", Long.class, options, null);
+		ViewResult<Long> queryView = database.queryView("markettradedvolume/countRecordsByMarketId", Long.class, options, null);
 
 		if (queryView.getRows().size() == 1) {
 			return ((Long) queryView.getRows().get(0).getValue()).longValue();
@@ -74,7 +74,7 @@ public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao {
 		Options options = new Options();
 		options.group(true);
 		options.key(marketId);
-		ViewResult<List> queryView = database.queryView("default/getTimeRangeByMarketId", List.class, options , null);
+		ViewResult<List> queryView = database.queryView("markettradedvolume/getTimeRangeByMarketId", List.class, options , null);
 		
 		if(queryView.getRows().size()==1) {	
 		return queryView.getRows().get(0).getValue();
