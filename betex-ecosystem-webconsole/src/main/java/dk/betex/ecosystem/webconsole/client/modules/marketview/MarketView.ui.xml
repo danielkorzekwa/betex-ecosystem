@@ -3,10 +3,16 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
 
 	<g:VerticalPanel>
-		<g:Label text="MarketId" />
-		<g:TextBox ui:field="marketIdTextBox" />
-		<g:Button ui:field="displayMarketButton" text="Display market" />
-
+		<g:HorizontalPanel spacing="5">
+			<g:VerticalPanel>
+				<g:Label text="MarketId" />
+				<g:TextBox ui:field="marketIdTextBox" />
+			</g:VerticalPanel>
+			<g:VerticalPanel>
+				<g:Label>&nbsp;</g:Label>
+				<g:Button ui:field="displayMarketButton" text="Display market" />
+			</g:VerticalPanel>
+		</g:HorizontalPanel>
 		<g:Label ui:field="statusBar" />
 		<g:VerticalPanel ui:field="heatMapPanel" />
 	</g:VerticalPanel>

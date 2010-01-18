@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiFactory;
 import com.google.gwt.uibinder.client.UiField;
@@ -19,8 +19,10 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.widgetideas.client.SliderBar;
+import com.google.gwt.widgetideas.client.SliderBar.LabelFormatter;
 
 import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
 import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapPanel;
@@ -41,6 +43,8 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 
 	private static MyUiBinder uiBinder = GWT.create(MyUiBinder.class);
 
+	private DateTimeFormat df = DateTimeFormat.getMediumDateTimeFormat();
+	private NumberFormat nf = NumberFormat.getFormat(".##");
 	private final static String PLAY = "Play";
 	private final static String PAUSE = "Pause";
 
@@ -55,7 +59,8 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 	@UiField Button playButton;
 	@UiField TextBox playSpeed;
 	@UiField Label errorLabel;
-	@UiField Label legendLabel;
+	@UiField Label timeLabel;
+	@UiField Label totalLabel;
 	@UiField SliderBar slider;
 	private BioHeatMapPanel bioHeatMapPanel;
 	
@@ -82,6 +87,8 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 		final SliderChangeListener sliderChangeListener = new SliderChangeListener();
 		slider.addChangeListener(sliderChangeListener);
 		sliderChangeListener.onChange(slider);
+		slider.setNumLabels(1);
+		slider.setLabelFormatter(new DateTimeLabelFormatter());
 
 		timer = new Timer() {
 			@Override
@@ -130,11 +137,9 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 						@Override
 						public void onSuccess(List<BioHeatMapModel> bioHeatMapModel) {
 							if (bioHeatMapModel.size() > 0) {
-								legendLabel.setText("Start: " + new Date(timeRange.get(0)) + ", End: "
-										+ new Date(timeRange.get(timeRange.size() - 1)) + ", Current: "
-										+ new Date((long) slider.getCurrentValue()) + " ,Total: "
-										+ bioHeatMapModel.get(0).getTotal());
-
+								timeLabel.setText(df.format(new Date((long) slider.getCurrentValue())));
+								totalLabel.setText(nf.format(bioHeatMapModel.get(0).getTotal()));
+								
 								if (bioHeatMapPanel == null) {
 									bioHeatMapPanel = new BioHeatMapPanel(bioHeatMapModel.get(0));
 									mainPanel.add(bioHeatMapPanel);
@@ -148,5 +153,15 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 					});
 		}
 	}
+	
+	private class DateTimeLabelFormatter implements LabelFormatter {
+
+		@Override
+		public String formatLabel(SliderBar slider, double value) {
+			return df.format(new Date((long)value));
+		}
+		
+	}
+	
 
 }

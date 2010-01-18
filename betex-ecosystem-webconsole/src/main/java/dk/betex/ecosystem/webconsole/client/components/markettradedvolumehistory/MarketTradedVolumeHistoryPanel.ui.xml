@@ -2,13 +2,28 @@
 <ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
 	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:gext="urn:import:com.google.gwt.widgetideas.client">
 
-	<g:VerticalPanel ui:field="mainPanel" width="100%">
-		<g:Label text="Speed" />
-		<g:TextBox ui:field="playSpeed" text="20" />
-		<g:Button ui:field="playButton" />
+	<g:VerticalPanel ui:field="mainPanel" width="100%" spacing="5">
+		<g:HorizontalPanel spacing="5">
+			<g:VerticalPanel>
+				<g:Label text="Time" />
+				<g:Label ui:field="timeLabel" />
+			</g:VerticalPanel>
+			<g:VerticalPanel>
+				<g:Label text="Total" width="80px"/>
+				<g:Label ui:field="totalLabel" />
+			</g:VerticalPanel>
+			<g:VerticalPanel>
+				<g:Label text="Speed" />
+				<g:TextBox ui:field="playSpeed" text="20" width="60px"/>
+			</g:VerticalPanel>
+			<g:VerticalPanel>
+				<g:Label>&nbsp;</g:Label>
+				<g:Button ui:field="playButton" />
+			</g:VerticalPanel>
+
+		</g:HorizontalPanel>
 		<g:Label ui:field="errorLabel" />
-		<g:Label ui:field="legendLabel" />
-		<gext:SliderBar ui:field="slider" stepSize="1.0" />
+		<gext:SliderBar ui:field="slider" stepSize="100" />
 	</g:VerticalPanel>
 
 </ui:UiBinder> 
