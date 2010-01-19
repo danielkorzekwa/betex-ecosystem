@@ -67,7 +67,7 @@ public class MarketDetailsDaoImplTest {
 		marketDetailsDao.addMarketDetails(marketDetails3);
 		Thread.sleep(10);
 
-		ViewResult<MarketDetails> result = marketDetailsDao.getMarketDetails(2);
+		ViewResult<MarketDetails> result = marketDetailsDao.getMarketDetailsList(2);
 
 		assertEquals(2, result.getRows().size());
 		assertMarketDetails(marketDetails3, result.getRows().get(0).getValue());

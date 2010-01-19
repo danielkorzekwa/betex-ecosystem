@@ -38,7 +38,7 @@ public class MarketDetailsDaoImpl implements MarketDetailsDao {
 	}
 
 	@Override
-	public ViewResult<MarketDetails> getMarketDetails(int limit) {
+	public ViewResult<MarketDetails> getMarketDetailsList(int limit) {
 		Options options = new Options();
 		options.limit(limit);
 		options.descending(true);

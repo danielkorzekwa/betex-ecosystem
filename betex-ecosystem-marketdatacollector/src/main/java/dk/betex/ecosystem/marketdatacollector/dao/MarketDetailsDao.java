@@ -22,5 +22,5 @@ public interface MarketDetailsDao {
 	 * @param limit
 	 *            Maximum number of markets to returned.
 	 */
-	ViewResult<MarketDetails> getMarketDetails(int limit);
+	ViewResult<MarketDetails> getMarketDetailsList(int limit);
 }
