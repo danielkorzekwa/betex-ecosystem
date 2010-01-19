@@ -10,12 +10,14 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import dk.betex.ecosystem.webconsole.client.components.markettradedvolumehistory.MarketTradedVolumeHistoryPanel;
+import dk.betex.ecosystem.webconsole.client.service.MarketInfo;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeServiceAsync;
 
@@ -36,7 +38,7 @@ public class MarketHistory extends Composite {
 	private final MarketTradedVolumeServiceAsync service = GWT.create(MarketTradedVolumeService.class);
 
 	@UiField
-	TextBox marketId;
+	ListBox marketsList;
 	@UiField
 	TextBox minProb;
 	@UiField
@@ -47,7 +49,24 @@ public class MarketHistory extends Composite {
 	private MarketTradedVolumeHistoryPanel marketTradedVolumeHistoryPanel;
 
 	public MarketHistory() {
-		initWidget(uiBinder.createAndBindUi(this));
+		initWidget(uiBinder.createAndBindUi(MarketHistory.this));
+		
+		AsyncCallback<List<MarketInfo>> getMarkets = new AsyncCallback<List<MarketInfo>>() {
+
+			@Override
+			public void onFailure(Throwable t) {
+				GWT.log("failed", t);
+				Window.alert("GetMarketMenuPaths failed. " + t.getMessage());
+			}
+
+			@Override
+			public void onSuccess(List<MarketInfo> marketInfos) {		
+				for(MarketInfo marketInfo: marketInfos) {
+					marketsList.addItem(marketInfo.getMenuPath(),"" + marketInfo.getMarketId());
+				}
+			}
+		};	
+		service.getMarketInfos(50, getMarkets);
 	}
 
 	/** Displays heat map animation for a historical data of a market traded volume. */
@@ -56,7 +75,7 @@ public class MarketHistory extends Composite {
 		heatMapPanel.clear();
 
 		try {
-			final int marketIdValue = Integer.parseInt(marketId.getValue());
+			final int marketIdValue = Integer.parseInt(marketsList.getValue(marketsList.getSelectedIndex()));
 
 			/** Get time range for history of market traded volume. */
 			service.getTimeRange(marketIdValue, new AsyncCallback<List<Long>>() {

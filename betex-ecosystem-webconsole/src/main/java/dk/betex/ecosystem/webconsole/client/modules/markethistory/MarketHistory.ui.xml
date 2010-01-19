@@ -3,22 +3,22 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui">
 	<g:VerticalPanel>
 		<g:HorizontalPanel spacing="5">
-				<g:VerticalPanel>
-					<g:Label text="MarketId" />
-					<g:TextBox ui:field="marketId" />
-				</g:VerticalPanel>
-				<g:VerticalPanel>
-					<g:Label text="Min prob" />
-					<g:TextBox ui:field="minProb" text="0" />
-				</g:VerticalPanel>
-				<g:VerticalPanel>
-					<g:Label text="Max prob" />
-					<g:TextBox ui:field="maxProb" text="1" />
-				</g:VerticalPanel>
-				<g:VerticalPanel>
-					<g:Label>&nbsp;</g:Label>
-					<g:Button ui:field="displayHeatMapButton" text="Display market" />
-				</g:VerticalPanel>
+			<g:VerticalPanel>
+				<g:Label text="MarketId" />
+				<g:ListBox ui:field="marketsList" />
+			</g:VerticalPanel>
+			<g:VerticalPanel>
+				<g:Label text="Min prob" />
+				<g:TextBox ui:field="minProb" text="0" />
+			</g:VerticalPanel>
+			<g:VerticalPanel>
+				<g:Label text="Max prob" />
+				<g:TextBox ui:field="maxProb" text="1" />
+			</g:VerticalPanel>
+			<g:VerticalPanel>
+				<g:Label>&nbsp;</g:Label>
+				<g:Button ui:field="displayHeatMapButton" text="Display market" />
+			</g:VerticalPanel>
 		</g:HorizontalPanel>
 		<g:VerticalPanel ui:field="heatMapPanel" width="100%" />
 	</g:VerticalPanel>

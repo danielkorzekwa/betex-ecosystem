@@ -56,5 +56,12 @@ public interface MarketTradedVolumeService extends RemoteService {
 	 * @return Element 0 - minimum date, element 1 - maximum date. Null is returned if no data for market is available.
 	 */
 	public List<Long> getTimeRange(long marketId);
+	
+	/**Get list of markets ordered by marketTime from the newest to the oldest.
+	 * 
+	 * @param limit Maximum number of markets to return
+	 * @return
+	 */
+	public List<MarketInfo> getMarketInfos(int limit); 
 
 }

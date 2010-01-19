@@ -14,11 +14,15 @@ import org.jcouchdb.document.ViewResult;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
+import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDao;
+import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDaoImpl;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDaoImpl;
 import dk.betex.ecosystem.marketdatacollector.factory.MarketTradedVolumeFactory;
+import dk.betex.ecosystem.marketdatacollector.model.MarketDetails;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
 import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
+import dk.betex.ecosystem.webconsole.client.service.MarketInfo;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
 import dk.bot.betfairservice.BetFairService;
 import dk.bot.betfairservice.DefaultBetFairServiceFactoryBean;
@@ -37,6 +41,7 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 
 	private BetFairService betfairService;
 	private MarketTradedVolumeDao marketTradedVolueDao;
+	private MarketDetailsDao marketDetailsDao;
 
 	@Override
 	public void init() throws ServletException {
@@ -59,9 +64,9 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 			throw new RuntimeException(e);
 		}
 
-		/** Init marketTradedVolumeDao */
-		Database database = new Database("10.2.2.72", "market_traded_volume");
-		marketTradedVolueDao = new MarketTradedVolumeDaoImpl(database);
+		/** Init DAOs */
+		marketTradedVolueDao = new MarketTradedVolumeDaoImpl(new Database("10.2.2.72", "market_traded_volume"));
+		marketDetailsDao = new MarketDetailsDaoImpl(new Database("10.2.2.72", "market_details"));
 	}
 
 	@Override
@@ -142,4 +147,25 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 		return marketTradedVolueDao.getTimeRange(marketId);
 	}
 
+	/**
+	 * Get list of markets ordered by marketTime from the newest to the oldest.
+	 * 
+	 * @param limit
+	 *            Maximum number of markets to return
+	 * @return
+	 */
+	public List<MarketInfo> getMarketInfos(int limit) {
+		ViewResult<MarketDetails> marketDetailsList = marketDetailsDao.getMarketDetailsList(limit);
+
+		/** List if menu paths for markets */
+		List<MarketInfo> marketInfos = new ArrayList<MarketInfo>();
+		for (ValueRow<MarketDetails> row : marketDetailsList.getRows()) {
+			MarketInfo marketInfo = new MarketInfo();
+			marketInfo.setMarketId(row.getValue().getMarketId());
+			marketInfo.setMenuPath(row.getValue().getMenuPath());
+			marketInfo.setMarketTime(new Date(row.getValue().getMarketTime()));
+			marketInfos.add(marketInfo);
+		}
+		return marketInfos;
+	}
 }
