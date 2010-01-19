@@ -4,7 +4,7 @@
 	<g:VerticalPanel>
 		<g:HorizontalPanel spacing="5">
 			<g:VerticalPanel>
-				<g:Label text="MarketId" />
+				<g:Label text="Market" />
 				<g:ListBox ui:field="marketsList" />
 			</g:VerticalPanel>
 			<g:VerticalPanel>
