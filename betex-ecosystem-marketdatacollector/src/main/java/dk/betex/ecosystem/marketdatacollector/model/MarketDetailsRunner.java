@@ -9,7 +9,7 @@ import org.jcouchdb.document.BaseDocument;
  * @author korzekwad
  *
  */
-public class MarketDetailsRunner extends BaseDocument implements Serializable{
+public class MarketDetailsRunner implements Serializable{
 
 	private int selectionId;
 	private String selectionName;

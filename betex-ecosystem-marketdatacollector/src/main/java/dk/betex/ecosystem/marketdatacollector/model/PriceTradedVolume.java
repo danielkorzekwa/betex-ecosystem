@@ -10,7 +10,7 @@ import org.jcouchdb.document.BaseDocument;
  * @author korzekwad
  * 
  */
-public class PriceTradedVolume extends BaseDocument implements Serializable {
+public class PriceTradedVolume implements Serializable {
 
 	private double price;
 	private double tradedVolume;

@@ -12,7 +12,7 @@ import org.svenson.JSONTypeHint;
  * @author korzekwad
  * 
  */
-public class RunnerTradedVolume extends BaseDocument implements Serializable {
+public class RunnerTradedVolume implements Serializable {
 
 	private int selectionId;
 	private List<PriceTradedVolume> priceTradedVolume;
