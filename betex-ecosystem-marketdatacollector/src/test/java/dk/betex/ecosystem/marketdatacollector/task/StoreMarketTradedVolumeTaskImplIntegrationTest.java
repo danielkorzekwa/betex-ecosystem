@@ -1,6 +1,6 @@
 package dk.betex.ecosystem.marketdatacollector.task;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.fail;
 
 import java.util.Date;
@@ -16,7 +16,9 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
+import dk.betex.ecosystem.marketdatacollector.model.MarketDetails;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
 import dk.bot.betfairservice.BetFairService;
 import dk.bot.betfairservice.model.BFMarketData;
@@ -33,6 +35,9 @@ public class StoreMarketTradedVolumeTaskImplIntegrationTest {
 	
 	@Resource
 	private MarketTradedVolumeDao marketTradedVolumeDao;
+	
+	@Resource
+	private MarketDetailsDao marketDetailsDao;
 
 	@BeforeClass
 	public static void setUp() {
@@ -41,8 +46,9 @@ public class StoreMarketTradedVolumeTaskImplIntegrationTest {
 		 * bfPassword.
 		 */
 		System.setProperty("bfProductId", "82");
-		System.setProperty("marketTradedVolumeDb.url", "10.2.2.72");
+		System.setProperty("couchdb.url", "10.2.2.72");
 		System.setProperty("marketTradedVolumeDb.name", "market_traded_volume_test");
+		System.setProperty("marketDetailsDb.name", "market_details_test");
 	}
 
 	@Test
@@ -60,6 +66,12 @@ public class StoreMarketTradedVolumeTaskImplIntegrationTest {
 		ViewResult<MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
 		
 		assertEquals(marketTradedVolumeBefore.getRows().size()+1, marketTradedVolumeAfter.getRows().size());
+		
+		/**Check for market details.*/
+		MarketDetails marketDetails = marketDetailsDao.getMarketDetails(hrMarket.getMarketId());
+		assertNotNull("Market details is null",marketDetails);
+		assertEquals(hrMarket.getMarketId(), marketDetails.getMarketId());
+		assertTrue("No runners in marketDetails",marketDetails.getRunners().size()>0);
 	}
 	
 	@Test

@@ -2,6 +2,7 @@ package dk.betex.ecosystem.marketdatacollector.dao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,8 +71,8 @@ public class MarketDetailsDaoImplTest {
 		ViewResult<MarketDetails> result = marketDetailsDao.getMarketDetailsList(2);
 
 		assertEquals(2, result.getRows().size());
-		assertMarketDetails(marketDetails3, result.getRows().get(0).getValue());
-		assertMarketDetails(marketDetails2, result.getRows().get(1).getValue());
+		assertTrue("Market details records are not ordered from the newest to the oldest", result.getRows().get(0)
+				.getValue().getMarketTime() > result.getRows().get(1).getValue().getMarketTime());
 
 	}
 

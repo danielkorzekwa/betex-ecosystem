@@ -30,7 +30,9 @@ public class MarketDetailsFactory {
 			MarketDetailsRunner runner = new MarketDetailsRunner();
 			runner.setSelectionId(bfRunner.getSelectionId());
 			runner.setSelectionName(bfRunner.getSelectionName());
+			marketDetailsRunners.add(runner);
 		}
+		marketDetails.setRunners(marketDetailsRunners);
 
 		return marketDetails;
 	}
