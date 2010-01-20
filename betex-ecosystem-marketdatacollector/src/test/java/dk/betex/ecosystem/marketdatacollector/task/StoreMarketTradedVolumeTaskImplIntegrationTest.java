@@ -1,6 +1,8 @@
 package dk.betex.ecosystem.marketdatacollector.task;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Date;
@@ -17,8 +19,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDao;
+import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
 import dk.betex.ecosystem.marketdatacollector.model.MarketDetails;
+import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
 import dk.bot.betfairservice.BetFairService;
 import dk.bot.betfairservice.model.BFMarketData;
@@ -38,6 +42,9 @@ public class StoreMarketTradedVolumeTaskImplIntegrationTest {
 	
 	@Resource
 	private MarketDetailsDao marketDetailsDao;
+	
+	@Resource
+	private MarketPricesDao marketPricesDao;
 
 	@BeforeClass
 	public static void setUp() {
@@ -60,15 +67,18 @@ public class StoreMarketTradedVolumeTaskImplIntegrationTest {
 		}
 		
 		ViewResult<MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
+		ViewResult<MarketPrices> marketPricesBefore = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 		
 		storeMarketTradedVolumeTask.execute(hrMarket.getMarketId());
 		
 		/**Check if market traded volume is stored in db*/
 		ViewResult<MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
+		ViewResult<MarketPrices> marketPricesAfter = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 		
 		assertEquals(marketTradedVolumeBefore.getRows().size()+1, marketTradedVolumeAfter.getRows().size());
+		assertEquals(marketPricesBefore.getRows().size()+1, marketPricesAfter.getRows().size());
 		
-		/**Check for market details.*/
+		/**Checking for market details.*/
 		MarketDetails marketDetails = marketDetailsDao.getMarketDetails(hrMarket.getMarketId());
 		assertNotNull("Market details is null",marketDetails);
 		assertEquals(hrMarket.getMarketId(), marketDetails.getMarketId());
@@ -83,14 +93,17 @@ public class StoreMarketTradedVolumeTaskImplIntegrationTest {
 		}
 		
 		ViewResult<MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
+		ViewResult<MarketPrices> marketPricesBefore = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 		
 		storeMarketTradedVolumeTask.execute(hrMarket.getMarketId());
 		storeMarketTradedVolumeTask.execute(hrMarket.getMarketId());
 		
 		/**Check if market traded volume is stored in db*/
 		ViewResult<MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
+		ViewResult<MarketPrices> marketPricesAfter = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 		
 		assertEquals(marketTradedVolumeBefore.getRows().size()+2, marketTradedVolumeAfter.getRows().size());
+		assertEquals(marketPricesBefore.getRows().size()+2, marketPricesAfter.getRows().size());
 	}
 
 	/** Find and return HR market from betfair or null if not able to find it. */

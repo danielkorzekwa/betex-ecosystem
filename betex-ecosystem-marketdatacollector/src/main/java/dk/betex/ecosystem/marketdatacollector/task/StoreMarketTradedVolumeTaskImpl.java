@@ -6,11 +6,14 @@ import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
 import dk.betex.ecosystem.marketdatacollector.factory.MarketDetailsFactory;
+import dk.betex.ecosystem.marketdatacollector.factory.MarketPricesFactory;
 import dk.betex.ecosystem.marketdatacollector.factory.MarketTradedVolumeFactory;
 import dk.betex.ecosystem.marketdatacollector.model.MarketDetails;
+import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
 import dk.bot.betfairservice.BetFairService;
 import dk.bot.betfairservice.model.BFMarketDetails;
+import dk.bot.betfairservice.model.BFMarketRunners;
 import dk.bot.betfairservice.model.BFMarketTradedVolume;
 
 /** Get market traded volume from Betfair betting exchange and store it in a database.
@@ -45,10 +48,16 @@ public class StoreMarketTradedVolumeTaskImpl implements StoreMarketTradedVolumeT
 		if(marketId>Integer.MAX_VALUE) {
 			throw new IllegalArgumentException("Market Id value is bigger than Integer.MAX: " + marketId);
 		}
+		
+		/**Get market traded volume and add it to the database.*/
 		BFMarketTradedVolume bfMarketTradedVolume = betfairService.getMarketTradedVolume((int)marketId);
 		MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume, new Date(System.currentTimeMillis()));
-		
 		marketTradedVolumeDao.addMarketTradedVolume(marketTradedVolume);
+		
+		/**Get market prices and add it to the database.*/
+		BFMarketRunners bfMarketRunners = betfairService.getMarketRunners((int)marketId);
+		MarketPrices marketPrices = MarketPricesFactory.create(bfMarketRunners);
+		marketPricesDao.add(marketPrices);
 		
 		/**Get market details and add to the database if not added yet.*/
 		if(marketDetails==null) {
