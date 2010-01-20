@@ -3,6 +3,7 @@ package dk.betex.ecosystem.marketdatacollector.task;
 import java.util.Date;
 
 import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDao;
+import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
 import dk.betex.ecosystem.marketdatacollector.factory.MarketDetailsFactory;
 import dk.betex.ecosystem.marketdatacollector.factory.MarketTradedVolumeFactory;
@@ -23,13 +24,15 @@ public class StoreMarketTradedVolumeTaskImpl implements StoreMarketTradedVolumeT
 	private final BetFairService betfairService;
 	private final MarketTradedVolumeDao marketTradedVolumeDao;
 	private final MarketDetailsDao marketDetailsDao;
+	private final MarketPricesDao marketPricesDao;
 	
 	private MarketDetails marketDetails;
-
-	public StoreMarketTradedVolumeTaskImpl(BetFairService betfairService, MarketTradedVolumeDao marketTradedVolumeDao, MarketDetailsDao marketDetailsDao) {
+	
+	public StoreMarketTradedVolumeTaskImpl(BetFairService betfairService, MarketTradedVolumeDao marketTradedVolumeDao, MarketDetailsDao marketDetailsDao, MarketPricesDao marketPricesDao) {
 		this.betfairService = betfairService;
 		this.marketTradedVolumeDao = marketTradedVolumeDao;
 		this.marketDetailsDao = marketDetailsDao;
+		this.marketPricesDao = marketPricesDao;
 	}
 	
 	/**Get market traded volume from Betfair betting exchange and store it in a database.
