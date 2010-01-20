@@ -11,7 +11,7 @@ import dk.bot.betfairservice.model.BFPriceTradedVolume;
 import dk.bot.betfairservice.model.BFRunnerTradedVolume;
 
 /**
- * Creates MarketTradedVolume object.
+ * Creates MarketTradedVolume object from {@link BFMarketTradedVolume}.
  * 
  * @author korzekwad
  * 

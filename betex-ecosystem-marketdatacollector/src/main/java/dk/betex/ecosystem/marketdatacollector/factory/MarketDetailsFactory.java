@@ -9,7 +9,7 @@ import dk.bot.betfairservice.model.BFMarketDetails;
 import dk.bot.betfairservice.model.BFMarketDetailsRunner;
 
 /**
- * Creates MarketDetails object
+ * Creates MarketDetails object from {@link BFMarketDetails}
  * 
  * @author korzekwad
  * 
