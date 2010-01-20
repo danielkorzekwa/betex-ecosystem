@@ -13,6 +13,10 @@ public class MarketDataCollectorApp {
 
 	public static void main(String[] args) throws IOException {
 
+		/**Set config properties.*/
+		System.setProperty("marketTradedVolumeDb.name", DbNames.MARKET_TRADED_VOLUME.getDbName());
+		System.setProperty("marketDetailsDb.name", DbNames.MARKET_DETAILS.getDbName());
+		
 		long markeId = askForMarketId();
 		long pollingInterval = askForPollingInterval();
 		

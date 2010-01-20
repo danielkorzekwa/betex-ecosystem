@@ -24,13 +24,16 @@ public class CouchDbUpdateApp {
 			System.exit(-1);
 		}
 
-		/** Update design docs in database */
-		Database database = new Database(config[1].trim(), config[2].trim());
-	
-		File designDocsLocation = new File(config[0].trim());
-		CouchDBUpdater updater = new CouchDBUpdater();
-		updater.setDatabase(database);
-		updater.setDesignDocumentDir(designDocsLocation);
+		CouchDBUpdater updater = new CouchDBUpdater();	
+		
+		/**Update views for market_traded_volume db*/ 
+		updater.setDatabase(new Database(config[1].trim(), DbNames.MARKET_TRADED_VOLUME.getDbName() + config[2].trim()));
+		updater.setDesignDocumentDir(new File(config[0].trim() + "/markettradedvolume"));
+		updater.updateDesignDocuments();
+		
+		/**Update views for market_details db*/ 
+		updater.setDatabase(new Database(config[1].trim(), DbNames.MARKET_DETAILS.getDbName() + config[2].trim()));
+		updater.setDesignDocumentDir(new File(config[0].trim() + "/marketdetails"));
 		updater.updateDesignDocuments();
 	}
 
@@ -40,8 +43,8 @@ public class CouchDbUpdateApp {
 	 * @throws IOException
 	 */
 	public static String[] askForConfig() throws IOException {
-		System.out.println("Enter path to the couch db documents and database url in the format [db views directory path, db address, db name]");
-		System.out.println("Example: ./designdocs,10.2.2.72,market_traded_volume_test");
+		System.out.println("Enter path to the couch db documents and database url in the format [db views directory path, db address, db suffix]");
+		System.out.println("Example: ./designdocs,10.2.2.72,_test");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String inputData = reader.readLine();
 
