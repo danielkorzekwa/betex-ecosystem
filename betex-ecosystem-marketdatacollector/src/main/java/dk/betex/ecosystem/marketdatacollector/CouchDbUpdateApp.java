@@ -35,6 +35,11 @@ public class CouchDbUpdateApp {
 		updater.setDatabase(new Database(config[1].trim(), DbNames.MARKET_DETAILS.getDbName() + config[2].trim()));
 		updater.setDesignDocumentDir(new File(config[0].trim() + "/marketdetails"));
 		updater.updateDesignDocuments();
+		
+		/**Update views for market_prices db*/ 
+		updater.setDatabase(new Database(config[1].trim(), DbNames.MARKET_PRICES.getDbName() + config[2].trim()));
+		updater.setDesignDocumentDir(new File(config[0].trim() + "/marketprices"));
+		updater.updateDesignDocuments();
 	}
 
 	/** Returns directory path to the db views, db address and db name
@@ -48,7 +53,7 @@ public class CouchDbUpdateApp {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String inputData = reader.readLine();
 
-		return inputData.split(",");
+		return inputData.split(",",3);
 	}
 
 }

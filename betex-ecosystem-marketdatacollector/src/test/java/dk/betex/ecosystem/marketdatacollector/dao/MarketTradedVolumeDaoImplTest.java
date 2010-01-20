@@ -142,7 +142,7 @@ public class MarketTradedVolumeDaoImplTest {
 	}
 	
 	@Test
-	public void testGetNumOfRecordsWith20Records() {
+	public void testGetNumOfRecordsWith24Records() {
 		/** Add market traded volume to the couch db. */
 		List<MarketTradedVolume> marketTradedVolumeList = createMarketTradedVolume(24);
 		for (MarketTradedVolume marketTradedVolume : marketTradedVolumeList) {
@@ -158,7 +158,7 @@ public class MarketTradedVolumeDaoImplTest {
 	@Test
 	public void testGetNumOfRecordsWith0Records() {
 		
-		/** Get market traded volume from the couch db and check if it's correct. */
+		/** Get number of traded volume records from the couch db and check if it's correct. */
 		long numOfRecords = marketTradedVolueDao.getNumOfRecords(-1234);
 
 		assertEquals(0, numOfRecords);
