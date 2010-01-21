@@ -40,6 +40,8 @@ public class MarketHistory extends Composite {
 
 	@UiField
 	ListBox marketsList;
+	@UiField 
+	ListBox marketFunctionList;
 	@UiField
 	TextBox minProb;
 	@UiField
@@ -67,6 +69,10 @@ public class MarketHistory extends Composite {
 				}
 			}
 		};	
+		
+		for(MarketFunctionEnum marketFunction: MarketFunctionEnum.values()) {
+			marketFunctionList.addItem(marketFunction.name());
+		}
 		service.getMarketInfos(50, getMarkets);
 	}
 
@@ -77,9 +83,10 @@ public class MarketHistory extends Composite {
 
 		try {
 			final int marketIdValue = Integer.parseInt(marketsList.getValue(marketsList.getSelectedIndex()));
-
+			final MarketFunctionEnum marketFunction = MarketFunctionEnum.valueOf(marketFunctionList.getValue(marketFunctionList.getSelectedIndex()));
 			/** Get time range for history of market traded volume. */
-			service.getTimeRange(marketIdValue,MarketFunctionEnum.MARKET_TRADED_VOLUME, new AsyncCallback<List<Long>>() {
+			
+			service.getTimeRange(marketIdValue,marketFunction, new AsyncCallback<List<Long>>() {
 
 				@Override
 				public void onFailure(Throwable t) {
@@ -92,7 +99,7 @@ public class MarketHistory extends Composite {
 					if (marketTradedVolumeHistoryPanel != null) {
 						marketTradedVolumeHistoryPanel.stopAnimation();
 					}
-					marketTradedVolumeHistoryPanel = new MarketTradedVolumeHistoryPanel(marketIdValue, timeRange,
+					marketTradedVolumeHistoryPanel = new MarketTradedVolumeHistoryPanel(marketIdValue, marketFunction,timeRange,
 							Double.parseDouble(minProb.getText()), Double.parseDouble(maxProb.getText()));
 					heatMapPanel.add(marketTradedVolumeHistoryPanel);
 				}

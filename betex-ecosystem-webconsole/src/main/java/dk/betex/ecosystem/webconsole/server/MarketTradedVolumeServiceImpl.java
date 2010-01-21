@@ -144,8 +144,9 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 			ViewResult<MarketPrices> marketPricesList = marketPricesDao.get(marketId, from, to, limit);
 			for (ValueRow<MarketPrices> valueRow : marketPricesList.getRows()) {
 				MarketPrices marketPrices = valueRow.getValue();
-				// BioHeatMapModel marketHeatMap = HeatMapModelFactory.createHeatMap(marketPrices, probMin, probMax);
-				// heatMapList.add(marketHeatMap);
+				HeatMapModelDataSource ds = HeatMapModelDataSourceFactory.create(marketPrices);
+				HeatMapModelDataSource marketHeatMap = HeatMapModelFactory.createHeatMap(ds, probMin, probMax);
+				heatMapList.add(marketHeatMap);
 			}
 
 		} else {

@@ -66,6 +66,8 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 	
 	/**Plays animation of historical market data.*/
 	private final Timer timer;
+
+	private final MarketFunctionEnum marketFunction;
 	
 	/**
 	 * The range min/max allows to zoom in/out inside the market traded volume and to analyse given range of
@@ -76,8 +78,9 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 	 * @param minProb
 	 * @param maxProb
 	 */
-	public MarketTradedVolumeHistoryPanel(int marketId, List<Long> timeRange, double minProb, double maxProb) {
+	public MarketTradedVolumeHistoryPanel(int marketId, MarketFunctionEnum marketFunction, List<Long> timeRange, double minProb, double maxProb) {
 		this.marketId = marketId;
+		this.marketFunction = marketFunction;
 		this.timeRange = timeRange;
 		this.minProb = minProb;
 		this.maxProb = maxProb;
@@ -108,7 +111,9 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 	/** Used by MyUiBinder to instantiate SliderBar */
 	@UiFactory
 	SliderBar makeSliderBar() { // method name is insignificant
-		return new SliderBar(timeRange.get(0), timeRange.get(timeRange.size() - 1));
+		double start = timeRange.get(0)!=null ? timeRange.get(0) : 0;
+		double end = timeRange.get(1)!=null ? timeRange.get(1) : 0;
+		return new SliderBar(start, end);
 	}
 	
 	@UiHandler("playButton")
@@ -125,7 +130,7 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 	private class SliderChangeListener implements ChangeListener {
 		@Override
 		public void onChange(Widget arg0) {
-			service.getMarketData(marketId, MarketFunctionEnum.MARKET_TRADED_VOLUME,(long) slider.getCurrentValue(), Long.MAX_VALUE, 1, minProb,
+			service.getMarketData(marketId, marketFunction,(long) slider.getCurrentValue(), Long.MAX_VALUE, 1, minProb,
 					maxProb, new AsyncCallback<List<HeatMapModelDataSource>>() {
 
 						@Override

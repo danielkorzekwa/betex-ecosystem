@@ -8,6 +8,10 @@
 				<g:ListBox ui:field="marketsList" />
 			</g:VerticalPanel>
 			<g:VerticalPanel>
+			<g:Label text="Function"/>
+			<g:ListBox ui:field="marketFunctionList"/>
+			</g:VerticalPanel>
+			<g:VerticalPanel>
 				<g:Label text="Min prob" />
 				<g:TextBox ui:field="minProb" text="0" />
 			</g:VerticalPanel>
