@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 import dk.betex.ecosystem.webconsole.client.components.markettradedvolumehistory.MarketTradedVolumeHistoryPanel;
+import dk.betex.ecosystem.webconsole.client.service.MarketFunctionEnum;
 import dk.betex.ecosystem.webconsole.client.service.MarketInfo;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeServiceAsync;
@@ -78,7 +79,7 @@ public class MarketHistory extends Composite {
 			final int marketIdValue = Integer.parseInt(marketsList.getValue(marketsList.getSelectedIndex()));
 
 			/** Get time range for history of market traded volume. */
-			service.getTimeRange(marketIdValue, new AsyncCallback<List<Long>>() {
+			service.getTimeRange(marketIdValue,MarketFunctionEnum.MARKET_TRADED_VOLUME, new AsyncCallback<List<Long>>() {
 
 				@Override
 				public void onFailure(Throwable t) {

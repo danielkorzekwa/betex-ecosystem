@@ -19,13 +19,13 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.widgetideas.client.SliderBar;
 import com.google.gwt.widgetideas.client.SliderBar.LabelFormatter;
 
-import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
 import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapPanel;
+import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource;
+import dk.betex.ecosystem.webconsole.client.service.MarketFunctionEnum;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeServiceAsync;
 
@@ -125,8 +125,8 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 	private class SliderChangeListener implements ChangeListener {
 		@Override
 		public void onChange(Widget arg0) {
-			service.getMarketTradedVolumeHistory(marketId, (long) slider.getCurrentValue(), Long.MAX_VALUE, 1, minProb,
-					maxProb, new AsyncCallback<List<BioHeatMapModel>>() {
+			service.getMarketData(marketId, MarketFunctionEnum.MARKET_TRADED_VOLUME,(long) slider.getCurrentValue(), Long.MAX_VALUE, 1, minProb,
+					maxProb, new AsyncCallback<List<HeatMapModelDataSource>>() {
 
 						@Override
 						public void onFailure(Throwable t) {
@@ -135,7 +135,7 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 						}
 
 						@Override
-						public void onSuccess(List<BioHeatMapModel> bioHeatMapModel) {
+						public void onSuccess(List<HeatMapModelDataSource> bioHeatMapModel) {
 							if (bioHeatMapModel.size() > 0) {
 								timeLabel.setText(df.format(new Date((long) slider.getCurrentValue())));
 								totalLabel.setText(nf.format(bioHeatMapModel.get(0).getTotal()));

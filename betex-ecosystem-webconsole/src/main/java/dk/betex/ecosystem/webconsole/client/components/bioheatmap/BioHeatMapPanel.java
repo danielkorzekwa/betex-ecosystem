@@ -4,6 +4,8 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 
+import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource;
+import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapColumn;
 import dk.betex.ecosystem.webconsole.client.visualizations.BioHeatMap;
 import dk.betex.ecosystem.webconsole.client.visualizations.BioHeatMap.Options;
 
@@ -23,7 +25,7 @@ public class BioHeatMapPanel extends Composite {
 	/** Bio heat map visualisation object. */
 	private BioHeatMap bioHeatMap;
 
-	public BioHeatMapPanel(BioHeatMapModel heatMapModel) {
+	public BioHeatMapPanel(HeatMapModelDataSource heatMapModel) {
 		
 		options = BioHeatMap.Options.create();
 		options.setCellWidth(20);
@@ -37,10 +39,10 @@ public class BioHeatMapPanel extends Composite {
 	}
 
 	/** Updates bioheatmap panel with new data. */
-	public void update(BioHeatMapModel bioHeatMapModel) {
+	public void update(HeatMapModelDataSource bioHeatMapModel) {
 		
-		int numOfRows = bioHeatMapModel.getyAxisLabels().length;
-		int numOfColumns =  bioHeatMapModel.getxAxisLabels().length;
+		int numOfRows = bioHeatMapModel.getColumns().get(0).getValues().size();
+		int numOfColumns =  bioHeatMapModel.getColumns().size();
 		
 		if(numOfRows > dataModel.getNumberOfRows()) {
 			throw new IllegalArgumentException("Can't update bio heat map. New numOfRows is bigger than numOfRows in data model.");
@@ -51,7 +53,7 @@ public class BioHeatMapPanel extends Composite {
 		
 		for (int rowIndex = 0; rowIndex < numOfRows; rowIndex++) {
 			for (int columnIndex = 0; columnIndex <numOfColumns; columnIndex++) {
-				dataModel.setValue(rowIndex, columnIndex + 1, bioHeatMapModel.getValues()[columnIndex][rowIndex]);
+				dataModel.setValue(rowIndex, columnIndex + 1, bioHeatMapModel.getColumns().get(columnIndex).getValues().get(rowIndex).getCellValue());
 			}
 		}
 
@@ -65,21 +67,20 @@ public class BioHeatMapPanel extends Composite {
 	 *            
 	 * @return
 	 */
-	private DataTable createDataModel(BioHeatMapModel heatMapModel) {
+	private DataTable createDataModel(HeatMapModelDataSource heatMapModel) {
 
 		DataTable data = DataTable.create();
 		data.addColumn(ColumnType.STRING, "Y_label");
-		for (int columnIndex = 0; columnIndex < heatMapModel.getxAxisLabels().length; columnIndex++) {
-			data.addColumn(ColumnType.NUMBER, heatMapModel.getxAxisLabels()[columnIndex]);
+		for (HeatMapColumn column: heatMapModel.getColumns()) {
+			data.addColumn(ColumnType.NUMBER, column.getLabel());
 		}
-		int numOfRows = heatMapModel.getyAxisLabels().length;
+		int numOfRows = heatMapModel.getColumns().get(0).getValues().size();
 		data.addRows(numOfRows);
 		for (int rowIndex = 0; rowIndex < numOfRows; rowIndex++) {
-
-			String yAxisLabel = rowIndex % 5 == 0 ? "" + heatMapModel.getyAxisLabels()[rowIndex] : "";
+			String yAxisLabel = rowIndex % 5 == 0 ? "" + heatMapModel.getColumns().get(0).getValues().get(rowIndex).getRowValue() : "";
 			data.setValue(rowIndex, 0, yAxisLabel);
-			for (int columnIndex = 0; columnIndex < heatMapModel.getxAxisLabels().length; columnIndex++) {
-				data.setValue(rowIndex, columnIndex + 1, heatMapModel.getValues()[columnIndex][rowIndex]);
+			for (int columnIndex = 0; columnIndex < heatMapModel.getColumns().size(); columnIndex++) {
+				data.setValue(rowIndex, columnIndex + 1, heatMapModel.getColumns().get(columnIndex).getValues().get(rowIndex).getCellValue());
 			}
 		}
 

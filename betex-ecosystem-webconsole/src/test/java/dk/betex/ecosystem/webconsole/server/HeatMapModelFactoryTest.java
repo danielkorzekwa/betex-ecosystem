@@ -8,66 +8,46 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
-import dk.betex.ecosystem.marketdatacollector.model.PriceTradedVolume;
-import dk.betex.ecosystem.marketdatacollector.model.RunnerTradedVolume;
-import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
-import dk.bot.betfairservice.model.BFRunnerTradedVolume;
+import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource;
+import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapColumn;
+import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapValue;
 
 public class HeatMapModelFactoryTest {
 
-	private MarketTradedVolume marketTradedVolume;
+	private HeatMapModelDataSource ds;
 
 	@Before
 	public void setUp() {
-		List<RunnerTradedVolume> runnersTradedVolume = new ArrayList<RunnerTradedVolume>();
 
-		List<PriceTradedVolume> pricesTradedVolume = new ArrayList<PriceTradedVolume>();
-		pricesTradedVolume.add(new PriceTradedVolume(2.1, 35.32));
-		pricesTradedVolume.add(new PriceTradedVolume(2.2, 765.56));
-		runnersTradedVolume.add(new RunnerTradedVolume(105, pricesTradedVolume));
+		List<HeatMapColumn> columns = new ArrayList<HeatMapColumn>();
 
-		pricesTradedVolume = new ArrayList<PriceTradedVolume>();
-		pricesTradedVolume.add(new PriceTradedVolume(3.4, 43.24));
-		pricesTradedVolume.add(new PriceTradedVolume(3.6, 65.12));
-		runnersTradedVolume.add(new RunnerTradedVolume(106, pricesTradedVolume));
+		List<HeatMapValue> values1 = new ArrayList<HeatMapValue>();
+		values1.add(new HeatMapValue(2.1, 35.32));
+		values1.add(new HeatMapValue(2.2, 765.56));
+		HeatMapColumn heatMapColumn1 = new HeatMapColumn("ManUtd", values1);
+		columns.add(heatMapColumn1);
 
-		marketTradedVolume = new MarketTradedVolume(12, runnersTradedVolume,0);
+		List<HeatMapValue> values2 = new ArrayList<HeatMapValue>();
+		values2.add(new HeatMapValue(3.4, 43.24));
+		values2.add(new HeatMapValue(3.6, 65.12));
+		HeatMapColumn heatMapColumn2 = new HeatMapColumn("ManUtd", values2);
+		columns.add(heatMapColumn2);
+
+		ds = new HeatMapModelDataSource(columns);
 	}
 
 	@Test
 	public void testCreateHeatMap() {
 
-		BioHeatMapModel heapMap = HeatMapModelFactory
-				.createHeatMap(marketTradedVolume,0,1);
+		HeatMapModelDataSource heatMap = HeatMapModelFactory.createHeatMap(ds, 0, 1);
 
-		assertEquals(marketTradedVolume.getRunnerTradedVolume().size(), heapMap.getxAxisLabels().length);
-		assertEquals(101, heapMap.getyAxisLabels().length);
+		assertEquals(ds.getColumns().size(), heatMap.getColumns().size());
+		assertEquals(101, heatMap.getColumns().get(0).getValues().size());
 
-		assertEquals(marketTradedVolume.getRunnerTradedVolume().size(), heapMap.getValues().length);	
-		for (int runnerIndex = 0; runnerIndex < marketTradedVolume.getRunnerTradedVolume().size(); runnerIndex++) {
-			RunnerTradedVolume runnerTradedVolume = marketTradedVolume.getRunnerTradedVolume().get(runnerIndex);
-			
-			assertEquals(101,heapMap.getValues()[runnerIndex].length);
-			for (int priceIndex = 0; priceIndex < heapMap.getValues()[runnerIndex].length; priceIndex++) {
-				double normalizedPriceTradedVolume = heapMap.getValues()[runnerIndex][priceIndex];
-					
-				if (runnerTradedVolume.getSelectionId() == 105 && priceIndex == 47) {
-					assertEquals(35.32, normalizedPriceTradedVolume, 0);
-				}
-				else if (runnerTradedVolume.getSelectionId() == 105 && priceIndex == 45) {
-					assertEquals(765.56, normalizedPriceTradedVolume, 0);
-				}
-				else if (runnerTradedVolume.getSelectionId() == 106 && priceIndex == 29) {
-					assertEquals(43.24, normalizedPriceTradedVolume, 0);
-				}
-				else if (runnerTradedVolume.getSelectionId() == 106 && priceIndex == 27) {
-					assertEquals(65.12, normalizedPriceTradedVolume, 0);
-				}
-				else {
-					assertEquals("selectionId=" + runnerTradedVolume.getSelectionId() + ", priceIndex=" + priceIndex,0, normalizedPriceTradedVolume, 0);
-				}
-			}
-		}
+		assertEquals(765.56, heatMap.getColumns().get(0).getValues().get(45).getCellValue(), 0);
+		assertEquals(35.32, heatMap.getColumns().get(0).getValues().get(47).getCellValue(), 0);
+
+		assertEquals(43.24, heatMap.getColumns().get(1).getValues().get(29).getCellValue(), 0);
+		assertEquals(65.12, heatMap.getColumns().get(1).getValues().get(27).getCellValue(), 0);
 	}
 }

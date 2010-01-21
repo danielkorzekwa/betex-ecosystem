@@ -16,14 +16,20 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDaoImpl;
+import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDao;
+import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDaoImpl;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDaoImpl;
 import dk.betex.ecosystem.marketdatacollector.factory.MarketTradedVolumeFactory;
 import dk.betex.ecosystem.marketdatacollector.model.MarketDetails;
+import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
-import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
+import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource;
+import dk.betex.ecosystem.webconsole.client.service.MarketFunctionEnum;
 import dk.betex.ecosystem.webconsole.client.service.MarketInfo;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
+import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapColumn;
+import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapValue;
 import dk.bot.betfairservice.BetFairService;
 import dk.bot.betfairservice.DefaultBetFairServiceFactoryBean;
 import dk.bot.betfairservice.model.BFMarketDetails;
@@ -42,6 +48,7 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	private BetFairService betfairService;
 	private MarketTradedVolumeDao marketTradedVolueDao;
 	private MarketDetailsDao marketDetailsDao;
+	private MarketPricesDao marketPricesDao;
 
 	@Override
 	public void init() throws ServletException {
@@ -67,10 +74,11 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 		/** Init DAOs */
 		marketTradedVolueDao = new MarketTradedVolumeDaoImpl(new Database("10.2.2.72", "market_traded_volume"));
 		marketDetailsDao = new MarketDetailsDaoImpl(new Database("10.2.2.72", "market_details"));
+		marketPricesDao = new MarketPricesDaoImpl(new Database("10.2.2.72", "market_prices"));
 	}
 
 	@Override
-	public BioHeatMapModel getMarketTradedVolume(int marketId) {
+	public HeatMapModelDataSource getMarketTradedVolume(int marketId) {
 		try {
 			BFMarketTradedVolume bfMarketTradedVolume = betfairService.getMarketTradedVolume(marketId);
 			BFMarketDetails marketDetails = betfairService.getMarketDetails(marketId);
@@ -78,22 +86,24 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 			MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume, new Date(
 					System.currentTimeMillis()));
 
-			BioHeatMapModel marketHeatMap = HeatMapModelFactory.createHeatMap(marketTradedVolume, 0, 100);
+			HeatMapModelDataSource marketHeatMap = HeatMapModelDataSourceFactory.create(marketTradedVolume);
+			HeatMapModelDataSource ds = HeatMapModelFactory.createHeatMap(marketHeatMap, 0, 1);
 
 			/** Replace selectionId with selectionName */
-			for (int i = 0; i < marketHeatMap.getxAxisLabels().length; i++) {
-				int selectionId = Integer.parseInt(marketHeatMap.getxAxisLabels()[i]);
+			for(HeatMapColumn column: ds.getColumns()) {
+				int selectionId = Integer.parseInt(column.getLabel());
 				String selectionName = marketDetails.getSelectionName(selectionId);
-				marketHeatMap.getxAxisLabels()[i] = selectionName;
+				column.setLabel(selectionName);
 			}
-
+			
 			/** Change probabilities to prices */
-			for (int i = 0; i < marketHeatMap.getyAxisLabels().length; i++) {
-				double price = Double.parseDouble(marketHeatMap.getyAxisLabels()[i]) / 100d;
-				marketHeatMap.getyAxisLabels()[i] = "" + MathUtils.round(1d / price, 2);
+			for (HeatMapColumn column : ds.getColumns()) {
+				for (HeatMapValue value : column.getValues()) {
+					value.setRowValue(MathUtils.round(1d / value.getRowValue(), 2));
+				}
 			}
 
-			return marketHeatMap;
+			return ds;
 		} catch (Exception e) {
 			LogFactory.getLog(this.getClass()).error("Can't get market traded volume for market: " + marketId, e);
 			throw new RuntimeException(e);
@@ -101,10 +111,11 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	}
 
 	/**
-	 * Returns history of traded volume for a given market and period of time. The range min/max allows to zoom in/out
-	 * inside the market traded volume and to analyse given range of probabilities in more details.
+	 * Returns history of data for a given market, {@link MarketFunctionEnum} and period of time. The range min/max
+	 * allows to zoom in/out inside the data and to analyse given range of probabilities in more details.
 	 * 
 	 * @param marketId
+	 * @param marketFunction
 	 * @param from
 	 *            Get market traded history from the given time.
 	 * @param to
@@ -113,38 +124,81 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	 *            Max number of records to be returned by this method.
 	 * @return
 	 */
-	public List<BioHeatMapModel> getMarketTradedVolumeHistory(int marketId, long from, long to, int limit,
-			double probMin, double probMax) {
+	public List<HeatMapModelDataSource> getMarketData(int marketId, MarketFunctionEnum marketFunction, long from,
+			long to, int limit, double probMin, double probMax) {
 
-		ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(marketId,
-				from, to, limit);
-		ArrayList<BioHeatMapModel> heatMapList = new ArrayList<BioHeatMapModel>();
+		ArrayList<HeatMapModelDataSource> heatMapList = new ArrayList<HeatMapModelDataSource>();
 
-		for (ValueRow<MarketTradedVolume> valueRow : marketTradedVolumeList.getRows()) {
-			MarketTradedVolume marketTradedVolume = valueRow.getValue();
+		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
+			ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(
+					marketId, from, to, limit);
+			for (ValueRow<MarketTradedVolume> valueRow : marketTradedVolumeList.getRows()) {
+				MarketTradedVolume marketTradedVolume = valueRow.getValue();
 
-			BioHeatMapModel marketHeatMap = HeatMapModelFactory.createHeatMap(marketTradedVolume, probMin, probMax);
-
-			/** Change probabilities to prices */
-			for (int i = 0; i < marketHeatMap.getyAxisLabels().length; i++) {
-				double prob = Double.parseDouble(marketHeatMap.getyAxisLabels()[i]);
-				marketHeatMap.getyAxisLabels()[i] = "" + MathUtils.round(1d / prob, 2);
+				HeatMapModelDataSource ds = HeatMapModelDataSourceFactory.create(marketTradedVolume);
+				HeatMapModelDataSource marketHeatMap = HeatMapModelFactory.createHeatMap(ds, probMin, probMax);
+				heatMapList.add(marketHeatMap);
 			}
 
-			heatMapList.add(marketHeatMap);
+		} else if (marketFunction == MarketFunctionEnum.MARKET_PRICES) {
+			ViewResult<MarketPrices> marketPricesList = marketPricesDao.get(marketId, from, to, limit);
+			for (ValueRow<MarketPrices> valueRow : marketPricesList.getRows()) {
+				MarketPrices marketPrices = valueRow.getValue();
+				// BioHeatMapModel marketHeatMap = HeatMapModelFactory.createHeatMap(marketPrices, probMin, probMax);
+				// heatMapList.add(marketHeatMap);
+			}
+
+		} else {
+			throw new IllegalArgumentException("Market function is not supported: " + marketFunction);
+		}
+
+		/** Change probabilities to prices. */
+		for (HeatMapModelDataSource marketHeatMap : heatMapList) {
+			for (HeatMapColumn column : marketHeatMap.getColumns()) {
+				for (HeatMapValue value : column.getValues()) {
+					value.setRowValue(MathUtils.round(1d / value.getRowValue(), 2));
+				}
+			}
 		}
 
 		return heatMapList;
+
 	}
 
+	/**
+	 * Returns number of time stamped records in the database for the given market and {@link MarketFunctionEnum}.
+	 * 
+	 * @param marketId
+	 * @param marketFunction
+	 * @return
+	 */
 	@Override
-	public long getNumOfRecords(long marketId) {
-		return marketTradedVolueDao.getNumOfRecords(marketId);
+	public long getNumOfRecords(long marketId, MarketFunctionEnum marketFunction) {
+		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
+			return marketTradedVolueDao.getNumOfRecords(marketId);
+		} else if (marketFunction == MarketFunctionEnum.MARKET_PRICES) {
+			return marketPricesDao.getNumOfRecords(marketId);
+		} else {
+			throw new IllegalArgumentException("Market function is not supported: " + marketFunction);
+		}
 	}
 
+	/**
+	 * Returns minimum and max dates for the given market and {@link MarketFunctionEnum}
+	 * 
+	 * @param marketId
+	 * @param marketFunction
+	 * @return Element 0 - minimum date, element 1 - maximum date. Null is returned if no data for market is available.
+	 */
 	@Override
-	public List<Long> getTimeRange(long marketId) {
-		return marketTradedVolueDao.getTimeRange(marketId);
+	public List<Long> getTimeRange(long marketId, MarketFunctionEnum marketFunction) {
+		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
+			return marketTradedVolueDao.getTimeRange(marketId);
+		} else if (marketFunction == MarketFunctionEnum.MARKET_PRICES) {
+			return marketPricesDao.getTimeRange(marketId);
+		} else {
+			throw new IllegalArgumentException("Market function is not supported: " + marketFunction);
+		}
 	}
 
 	/**

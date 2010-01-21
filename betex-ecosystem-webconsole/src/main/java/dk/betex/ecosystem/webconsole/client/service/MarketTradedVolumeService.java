@@ -5,8 +5,6 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
-import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
-
 /**
  * Returns traded volume at each price on all of the runners in a particular market.
  * 
@@ -25,13 +23,14 @@ public interface MarketTradedVolumeService extends RemoteService {
 	 * @param marketId
 	 * @return
 	 */
-	public BioHeatMapModel getMarketTradedVolume(int marketId);
+	public HeatMapModelDataSource getMarketTradedVolume(int marketId);
 
 	/**
-	 * Returns history of traded volume for a given market and period of time. The range min/max allows to zoom in/out
-	 * inside the market traded volume and to analyse given range of probabilities in more details.
+	 * Returns history of data for a given market, {@link MarketFunctionEnum} and  period of time. The range min/max allows to zoom in/out
+	 * inside the data and to analyse given range of probabilities in more details.
 	 * 
 	 * @param marketId
+	 * @param marketFunction
 	 * @param from
 	 *            Get market traded history from the given time.
 	 * @param to
@@ -40,22 +39,24 @@ public interface MarketTradedVolumeService extends RemoteService {
 	 *            Max number of records to be returned by this method.
 	 * @return
 	 */
-	public List<BioHeatMapModel> getMarketTradedVolumeHistory(int marketId, long from, long to, int limit,double probMin, double probMax);
+	public List<HeatMapModelDataSource> getMarketData(int marketId, MarketFunctionEnum marketFunction, long from, long to, int limit,double probMin, double probMax);
 	
-	/**Returns number of time stamped traded volume records in the database for the given market.
+	/**Returns number of time stamped records in the database for the given market and {@link MarketFunctionEnum}.
 	 * 
 	 * @param marketId
+	 * @param marketFunction
 	 * @return
 	 */
-	public long getNumOfRecords(long marketId);
+	public long getNumOfRecords(long marketId,MarketFunctionEnum marketFunction);
 	
 	/**
-	 * Returns minimum and max dates for history of market traded volume.
+	 * Returns minimum and max dates for the given market and {@link MarketFunctionEnum} 
 	 * 
 	 * @param marketId
+	 * @param marketFunction
 	 * @return Element 0 - minimum date, element 1 - maximum date. Null is returned if no data for market is available.
 	 */
-	public List<Long> getTimeRange(long marketId);
+	public List<Long> getTimeRange(long marketId,MarketFunctionEnum marketFunction);
 	
 	/**Get list of markets ordered by marketTime from the newest to the oldest.
 	 * 

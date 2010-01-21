@@ -1,9 +1,11 @@
 package dk.betex.ecosystem.webconsole.server;
 
-import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
-import dk.betex.ecosystem.marketdatacollector.model.PriceTradedVolume;
-import dk.betex.ecosystem.marketdatacollector.model.RunnerTradedVolume;
-import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
+import java.util.ArrayList;
+import java.util.List;
+
+import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource;
+import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapColumn;
+import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapValue;
 
 /**
  * Creates MarketTradedVolume object.
@@ -26,43 +28,34 @@ public class HeatMapModelFactory {
 	 * 
 	 * @return
 	 */
-	public static BioHeatMapModel createHeatMap(MarketTradedVolume marketTradedVolume, double min, double max) {
+	public static HeatMapModelDataSource createHeatMap(HeatMapModelDataSource ds, double min, double max) {
 
-		BioHeatMapModel heatMapModel = new BioHeatMapModel();
-
-		/** Set x-axis labels */
-		int xAxisSize = marketTradedVolume.getRunnerTradedVolume().size();
-		String[] xAxisLabels = new String[xAxisSize];
-		for (int i = 0; i < marketTradedVolume.getRunnerTradedVolume().size(); i++) {
-			int selectionId = marketTradedVolume.getRunnerTradedVolume().get(i).getSelectionId();
-			xAxisLabels[i] = "" + selectionId;
-		}
-		heatMapModel.setxAxisLabels(xAxisLabels);
-
-		/** Set y-axis labels */
-		int yAxisSize = 101;
-		String[] yAxisLabels = new String[yAxisSize];
-		for (int i = 0; i < yAxisSize; i++) {
-			yAxisLabels[i] = "" + ((double)i/100  * (max - min) + min);
-		}
-		heatMapModel.setyAxisLabels(yAxisLabels);
-
-		/** Set values */
-		double[][] values = new double[xAxisSize][yAxisSize];
-		for (int runnerIndex = 0; runnerIndex < marketTradedVolume.getRunnerTradedVolume().size(); runnerIndex++) {
-
-			RunnerTradedVolume runnerTradedVolume = marketTradedVolume.getRunnerTradedVolume().get(runnerIndex);
-
-			for (PriceTradedVolume priceTradedVolume : runnerTradedVolume.getPriceTradedVolume()) {
-				double prob = 1 / priceTradedVolume.getPrice();
+		List<HeatMapColumn> columns = new ArrayList<HeatMapColumn>();
+		
+		for (int columnIndex = 0; columnIndex <  ds.getColumns().size(); columnIndex++) {
+			HeatMapColumn column = ds.getColumns().get(columnIndex);
+			
+			/**Create 100 empty values*/
+			List<HeatMapValue> values = new ArrayList<HeatMapValue>();
+			for(int rowIndex=0;rowIndex<101;rowIndex++) {
+				double rowValue = ((double)rowIndex/100  * (max - min) + min);
+				values.add(new HeatMapValue(rowValue, 0));
+			}	
+			
+			/**Reduce input values.*/
+			for (int rowIndex=0;rowIndex<column.getValues().size();rowIndex++) {
+				double prob = 1 / column.getValues().get(rowIndex).getRowValue();
 				if (prob >= min && prob <= max) {
 					double scaledProb = (prob - min) / (max - min);
-					values[runnerIndex][(int) (scaledProb * 100)] += priceTradedVolume.getTradedVolume();
+					HeatMapValue value = values.get((int) (scaledProb * 100));
+					value.setCellValue(value.getCellValue() + column.getValues().get(rowIndex).getCellValue());
 				}
 			}
+			
+			columns.add(new HeatMapColumn( column.getLabel(), values));
 		}
-		heatMapModel.setValues(values);
-
+		
+		HeatMapModelDataSource heatMapModel = new HeatMapModelDataSource(columns );
 		return heatMapModel;
 	}
 
