@@ -2,6 +2,8 @@ package dk.betex.ecosystem.marketdatacollector.dao;
 
 import java.util.List;
 
+import org.jcouchdb.document.BaseDocument;
+import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.jcouchdb.document.ViewResult;
 
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
@@ -32,7 +34,7 @@ public interface MarketTradedVolumeDao {
 	 *            Maximum number of records to be returned. Useful for pagination.
 	 * @return
 	 */
-	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to, int limit);
+	public ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to, int limit);
 
 	/**
 	 * Returns number of timestamped traded volume records in the database for the given market

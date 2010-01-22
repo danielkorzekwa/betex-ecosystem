@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jcouchdb.db.Database;
+import org.jcouchdb.document.BaseDocument;
+import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.jcouchdb.document.ViewResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,21 +36,21 @@ public class MarketTradedVolumeDaoImplTest {
 		marketTradedVolueDao.addMarketTradedVolume(marketTradedVolume);
 
 		/** Get market traded volume from the couch db and check if it's correct. */
-		ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(
+		ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(
 				marketTradedVolume.getMarketId(), marketTradedVolume.getTimestamp(), marketTradedVolume.getTimestamp(),Integer.MAX_VALUE);
 
 		assertEquals(1, marketTradedVolumeList.getRows().size());
 
-		assertEquals(marketTradedVolume.getMarketId(), marketTradedVolumeList.getRows().get(0).getValue().getMarketId());
-		assertEquals(marketTradedVolume.getTimestamp(), marketTradedVolumeList.getRows().get(0).getValue()
+		assertEquals(marketTradedVolume.getMarketId(), marketTradedVolumeList.getRows().get(0).getDocument().getMarketId());
+		assertEquals(marketTradedVolume.getTimestamp(), marketTradedVolumeList.getRows().get(0).getDocument()
 				.getTimestamp());
 
 		assertEquals(marketTradedVolume.getRunnerTradedVolume().size(), marketTradedVolumeList.getRows().get(0)
-				.getValue().getRunnerTradedVolume().size());
+				.getDocument().getRunnerTradedVolume().size());
 
 		for (int runnerIndex = 0; runnerIndex < marketTradedVolume.getRunnerTradedVolume().size(); runnerIndex++) {
 			RunnerTradedVolume runnerTradedVolume = marketTradedVolume.getRunnerTradedVolume().get(runnerIndex);
-			RunnerTradedVolume runnerTradedVolumeDB = marketTradedVolumeList.getRows().get(0).getValue()
+			RunnerTradedVolume runnerTradedVolumeDB = marketTradedVolumeList.getRows().get(0).getDocument()
 					.getRunnerTradedVolume().get(runnerIndex);
 
 			assertEquals(runnerTradedVolume.getSelectionId(), runnerTradedVolumeDB.getSelectionId());
@@ -74,20 +76,20 @@ public class MarketTradedVolumeDaoImplTest {
 		marketTradedVolueDao.addMarketTradedVolume(marketTradedVolumeList.get(1));
 
 		/** Get market traded volume from the couch db and check if it's correct. */
-		ViewResult<MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
+		ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
 				marketTradedVolumeList.get(0).getMarketId(), marketTradedVolumeList.get(0).getTimestamp(),
 				marketTradedVolumeList.get(1).getTimestamp(),Integer.MAX_VALUE);
 
 		assertEquals(2, marketTradedVolume.getRows().size());
 
-		assertEquals(marketTradedVolumeList.get(0).getMarketId(), marketTradedVolume.getRows().get(0).getValue()
+		assertEquals(marketTradedVolumeList.get(0).getMarketId(), marketTradedVolume.getRows().get(0).getDocument()
 				.getMarketId());
-		assertEquals(marketTradedVolumeList.get(0).getTimestamp(), marketTradedVolume.getRows().get(0).getValue()
+		assertEquals(marketTradedVolumeList.get(0).getTimestamp(), marketTradedVolume.getRows().get(0).getDocument()
 				.getTimestamp());
 
-		assertEquals(marketTradedVolumeList.get(1).getMarketId(), marketTradedVolume.getRows().get(1).getValue()
+		assertEquals(marketTradedVolumeList.get(1).getMarketId(), marketTradedVolume.getRows().get(1).getDocument()
 				.getMarketId());
-		assertEquals(marketTradedVolumeList.get(1).getTimestamp(), marketTradedVolume.getRows().get(1).getValue()
+		assertEquals(marketTradedVolumeList.get(1).getTimestamp(), marketTradedVolume.getRows().get(1).getDocument()
 				.getTimestamp());
 
 	}
@@ -101,7 +103,7 @@ public class MarketTradedVolumeDaoImplTest {
 		}
 
 		/** Get market traded volume from the couch db and check if it's correct. */
-		ViewResult<MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
+		ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
 				marketTradedVolumeList.get(0).getMarketId(), marketTradedVolumeList.get(0).getTimestamp(),
 				marketTradedVolumeList.get(19).getTimestamp(),Integer.MAX_VALUE);
 
@@ -118,7 +120,7 @@ public class MarketTradedVolumeDaoImplTest {
 		}
 
 		/** Get market traded volume from the couch db and check if it's correct. */
-		ViewResult<MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
+		ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
 				marketTradedVolumeList.get(0).getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 
 		assertEquals(20, marketTradedVolume.getRows().size());
@@ -134,7 +136,7 @@ public class MarketTradedVolumeDaoImplTest {
 		}
 
 		/** Get market traded volume from the couch db and check if it's correct. */
-		ViewResult<MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
+		ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolume = marketTradedVolueDao.getMarketTradedVolume(
 				marketTradedVolumeList.get(0).getMarketId(), 0, Long.MAX_VALUE,10);
 
 		assertEquals(10, marketTradedVolume.getRows().size());

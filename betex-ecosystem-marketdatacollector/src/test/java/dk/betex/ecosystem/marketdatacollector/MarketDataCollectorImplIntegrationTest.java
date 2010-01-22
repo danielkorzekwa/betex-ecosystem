@@ -10,6 +10,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.jcouchdb.document.BaseDocument;
+import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.jcouchdb.document.ViewResult;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -65,12 +67,12 @@ public class MarketDataCollectorImplIntegrationTest {
 	@Test
 	public void test() throws Exception {
 		/** Check if market traded volume is stored in database */
-		ViewResult<MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket
+		 ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket
 				.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 
 		/** Wait 3 seconds, then check if some traded volume records are written to the database. */
 		Thread.sleep(3000);
-		ViewResult<MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket
+		 ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket
 				.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 		assertTrue("Atleast 4 marketTradedVolume records should be stored in the database.", marketTradedVolumeAfter
 				.getRows().size() >= marketTradedVolumeBefore.getRows().size() + 4);

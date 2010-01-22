@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jcouchdb.db.Database;
+import org.jcouchdb.document.BaseDocument;
+import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.jcouchdb.document.ViewResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,11 +70,11 @@ public class MarketDetailsDaoImplTest {
 		marketDetailsDao.addMarketDetails(marketDetails3);
 		Thread.sleep(10);
 
-		ViewResult<MarketDetails> result = marketDetailsDao.getMarketDetailsList(2);
+		ViewAndDocumentsResult<BaseDocument,MarketDetails> result = marketDetailsDao.getMarketDetailsList(2);
 
 		assertEquals(2, result.getRows().size());
 		assertTrue("Market details records are not ordered from the newest to the oldest", result.getRows().get(0)
-				.getValue().getMarketTime() > result.getRows().get(1).getValue().getMarketTime());
+				.getDocument().getMarketTime() > result.getRows().get(1).getDocument().getMarketTime());
 
 	}
 

@@ -2,6 +2,8 @@ package dk.betex.ecosystem.marketdatacollector.dao;
 
 import java.util.List;
 
+import org.jcouchdb.document.BaseDocument;
+import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.jcouchdb.document.ViewResult;
 
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
@@ -33,7 +35,7 @@ public interface MarketPricesDao {
 	 *            Maximum number of records to be returned. Useful for pagination.
 	 * @return
 	 */
-	public ViewResult<MarketPrices> get(long marketId, long from, long to, int limit);
+	public ViewAndDocumentsResult<BaseDocument,MarketPrices> get(long marketId, long from, long to, int limit);
 
 	/**
 	 * Returns number of timestamped marketPrices records in the database for the given market

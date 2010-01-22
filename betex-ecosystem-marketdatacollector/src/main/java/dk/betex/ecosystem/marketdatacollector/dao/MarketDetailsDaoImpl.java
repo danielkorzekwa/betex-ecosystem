@@ -38,11 +38,11 @@ public class MarketDetailsDaoImpl implements MarketDetailsDao {
 	}
 
 	@Override
-	public ViewResult<MarketDetails> getMarketDetailsList(int limit) {
+	public ViewAndDocumentsResult<BaseDocument,MarketDetails> getMarketDetailsList(int limit) {
 		Options options = new Options();
 		options.limit(limit);
 		options.descending(true);
-		ViewResult<MarketDetails> result = database.queryView("marketdetails/byMarketTime", MarketDetails.class, options , null);
+		ViewAndDocumentsResult<BaseDocument,MarketDetails> result = database.queryViewAndDocuments("marketdetails/byMarketTime", BaseDocument.class,MarketDetails.class, options , null);
 		return result;
 	}
 }

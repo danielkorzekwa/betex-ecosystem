@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.jcouchdb.db.Database;
 import org.jcouchdb.db.Options;
+import org.jcouchdb.document.BaseDocument;
+import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.jcouchdb.document.ViewResult;
 
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
@@ -45,11 +47,11 @@ public class MarketPricesDaoImpl implements MarketPricesDao{
 	 *            Maximum number of records to be returned. Useful for pagination.
 	 * @return
 	 */
-	public ViewResult<MarketPrices> get(long marketId, long from, long to, int limit) {
+	public ViewAndDocumentsResult<BaseDocument,MarketPrices> get(long marketId, long from, long to, int limit) {
 		Options options = new Options().startKey(Arrays.asList(marketId, from)).endKey(Arrays.asList(marketId, to));
 		options.limit(limit);
-		ViewResult<MarketPrices> marketPrices = database.queryView("marketprices/byMarketIdAndTimestamp",
-				MarketPrices.class, options, null);
+		ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPrices = database.queryViewAndDocuments("marketprices/byMarketIdAndTimestamp",
+				BaseDocument.class,MarketPrices.class, options, null);
 		return marketPrices;
 	}
 

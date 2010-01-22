@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jcouchdb.db.Database;
+import org.jcouchdb.document.BaseDocument;
+import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.jcouchdb.document.ViewResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,20 +39,20 @@ public class MarketPricesDaoImplTest {
 		marketPricesDao.add(marketPrices);
 
 		/** Get market prices from the couch db and check if it's correct. */
-		ViewResult<MarketPrices> marketPricesFromDb = marketPricesDao.get(marketPrices.getMarketId(), marketPrices
+		ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesFromDb = marketPricesDao.get(marketPrices.getMarketId(), marketPrices
 				.getTimestamp(), marketPrices.getTimestamp(), Integer.MAX_VALUE);
 		assertEquals(1, marketPricesFromDb.getRows().size());
 
-		assertEquals(marketPrices.getMarketId(), marketPricesFromDb.getRows().get(0).getValue().getMarketId());
-		assertEquals(marketPrices.getTimestamp(), marketPricesFromDb.getRows().get(0).getValue().getTimestamp());
-		assertEquals(marketPrices.getInPlayDelay(), marketPricesFromDb.getRows().get(0).getValue().getInPlayDelay());
+		assertEquals(marketPrices.getMarketId(), marketPricesFromDb.getRows().get(0).getDocument().getMarketId());
+		assertEquals(marketPrices.getTimestamp(), marketPricesFromDb.getRows().get(0).getDocument().getTimestamp());
+		assertEquals(marketPrices.getInPlayDelay(), marketPricesFromDb.getRows().get(0).getDocument().getInPlayDelay());
 
-		assertEquals(marketPrices.getRunnerPrices().size(), marketPricesFromDb.getRows().get(0).getValue()
+		assertEquals(marketPrices.getRunnerPrices().size(), marketPricesFromDb.getRows().get(0).getDocument()
 				.getRunnerPrices().size());
 
 		for (int runnerPriceIndex = 0; runnerPriceIndex < marketPrices.getRunnerPrices().size(); runnerPriceIndex++) {
 			RunnerPrices runnerPrices = marketPrices.getRunnerPrices().get(runnerPriceIndex);
-			RunnerPrices runnerPricesFromDb = marketPricesFromDb.getRows().get(0).getValue().getRunnerPrices().get(
+			RunnerPrices runnerPricesFromDb = marketPricesFromDb.getRows().get(0).getDocument().getRunnerPrices().get(
 					runnerPriceIndex);
 
 			assertEquals(runnerPrices.getSelectionId(), runnerPricesFromDb.getSelectionId());
@@ -80,19 +82,19 @@ public class MarketPricesDaoImplTest {
 		marketPricesDao.add(marketPricesList.get(1));
 
 		/** Get market prices from the couch db and check if it's correct. */
-		ViewResult<MarketPrices> marketPricesFromDb = marketPricesDao.get(marketPricesList.get(0).getMarketId(),
+		ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesFromDb = marketPricesDao.get(marketPricesList.get(0).getMarketId(),
 				marketPricesList.get(0).getTimestamp(), marketPricesList.get(1).getTimestamp(), Integer.MAX_VALUE);
 
 		assertEquals(2, marketPricesFromDb.getRows().size());
 
-		assertEquals(marketPricesList.get(0).getMarketId(), marketPricesFromDb.getRows().get(0).getValue()
+		assertEquals(marketPricesList.get(0).getMarketId(), marketPricesFromDb.getRows().get(0).getDocument()
 				.getMarketId());
-		assertEquals(marketPricesList.get(0).getTimestamp(), marketPricesFromDb.getRows().get(0).getValue()
+		assertEquals(marketPricesList.get(0).getTimestamp(), marketPricesFromDb.getRows().get(0).getDocument()
 				.getTimestamp());
 
-		assertEquals(marketPricesList.get(1).getMarketId(), marketPricesFromDb.getRows().get(1).getValue()
+		assertEquals(marketPricesList.get(1).getMarketId(), marketPricesFromDb.getRows().get(1).getDocument()
 				.getMarketId());
-		assertEquals(marketPricesList.get(1).getTimestamp(), marketPricesFromDb.getRows().get(1).getValue()
+		assertEquals(marketPricesList.get(1).getTimestamp(), marketPricesFromDb.getRows().get(1).getDocument()
 				.getTimestamp());
 	}
 
@@ -106,7 +108,7 @@ public class MarketPricesDaoImplTest {
 		}
 
 		/** Get market prices from the couch db and check if it's correct. */
-		ViewResult<MarketPrices> marketPricesFromDb = marketPricesDao.get(marketPricesList.get(0).getMarketId(),
+		ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesFromDb = marketPricesDao.get(marketPricesList.get(0).getMarketId(),
 				marketPricesList.get(0).getTimestamp(), marketPricesList.get(19).getTimestamp(), Integer.MAX_VALUE);
 
 		assertEquals(20, marketPricesFromDb.getRows().size());
@@ -123,7 +125,7 @@ public class MarketPricesDaoImplTest {
 		}
 
 		/** Get market prices from the couch db and check if it's correct. */
-		ViewResult<MarketPrices> marketPricesFromDb = marketPricesDao.get(marketPricesList.get(0).getMarketId(),
+		ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesFromDb = marketPricesDao.get(marketPricesList.get(0).getMarketId(),
 				0, Long.MAX_VALUE, Integer.MAX_VALUE);
 
 		assertEquals(20, marketPricesFromDb.getRows().size());
@@ -140,7 +142,7 @@ public class MarketPricesDaoImplTest {
 		}
 
 		/** Get market prices from the couch db and check if it's correct. */
-		ViewResult<MarketPrices> marketPricesFromDb = marketPricesDao.get(marketPricesList.get(0).getMarketId(),
+		ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesFromDb = marketPricesDao.get(marketPricesList.get(0).getMarketId(),
 				0, Long.MAX_VALUE, 10);
 
 		assertEquals(10, marketPricesFromDb.getRows().size());

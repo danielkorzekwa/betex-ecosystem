@@ -1,3 +1,3 @@
 function(doc) {
-  emit(doc.marketTime, doc);
+  emit(doc.marketTime, null);
 }

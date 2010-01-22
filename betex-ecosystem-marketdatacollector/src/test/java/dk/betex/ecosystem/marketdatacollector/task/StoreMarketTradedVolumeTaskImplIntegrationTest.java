@@ -11,6 +11,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.jcouchdb.document.BaseDocument;
+import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.jcouchdb.document.ViewResult;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -66,14 +68,14 @@ public class StoreMarketTradedVolumeTaskImplIntegrationTest {
 			fail("Cannot run test because of betfair market not found on the betting exchange");
 		}
 		
-		ViewResult<MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
-		ViewResult<MarketPrices> marketPricesBefore = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
+		 ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
+		 ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesBefore = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 		
 		storeMarketTradedVolumeTask.execute(hrMarket.getMarketId());
 		
 		/**Check if market traded volume is stored in db*/
-		ViewResult<MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
-		ViewResult<MarketPrices> marketPricesAfter = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
+		 ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
+		 ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesAfter = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 		
 		assertEquals(marketTradedVolumeBefore.getRows().size()+1, marketTradedVolumeAfter.getRows().size());
 		assertEquals(marketPricesBefore.getRows().size()+1, marketPricesAfter.getRows().size());
@@ -92,15 +94,15 @@ public class StoreMarketTradedVolumeTaskImplIntegrationTest {
 			fail("Cannot run test because of betfair market not found on the betting exchange");
 		}
 		
-		ViewResult<MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
-		ViewResult<MarketPrices> marketPricesBefore = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
+		 ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
+		ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesBefore = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 		
 		storeMarketTradedVolumeTask.execute(hrMarket.getMarketId());
 		storeMarketTradedVolumeTask.execute(hrMarket.getMarketId());
 		
 		/**Check if market traded volume is stored in db*/
-		ViewResult<MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
-		ViewResult<MarketPrices> marketPricesAfter = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
+		 ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0,Long.MAX_VALUE,Integer.MAX_VALUE);
+		 ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesAfter = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
 		
 		assertEquals(marketTradedVolumeBefore.getRows().size()+2, marketTradedVolumeAfter.getRows().size());
 		assertEquals(marketPricesBefore.getRows().size()+2, marketPricesAfter.getRows().size());

@@ -1,5 +1,7 @@
 package dk.betex.ecosystem.marketdatacollector.dao;
 
+import org.jcouchdb.document.BaseDocument;
+import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.jcouchdb.document.ViewResult;
 
 import dk.betex.ecosystem.marketdatacollector.model.MarketDetails;
@@ -22,5 +24,5 @@ public interface MarketDetailsDao {
 	 * @param limit
 	 *            Maximum number of markets to returned.
 	 */
-	ViewResult<MarketDetails> getMarketDetailsList(int limit);
+	ViewAndDocumentsResult<BaseDocument,MarketDetails> getMarketDetailsList(int limit);
 }

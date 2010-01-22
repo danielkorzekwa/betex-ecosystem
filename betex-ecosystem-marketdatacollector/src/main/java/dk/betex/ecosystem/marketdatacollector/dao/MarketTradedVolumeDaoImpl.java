@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.jcouchdb.db.Database;
 import org.jcouchdb.db.Options;
+import org.jcouchdb.document.BaseDocument;
+import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.jcouchdb.document.ViewResult;
 import org.jcouchdb.util.CouchDBUpdater;
 
@@ -47,11 +49,12 @@ public class MarketTradedVolumeDaoImpl implements MarketTradedVolumeDao {
 	 * @return
 	 */
 	@Override
-	public ViewResult<MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to, int limit) {
+	public ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> getMarketTradedVolume(long marketId, long from, long to, int limit) {
 		Options options = new Options().startKey(Arrays.asList(marketId, from)).endKey(Arrays.asList(marketId, to));
 		options.limit(limit);
-		ViewResult<MarketTradedVolume> marketTradedVolume = database.queryView("markettradedvolume/byMarketIdAndTimestamp",
-				MarketTradedVolume.class, options, null);
+				
+		ViewAndDocumentsResult<BaseDocument, MarketTradedVolume> marketTradedVolume = database.queryViewAndDocuments("markettradedvolume/byMarketIdAndTimestamp",
+				BaseDocument.class,MarketTradedVolume.class, options, null);
 		return marketTradedVolume;
 	}
 
