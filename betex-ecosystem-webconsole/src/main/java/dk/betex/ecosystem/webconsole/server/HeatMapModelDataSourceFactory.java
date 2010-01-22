@@ -38,18 +38,8 @@ public class HeatMapModelDataSourceFactory {
 		List<HeatMapColumn> columns = new ArrayList<HeatMapColumn>();
 		for (RunnerPrices runnerPrices : marketPrices.getRunnerPrices()) {
 			List<HeatMapValue> values = new ArrayList<HeatMapValue>();
-			for (PriceUnmatchedVolume priceVolume : runnerPrices.getPrices()) {
-				if (priceVolume.getTotalToBack() > 0 && priceVolume.getTotalToLay() == 0) {
-					values.add(new HeatMapValue(priceVolume.getPrice(), priceVolume.getTotalToBack()));
-				} else if (priceVolume.getTotalToBack() == 0 && priceVolume.getTotalToLay() > 0) {
-					values.add(new HeatMapValue(priceVolume.getPrice(), -priceVolume.getTotalToLay()));
-				} else if (priceVolume.getTotalToBack() == 0 && priceVolume.getTotalToLay() == 0) {
-					/** Do nothing */
-				} else {
-					throw new IllegalArgumentException(
-							"Both toBack and toLay unmatched bets available at the same price");
-				}
-			}
+			
+			values.add(new HeatMapValue(runnerPrices.getLastPriceMatched(),1d));
 			columns.add(new HeatMapColumn("" + runnerPrices.getSelectionId(), values));
 		}
 

@@ -140,7 +140,7 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 				heatMapList.add(marketHeatMap);
 			}
 
-		} else if (marketFunction == MarketFunctionEnum.MARKET_PRICES) {
+		} else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
 			ViewResult<MarketPrices> marketPricesList = marketPricesDao.get(marketId, from, to, limit);
 			for (ValueRow<MarketPrices> valueRow : marketPricesList.getRows()) {
 				MarketPrices marketPrices = valueRow.getValue();
@@ -177,7 +177,7 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	public long getNumOfRecords(long marketId, MarketFunctionEnum marketFunction) {
 		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
 			return marketTradedVolueDao.getNumOfRecords(marketId);
-		} else if (marketFunction == MarketFunctionEnum.MARKET_PRICES) {
+		} else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
 			return marketPricesDao.getNumOfRecords(marketId);
 		} else {
 			throw new IllegalArgumentException("Market function is not supported: " + marketFunction);
@@ -195,7 +195,7 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	public List<Long> getTimeRange(long marketId, MarketFunctionEnum marketFunction) {
 		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
 			return marketTradedVolueDao.getTimeRange(marketId);
-		} else if (marketFunction == MarketFunctionEnum.MARKET_PRICES) {
+		} else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
 			return marketPricesDao.getTimeRange(marketId);
 		} else {
 			throw new IllegalArgumentException("Market function is not supported: " + marketFunction);
