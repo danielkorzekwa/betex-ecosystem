@@ -3,9 +3,9 @@ package dk.betex.ecosystem.webconsole.server;
 import java.util.ArrayList;
 import java.util.List;
 
-import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource;
-import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapColumn;
-import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapValue;
+import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel;
+import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapColumn;
+import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapValue;
 
 /**
  * Creates MarketTradedVolume object.
@@ -28,7 +28,7 @@ public class HeatMapModelFactory {
 	 * 
 	 * @return
 	 */
-	public static HeatMapModelDataSource createHeatMap(HeatMapModelDataSource ds, double min, double max) {
+	public static BioHeatMapModel createHeatMap(BioHeatMapModel ds, double min, double max) {
 
 		List<HeatMapColumn> columns = new ArrayList<HeatMapColumn>();
 		
@@ -55,7 +55,7 @@ public class HeatMapModelFactory {
 			columns.add(new HeatMapColumn( column.getLabel(), values));
 		}
 		
-		HeatMapModelDataSource heatMapModel = new HeatMapModelDataSource(columns );
+		BioHeatMapModel heatMapModel = new BioHeatMapModel(columns );
 		return heatMapModel;
 	}
 

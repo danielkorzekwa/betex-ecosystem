@@ -12,14 +12,14 @@ import dk.betex.ecosystem.webconsole.server.HeatMapModelFactory;
  * @author korzekwad
  * 
  */
-public class HeatMapModelDataSource implements IsSerializable{
+public class BioHeatMapModel implements IsSerializable{
 
 	private List<HeatMapColumn> columns;
 
-	public HeatMapModelDataSource() {
+	public BioHeatMapModel() {
 	}
 	
-	public HeatMapModelDataSource(List<HeatMapColumn> columns) {
+	public BioHeatMapModel(List<HeatMapColumn> columns) {
 		this.columns = columns;
 	}
 	

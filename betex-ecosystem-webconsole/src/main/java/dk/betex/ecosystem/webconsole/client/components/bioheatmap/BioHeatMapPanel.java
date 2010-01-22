@@ -4,8 +4,8 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 
-import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource;
-import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapColumn;
+import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel;
+import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapColumn;
 import dk.betex.ecosystem.webconsole.client.visualizations.BioHeatMap;
 import dk.betex.ecosystem.webconsole.client.visualizations.BioHeatMap.Options;
 
@@ -25,7 +25,7 @@ public class BioHeatMapPanel extends Composite {
 	/** Bio heat map visualisation object. */
 	private BioHeatMap bioHeatMap;
 
-	public BioHeatMapPanel(HeatMapModelDataSource heatMapModel) {
+	public BioHeatMapPanel(BioHeatMapModel heatMapModel) {
 		
 		options = BioHeatMap.Options.create();
 		options.setCellWidth(20);
@@ -39,7 +39,7 @@ public class BioHeatMapPanel extends Composite {
 	}
 
 	/** Updates bioheatmap panel with new data. */
-	public void update(HeatMapModelDataSource bioHeatMapModel) {
+	public void update(BioHeatMapModel bioHeatMapModel) {
 		
 		int numOfRows = bioHeatMapModel.getColumns().get(0).getValues().size();
 		int numOfColumns =  bioHeatMapModel.getColumns().size();
@@ -67,7 +67,7 @@ public class BioHeatMapPanel extends Composite {
 	 *            
 	 * @return
 	 */
-	private DataTable createDataModel(HeatMapModelDataSource heatMapModel) {
+	private DataTable createDataModel(BioHeatMapModel heatMapModel) {
 
 		DataTable data = DataTable.create();
 		data.addColumn(ColumnType.STRING, "Y_label");

@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
 import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapPanel;
-import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource;
+import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeServiceAsync;
 
@@ -60,10 +60,10 @@ public class MarketView extends Composite {
 	}
 	
 	/** Gets market traded volume and updates bioheatmap panel. */
-	private class GetTradedVolumeCallBack implements AsyncCallback<HeatMapModelDataSource> {
+	private class GetTradedVolumeCallBack implements AsyncCallback<BioHeatMapModel> {
 
 		@Override
-		public void onSuccess(final HeatMapModelDataSource heatMapModel) {
+		public void onSuccess(final BioHeatMapModel heatMapModel) {
 			final BioHeatMapPanel bioHeatMapPanel = new BioHeatMapPanel(heatMapModel);
 			heatMapPanel.add(bioHeatMapPanel);
 			statusBar.setText("Please wait...DONE");

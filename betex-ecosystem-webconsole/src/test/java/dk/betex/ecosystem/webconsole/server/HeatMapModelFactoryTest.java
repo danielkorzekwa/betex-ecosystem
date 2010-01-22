@@ -8,13 +8,13 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource;
-import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapColumn;
-import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapValue;
+import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel;
+import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapColumn;
+import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapValue;
 
 public class HeatMapModelFactoryTest {
 
-	private HeatMapModelDataSource ds;
+	private BioHeatMapModel ds;
 
 	@Before
 	public void setUp() {
@@ -33,13 +33,13 @@ public class HeatMapModelFactoryTest {
 		HeatMapColumn heatMapColumn2 = new HeatMapColumn("ManUtd", values2);
 		columns.add(heatMapColumn2);
 
-		ds = new HeatMapModelDataSource(columns);
+		ds = new BioHeatMapModel(columns);
 	}
 
 	@Test
 	public void testCreateHeatMap() {
 
-		HeatMapModelDataSource heatMap = HeatMapModelFactory.createHeatMap(ds, 0, 1);
+		BioHeatMapModel heatMap = HeatMapModelFactory.createHeatMap(ds, 0, 1);
 
 		assertEquals(ds.getColumns().size(), heatMap.getColumns().size());
 		assertEquals(101, heatMap.getColumns().get(0).getValues().size());

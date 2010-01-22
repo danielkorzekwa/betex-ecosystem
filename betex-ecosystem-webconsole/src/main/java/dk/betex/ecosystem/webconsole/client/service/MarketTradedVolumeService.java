@@ -23,7 +23,7 @@ public interface MarketTradedVolumeService extends RemoteService {
 	 * @param marketId
 	 * @return
 	 */
-	public HeatMapModelDataSource getMarketTradedVolume(int marketId);
+	public BioHeatMapModel getMarketTradedVolume(int marketId);
 
 	/**
 	 * Returns history of data for a given market, {@link MarketFunctionEnum} and  period of time. The range min/max allows to zoom in/out
@@ -39,7 +39,7 @@ public interface MarketTradedVolumeService extends RemoteService {
 	 *            Max number of records to be returned by this method.
 	 * @return
 	 */
-	public List<HeatMapModelDataSource> getMarketData(int marketId, MarketFunctionEnum marketFunction, long from, long to, int limit,double probMin, double probMax);
+	public List<BioHeatMapModel> getMarketData(int marketId, MarketFunctionEnum marketFunction, long from, long to, int limit,double probMin, double probMax);
 	
 	/**Returns number of time stamped records in the database for the given market and {@link MarketFunctionEnum}.
 	 * 

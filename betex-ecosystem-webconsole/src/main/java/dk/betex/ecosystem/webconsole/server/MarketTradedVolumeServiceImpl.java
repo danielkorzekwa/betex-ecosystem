@@ -24,12 +24,12 @@ import dk.betex.ecosystem.marketdatacollector.factory.MarketTradedVolumeFactory;
 import dk.betex.ecosystem.marketdatacollector.model.MarketDetails;
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
-import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource;
+import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel;
 import dk.betex.ecosystem.webconsole.client.service.MarketFunctionEnum;
 import dk.betex.ecosystem.webconsole.client.service.MarketInfo;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
-import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapColumn;
-import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource.HeatMapValue;
+import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapColumn;
+import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapValue;
 import dk.bot.betfairservice.BetFairService;
 import dk.bot.betfairservice.DefaultBetFairServiceFactoryBean;
 import dk.bot.betfairservice.model.BFMarketDetails;
@@ -78,7 +78,7 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	}
 
 	@Override
-	public HeatMapModelDataSource getMarketTradedVolume(int marketId) {
+	public BioHeatMapModel getMarketTradedVolume(int marketId) {
 		try {
 			BFMarketTradedVolume bfMarketTradedVolume = betfairService.getMarketTradedVolume(marketId);
 			BFMarketDetails marketDetails = betfairService.getMarketDetails(marketId);
@@ -86,8 +86,8 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 			MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume, new Date(
 					System.currentTimeMillis()));
 
-			HeatMapModelDataSource marketHeatMap = HeatMapModelDataSourceFactory.create(marketTradedVolume);
-			HeatMapModelDataSource ds = HeatMapModelFactory.createHeatMap(marketHeatMap, 0, 1);
+			BioHeatMapModel marketHeatMap = HeatMapModelDataSourceFactory.create(marketTradedVolume);
+			BioHeatMapModel ds = HeatMapModelFactory.createHeatMap(marketHeatMap, 0, 1);
 
 			/** Replace selectionId with selectionName */
 			for(HeatMapColumn column: ds.getColumns()) {
@@ -124,10 +124,10 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	 *            Max number of records to be returned by this method.
 	 * @return
 	 */
-	public List<HeatMapModelDataSource> getMarketData(int marketId, MarketFunctionEnum marketFunction, long from,
+	public List<BioHeatMapModel> getMarketData(int marketId, MarketFunctionEnum marketFunction, long from,
 			long to, int limit, double probMin, double probMax) {
 
-		ArrayList<HeatMapModelDataSource> heatMapList = new ArrayList<HeatMapModelDataSource>();
+		ArrayList<BioHeatMapModel> heatMapList = new ArrayList<BioHeatMapModel>();
 
 		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
 			ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(
@@ -135,8 +135,8 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 			for (ValueRow<MarketTradedVolume> valueRow : marketTradedVolumeList.getRows()) {
 				MarketTradedVolume marketTradedVolume = valueRow.getValue();
 
-				HeatMapModelDataSource ds = HeatMapModelDataSourceFactory.create(marketTradedVolume);
-				HeatMapModelDataSource marketHeatMap = HeatMapModelFactory.createHeatMap(ds, probMin, probMax);
+				BioHeatMapModel ds = HeatMapModelDataSourceFactory.create(marketTradedVolume);
+				BioHeatMapModel marketHeatMap = HeatMapModelFactory.createHeatMap(ds, probMin, probMax);
 				heatMapList.add(marketHeatMap);
 			}
 
@@ -144,8 +144,8 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 			ViewResult<MarketPrices> marketPricesList = marketPricesDao.get(marketId, from, to, limit);
 			for (ValueRow<MarketPrices> valueRow : marketPricesList.getRows()) {
 				MarketPrices marketPrices = valueRow.getValue();
-				HeatMapModelDataSource ds = HeatMapModelDataSourceFactory.create(marketPrices);
-				HeatMapModelDataSource marketHeatMap = HeatMapModelFactory.createHeatMap(ds, probMin, probMax);
+				BioHeatMapModel ds = HeatMapModelDataSourceFactory.create(marketPrices);
+				BioHeatMapModel marketHeatMap = HeatMapModelFactory.createHeatMap(ds, probMin, probMax);
 				heatMapList.add(marketHeatMap);
 			}
 
@@ -154,7 +154,7 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 		}
 
 		/** Change probabilities to prices. */
-		for (HeatMapModelDataSource marketHeatMap : heatMapList) {
+		for (BioHeatMapModel marketHeatMap : heatMapList) {
 			for (HeatMapColumn column : marketHeatMap.getColumns()) {
 				for (HeatMapValue value : column.getValues()) {
 					value.setRowValue(MathUtils.round(1d / value.getRowValue(), 2));

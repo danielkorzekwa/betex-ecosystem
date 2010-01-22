@@ -24,7 +24,7 @@ import com.google.gwt.widgetideas.client.SliderBar;
 import com.google.gwt.widgetideas.client.SliderBar.LabelFormatter;
 
 import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapPanel;
-import dk.betex.ecosystem.webconsole.client.service.HeatMapModelDataSource;
+import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel;
 import dk.betex.ecosystem.webconsole.client.service.MarketFunctionEnum;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeServiceAsync;
@@ -131,7 +131,7 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 		@Override
 		public void onChange(Widget arg0) {
 			service.getMarketData(marketId, marketFunction,(long) slider.getCurrentValue(), Long.MAX_VALUE, 1, minProb,
-					maxProb, new AsyncCallback<List<HeatMapModelDataSource>>() {
+					maxProb, new AsyncCallback<List<BioHeatMapModel>>() {
 
 						@Override
 						public void onFailure(Throwable t) {
@@ -140,7 +140,7 @@ public class MarketTradedVolumeHistoryPanel extends Composite {
 						}
 
 						@Override
-						public void onSuccess(List<HeatMapModelDataSource> bioHeatMapModel) {
+						public void onSuccess(List<BioHeatMapModel> bioHeatMapModel) {
 							if (bioHeatMapModel.size() > 0) {
 								timeLabel.setText(df.format(new Date((long) slider.getCurrentValue())));
 								totalLabel.setText(nf.format(bioHeatMapModel.get(0).getTotal()));
