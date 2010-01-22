@@ -9,7 +9,10 @@ import javax.servlet.ServletException;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.util.MathUtils;
 import org.jcouchdb.db.Database;
+import org.jcouchdb.document.BaseDocument;
+import org.jcouchdb.document.ValueAndDocumentRow;
 import org.jcouchdb.document.ValueRow;
+import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.jcouchdb.document.ViewResult;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -130,10 +133,10 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 		ArrayList<BioHeatMapModel> heatMapList = new ArrayList<BioHeatMapModel>();
 
 		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
-			ViewResult<MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(
+			ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(
 					marketId, from, to, limit);
-			for (ValueRow<MarketTradedVolume> valueRow : marketTradedVolumeList.getRows()) {
-				MarketTradedVolume marketTradedVolume = valueRow.getValue();
+			for (ValueAndDocumentRow<BaseDocument,MarketTradedVolume> valueRow : marketTradedVolumeList.getRows()) {
+				MarketTradedVolume marketTradedVolume = valueRow.getDocument();
 
 				BioHeatMapModel ds = HeatMapModelDataSourceFactory.create(marketTradedVolume);
 				BioHeatMapModel marketHeatMap = HeatMapModelFactory.createHeatMap(ds, probMin, probMax);
@@ -141,9 +144,9 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 			}
 
 		} else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
-			ViewResult<MarketPrices> marketPricesList = marketPricesDao.get(marketId, from, to, limit);
-			for (ValueRow<MarketPrices> valueRow : marketPricesList.getRows()) {
-				MarketPrices marketPrices = valueRow.getValue();
+			ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesList = marketPricesDao.get(marketId, from, to, limit);
+			for (ValueAndDocumentRow<BaseDocument,MarketPrices> valueRow : marketPricesList.getRows()) {
+				MarketPrices marketPrices = valueRow.getDocument();
 				BioHeatMapModel ds = HeatMapModelDataSourceFactory.create(marketPrices);
 				BioHeatMapModel marketHeatMap = HeatMapModelFactory.createHeatMap(ds, probMin, probMax);
 				heatMapList.add(marketHeatMap);
@@ -210,15 +213,15 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	 * @return
 	 */
 	public List<MarketInfo> getMarketInfos(int limit) {
-		ViewResult<MarketDetails> marketDetailsList = marketDetailsDao.getMarketDetailsList(limit);
+		ViewAndDocumentsResult<BaseDocument,MarketDetails> marketDetailsList = marketDetailsDao.getMarketDetailsList(limit);
 
 		/** List if menu paths for markets */
 		List<MarketInfo> marketInfos = new ArrayList<MarketInfo>();
-		for (ValueRow<MarketDetails> row : marketDetailsList.getRows()) {
+		for (ValueAndDocumentRow<BaseDocument,MarketDetails> row : marketDetailsList.getRows()) {
 			MarketInfo marketInfo = new MarketInfo();
-			marketInfo.setMarketId(row.getValue().getMarketId());
-			marketInfo.setMenuPath(row.getValue().getMenuPath());
-			marketInfo.setMarketTime(new Date(row.getValue().getMarketTime()));
+			marketInfo.setMarketId(row.getDocument().getMarketId());
+			marketInfo.setMenuPath(row.getDocument().getMenuPath());
+			marketInfo.setMarketTime(new Date(row.getDocument().getMarketTime()));
 			marketInfos.add(marketInfo);
 		}
 		return marketInfos;
