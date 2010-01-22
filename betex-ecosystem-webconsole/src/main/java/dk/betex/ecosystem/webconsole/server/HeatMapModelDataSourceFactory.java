@@ -9,9 +9,9 @@ import dk.betex.ecosystem.marketdatacollector.model.PriceTradedVolume;
 import dk.betex.ecosystem.marketdatacollector.model.RunnerTradedVolume;
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices;
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices.PriceUnmatchedVolume;
-import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel;
-import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapColumn;
-import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapValue;
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel.HeatMapColumn;
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel.HeatMapValue;
 
 /**
  * Creates {@link BioHeatMapModel} object from different types of data.

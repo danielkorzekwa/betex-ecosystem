@@ -1,4 +1,4 @@
-package dk.betex.ecosystem.webconsole.client.service;
+package dk.betex.ecosystem.webconsole.client.components.bioheatmap;
 
 import java.util.List;
 

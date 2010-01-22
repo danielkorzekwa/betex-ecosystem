@@ -5,6 +5,8 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
+
 /**
  * Returns traded volume at each price on all of the runners in a particular market.
  * 

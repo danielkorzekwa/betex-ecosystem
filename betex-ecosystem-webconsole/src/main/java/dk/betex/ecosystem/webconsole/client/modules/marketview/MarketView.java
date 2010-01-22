@@ -13,8 +13,8 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
 import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapPanel;
-import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeService;
 import dk.betex.ecosystem.webconsole.client.service.MarketTradedVolumeServiceAsync;
 

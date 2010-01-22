@@ -8,9 +8,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel;
-import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapColumn;
-import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapValue;
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel.HeatMapColumn;
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel.HeatMapValue;
 
 public class HeatMapModelFactoryTest {
 

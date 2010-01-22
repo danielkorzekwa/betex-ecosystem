@@ -3,9 +3,9 @@ package dk.betex.ecosystem.webconsole.server;
 import java.util.ArrayList;
 import java.util.List;
 
-import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel;
-import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapColumn;
-import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapValue;
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel.HeatMapColumn;
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel.HeatMapValue;
 
 /**
  * Creates MarketTradedVolume object.

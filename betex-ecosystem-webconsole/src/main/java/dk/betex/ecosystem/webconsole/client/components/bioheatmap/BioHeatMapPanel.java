@@ -4,8 +4,7 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.visualization.client.DataTable;
 import com.google.gwt.visualization.client.AbstractDataTable.ColumnType;
 
-import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel;
-import dk.betex.ecosystem.webconsole.client.service.BioHeatMapModel.HeatMapColumn;
+import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel.HeatMapColumn;
 import dk.betex.ecosystem.webconsole.client.visualizations.BioHeatMap;
 import dk.betex.ecosystem.webconsole.client.visualizations.BioHeatMap.Options;
 
