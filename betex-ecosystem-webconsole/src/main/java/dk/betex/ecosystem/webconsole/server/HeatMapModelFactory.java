@@ -59,7 +59,7 @@ public class HeatMapModelFactory {
 		return heatMapModel;
 	}
 	
-	/**Returns delta (difference) between model2 and model1. Delta = model2 - model1
+	/**Returns delta (difference) between model2 and model1. Delta = model2 - model1 .
 	 * 
 	 * Both models must have exactly the same number of columns and rows.
 	 * 

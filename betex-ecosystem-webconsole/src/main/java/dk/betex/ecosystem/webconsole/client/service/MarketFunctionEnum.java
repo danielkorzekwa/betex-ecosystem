@@ -8,5 +8,5 @@ package dk.betex.ecosystem.webconsole.client.service;
  */
 public enum MarketFunctionEnum {
 
-	MARKET_TRADED_VOLUME, LAST_MATCHED_PRICE;
+	MARKET_TRADED_VOLUME, MARKET_TRADED_VOLUME_LAST_1_MIN, LAST_MATCHED_PRICE;
 }

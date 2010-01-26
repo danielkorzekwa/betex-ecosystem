@@ -143,7 +143,34 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 				heatMapList.add(marketHeatMap);
 			}
 
-		} else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
+		} 
+		else if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME_LAST_1_MIN) {
+			ViewAndDocumentsResult<BaseDocument, MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(marketId, from, to, limit);
+			for (ValueAndDocumentRow<BaseDocument,MarketTradedVolume> valueRow : marketTradedVolumeList.getRows()) {
+				
+				/**Calculate heatMapModel.*/
+				MarketTradedVolume marketTradedVolume = valueRow.getDocument();
+				BioHeatMapModel heatMap = HeatMapModelDataSourceFactory.create(marketTradedVolume);
+				BioHeatMapModel normalizedHeatMap = HeatMapModelFactory.createHeatMap(heatMap, probMin, probMax);
+				
+				/**Calculate heatMapModel for data 1 min ago.*/
+				BioHeatMapModel normalizedHeatMap1MinAgo;
+				ViewAndDocumentsResult<BaseDocument, MarketTradedVolume> marketTradedVolumeList1MinAgo = marketTradedVolueDao.getMarketTradedVolume(marketId, marketTradedVolume.getTimestamp()-(1000*60), marketTradedVolume.getTimestamp(), 1);
+				
+				if(marketTradedVolumeList1MinAgo.getRows().size()>0) {
+					BioHeatMapModel heatMap1MinAgo = HeatMapModelDataSourceFactory.create(marketTradedVolumeList1MinAgo.getRows().get(0).getDocument());
+					normalizedHeatMap1MinAgo = HeatMapModelFactory.createHeatMap(heatMap1MinAgo, probMin, probMax);
+				}
+				else {
+					normalizedHeatMap1MinAgo = HeatMapModelFactory.createHeatMap(heatMap, probMin, probMax);
+				}
+				
+				BioHeatMapModel delta = HeatMapModelFactory.delta(normalizedHeatMap1MinAgo, normalizedHeatMap);
+				heatMapList.add(delta);
+			}
+			
+		}
+		else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
 			ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesList = marketPricesDao.get(marketId, from, to, limit);
 			for (ValueAndDocumentRow<BaseDocument,MarketPrices> valueRow : marketPricesList.getRows()) {
 				MarketPrices marketPrices = valueRow.getDocument();
@@ -180,7 +207,11 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	public long getNumOfRecords(long marketId, MarketFunctionEnum marketFunction) {
 		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
 			return marketTradedVolueDao.getNumOfRecords(marketId);
-		} else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
+		}
+		else if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME_LAST_1_MIN) {
+			return marketTradedVolueDao.getNumOfRecords(marketId);
+		} 
+		else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
 			return marketPricesDao.getNumOfRecords(marketId);
 		} else {
 			throw new IllegalArgumentException("Market function is not supported: " + marketFunction);
@@ -198,9 +229,14 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	public List<Long> getTimeRange(long marketId, MarketFunctionEnum marketFunction) {
 		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
 			return marketTradedVolueDao.getTimeRange(marketId);
-		} else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
+		} 
+		else if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME_LAST_1_MIN) {
+			return marketTradedVolueDao.getTimeRange(marketId);
+		} 
+		else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
 			return marketPricesDao.getTimeRange(marketId);
-		} else {
+		}
+		else {
 			throw new IllegalArgumentException("Market function is not supported: " + marketFunction);
 		}
 	}
