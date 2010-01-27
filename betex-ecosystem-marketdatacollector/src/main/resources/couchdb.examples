@@ -1,0 +1,4 @@
+http://10.2.2.72:5984/market_traded_volume/_design/markettradedvolume/_view/byMarketIdAndTimestamp?startkey=[101081282,0]
+
+http://10.2.2.72:5984/market_details/101061793
+

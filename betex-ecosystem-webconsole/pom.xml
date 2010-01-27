@@ -19,7 +19,7 @@
 
 	<properties>
 		<!-- convenience to define GWT version in one place -->
-		<gwt.version>2.0.0</gwt.version>	
+		<gwt.version>2.0.0</gwt.version>
 	</properties>
 
 	<dependencies>
@@ -31,6 +31,11 @@
 		<dependency>
 			<groupId>dk.flexibet</groupId>
 			<artifactId>flexibet-betfair</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.espertech</groupId>
+			<artifactId>esper</artifactId>
 		</dependency>
 
 		<!--  GWT dependencies (from central repo) -->
