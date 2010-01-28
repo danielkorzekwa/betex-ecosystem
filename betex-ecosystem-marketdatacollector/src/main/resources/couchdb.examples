@@ -2,3 +2,5 @@ http://10.2.2.72:5984/market_traded_volume/_design/markettradedvolume/_view/byMa
 
 http://10.2.2.72:5984/market_details/101061793
 
+http://10.2.2.72:5984//market_details_test/_all_docs?include_docs=true
+

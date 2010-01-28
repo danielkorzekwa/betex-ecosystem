@@ -54,6 +54,19 @@ public class MarketPrices extends BaseDocument implements Serializable{
 		this.timestamp = timestamp;
 	}
 	
+	/**Returns total traded volume on market.*/
+	public double getTotalTradedVolume() {
+		double totalTradedVolume=0;
+		
+		for(RunnerPrices runnerPrices: getRunnerPrices()) {
+			totalTradedVolume+=runnerPrices.getTotalAmountMatched();
+		}
+		
+		return totalTradedVolume;
+	}
+	
+	
+	
 	/**
 	 * Data model for volume of unmatched bets for all prices on a particular runner in a market.
 	 * 
