@@ -15,8 +15,11 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.UpdateListener;
 
+import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDao;
+import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDaoImpl;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDaoImpl;
+import dk.betex.ecosystem.marketdatacollector.model.MarketDetails;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
 
 /**
@@ -31,6 +34,7 @@ public class EsperTestApp {
 	private EPStatement statement;
 
 	private MarketTradedVolumeDao marketTradedVolueDao;
+	private MarketDetailsDao marketDetailsDao;
 
 	@Before
 	public void before() {
@@ -41,22 +45,29 @@ public class EsperTestApp {
 
 		/** Init DAOs */
 		marketTradedVolueDao = new MarketTradedVolumeDaoImpl(new Database("10.2.2.72", "market_traded_volume"));
+		marketDetailsDao = new MarketDetailsDaoImpl(new Database("10.2.2.72", "market_details"));
+
 	}
 
 	@Test
 	public void test() {
 		long now = System.currentTimeMillis();
-
+        long marketId=101081282l;
+		
+		/**Get market time.*/
+		MarketDetails marketDetails = marketDetailsDao.getMarketDetails(marketId);
+		long twentyMinBeforeMarketTime = marketDetails.getMarketTime() - (1000*60*20);
+		
 		/** Get first 200 of records. */
 		ViewAndDocumentsResult<BaseDocument, MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao
-				.getMarketTradedVolume(101081282l, 0, Long.MAX_VALUE, 50);
+				.getMarketTradedVolume(marketId,twentyMinBeforeMarketTime, Long.MAX_VALUE, 200);
 		process(marketTradedVolumeList);
 
 		/** Page through the rest of records. */
 		while (marketTradedVolumeList.getRows().size() > 0) {
 			marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(101081282l, marketTradedVolumeList
 					.getRows().get(marketTradedVolumeList.getRows().size() - 1).getDocument().getTimestamp() + 1,
-					Long.MAX_VALUE, 50);
+					Long.MAX_VALUE, 200);
 
 			process(marketTradedVolumeList);
 		}
@@ -75,8 +86,8 @@ public class EsperTestApp {
 
 		@Override
 		public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-			Date timestamp = new Date((Long)newEvents[0].get("timestamp"));
-			double totalTradedVolume = (Double)newEvents[0].get("totalTradedVolume");
+			Date timestamp = new Date((Long) newEvents[0].get("timestamp"));
+			double totalTradedVolume = (Double) newEvents[0].get("totalTradedVolume");
 			System.out.println(newEvents.length + ":" + timestamp + ":" + totalTradedVolume);
 		}
 
