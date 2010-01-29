@@ -10,6 +10,7 @@ import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
@@ -18,12 +19,9 @@ import com.espertech.esper.client.UpdateListener;
 
 import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDaoImpl;
-import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDao;
-import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDaoImpl;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDaoImpl;
 import dk.betex.ecosystem.marketdatacollector.model.MarketDetails;
-import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
 
 /**
@@ -45,7 +43,10 @@ public class EsperMarketTradedVolumeTestApp {
 
 	@Before
 	public void before() {
-		epService = EPServiceProviderManager.getDefaultProvider();
+		Configuration config = new Configuration();
+		config.addEventTypeAutoName("dk.betex.ecosystem.marketdatacollector.model");
+		
+		epService = EPServiceProviderManager.getDefaultProvider(config);
 		epService.initialize();
 		
 		/** Init DAOs */
@@ -62,7 +63,7 @@ public class EsperMarketTradedVolumeTestApp {
 	public void testProcessMarketTradedVolume() {
 		long now = System.currentTimeMillis();
 		
-		EPStatement statement = epService.getEPAdministrator().createEPL("select timestamp,totalTradedVolume,max(totalTradedVolume) - min(totalTradedVolume) as delta from dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume.win:ext_timed(timestamp,10 sec)");
+		EPStatement statement = epService.getEPAdministrator().createEPL("select timestamp,totalTradedVolume,totalTradedVolume - prev(count(*) - 1, totalTradedVolume) as delta from MarketTradedVolume.win:ext_timed(timestamp,10 sec)");
 		statement.addListener(new EventLister());
     		
 		/** Get first 200 of records. */
@@ -89,7 +90,6 @@ public class EsperMarketTradedVolumeTestApp {
 
 		@Override
 		public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-			
 			Date timestamp = new Date((Long) newEvents[0].get("timestamp"));
 			double totalTradedVolume = (Double) newEvents[0].get("totalTradedVolume");
 			double delta = (Double)newEvents[0].get("delta");

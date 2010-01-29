@@ -10,6 +10,7 @@ import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.espertech.esper.client.Configuration;
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
@@ -42,7 +43,10 @@ public class EsperMarketPricesTestApp {
 
 	@Before
 	public void before() {
-		epService = EPServiceProviderManager.getDefaultProvider();
+		Configuration config = new Configuration();
+		config.addEventTypeAutoName("dk.betex.ecosystem.marketdatacollector.model");
+		
+		epService = EPServiceProviderManager.getDefaultProvider(config);
 		epService.initialize();
 		
 		/** Init DAOs */
@@ -59,7 +63,7 @@ public class EsperMarketPricesTestApp {
 	public void testProcessMarketPrices() {
 		long now = System.currentTimeMillis();
 		
-		EPStatement statement2 = epService.getEPAdministrator().createEPL("select timestamp,totalTradedVolume,max(totalTradedVolume) - min(totalTradedVolume) as delta from dk.betex.ecosystem.marketdatacollector.model.MarketPrices.win:ext_timed(timestamp,10 sec)");
+		EPStatement statement2 = epService.getEPAdministrator().createEPL("select timestamp,totalTradedVolume,totalTradedVolume - prev(count(*)-1,totalTradedVolume) as delta from MarketPrices.win:ext_timed(timestamp,10 sec)");
 		statement2.addListener(new EventLister());
        
 		/** Get first 200 of records. */
