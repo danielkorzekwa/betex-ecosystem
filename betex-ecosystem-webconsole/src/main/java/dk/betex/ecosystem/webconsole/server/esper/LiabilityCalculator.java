@@ -54,6 +54,12 @@ public interface LiabilityCalculator {
 		public double getBetPrice() {
 			return betPrice;
 		}
+
+		@Override
+		public String toString() {
+			return "Bet [marketId=" + marketId + ", selectionId=" + selectionId + ", betSize=" + betSize
+					+ ", betPrice=" + betPrice + "]";
+		}
 		
 	}
 	
