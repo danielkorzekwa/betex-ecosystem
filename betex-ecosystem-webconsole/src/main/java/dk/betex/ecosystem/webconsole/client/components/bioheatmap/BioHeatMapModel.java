@@ -63,6 +63,15 @@ public class BioHeatMapModel implements IsSerializable{
 		public List<HeatMapValue> getValues() {
 			return values;
 		}
+		
+		/**Returns sum of all values for all cells in the matrix.*/
+		public double getTotal() {
+			double total=0;	
+				for(HeatMapValue value: values) {
+					total += value.getCellValue();
+				}
+			return total;
+		}
 	}
 
 	public static class HeatMapValue implements IsSerializable {

@@ -1,8 +1,9 @@
 package dk.betex.ecosystem.webconsole.server.esper;
 
+import static org.apache.commons.math.util.MathUtils.round;
+
 import java.util.Date;
 
-import org.apache.commons.math.util.MathUtils;
 import org.jcouchdb.db.Database;
 import org.jcouchdb.document.BaseDocument;
 import org.jcouchdb.document.ValueAndDocumentRow;
@@ -19,43 +20,55 @@ import com.espertech.esper.client.UpdateListener;
 
 import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDaoImpl;
+import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDao;
+import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDaoImpl;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDaoImpl;
 import dk.betex.ecosystem.marketdatacollector.model.MarketDetails;
+import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
+import dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices;
 import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel;
 import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel.HeatMapColumn;
 import dk.betex.ecosystem.webconsole.client.components.bioheatmap.BioHeatMapModel.HeatMapValue;
 import dk.betex.ecosystem.webconsole.server.HeatMapModelDataSourceFactory;
 import dk.betex.ecosystem.webconsole.server.HeatMapModelFactory;
+import dk.betex.ecosystem.webconsole.server.MarketPricesCalculator;
 
 /**
- * Calculates avgPrice for all runners based on totalTradedVolume within time window.
+ * Calculates avgPrice for all runners based on totalTradedVolume within time window and compare it to the best
+ * to back/lay/lastMatched prices.
  * 
  * @author korzekwad
  * 
  */
-public class EsperMarketTradedVolumeAvgPriceTestApp {
+public class EsperMarketTradedVolumevsMarketPricesTestApp {
 
+	private static final int PAGE_COUNT=10;
+	
 	private EPServiceProvider epService;
 
 	private MarketTradedVolumeDao marketTradedVolueDao;
+	private MarketPricesDao marketPricesDao;
 	private MarketDetailsDao marketDetailsDao;
 
 	private String dbUrl = "10.2.2.72";
 	private long marketId = 101081282l;
 	private long twentyMinBeforeMarketTime;
-
+	
 	@Before
 	public void before() {
 		Configuration config = new Configuration();
 		config.addEventTypeAutoName("dk.betex.ecosystem.marketdatacollector.model");
+		config.addEventTypeAutoName("dk.betex.ecosystem.webconsole.server.esper");
+
 
 		epService = EPServiceProviderManager.getDefaultProvider(config);
 		epService.initialize();
 
 		/** Init DAOs */
 		marketTradedVolueDao = new MarketTradedVolumeDaoImpl(new Database(dbUrl, "market_traded_volume"));
+		marketPricesDao = new MarketPricesDaoImpl(new Database(dbUrl, "market_prices"));
 		marketDetailsDao = new MarketDetailsDaoImpl(new Database(dbUrl, "market_details"));
 
 		/** Get market time. */
@@ -71,23 +84,40 @@ public class EsperMarketTradedVolumeAvgPriceTestApp {
 		EPStatement statement = epService
 				.getEPAdministrator()
 				.createEPL(
-						"select timestamp,mtvEvent as lastEvent,prev(count(*)-1,mtvEvent) as firstEvent from MarketTradedVolume.win:ext_timed(timestamp,10 sec) as mtvEvent");
+						"select marketTradedVolume.timestamp,mtvEvent as lastEvent,prev(count(*)-1,mtvEvent) as firstEvent from MarketDataEvent.win:ext_timed(marketTradedVolume.timestamp,10 sec) as mtvEvent");
 		statement.addListener(new EventLister());
-
+		
 		/** Get first 200 of records. */
 		ViewAndDocumentsResult<BaseDocument, MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao
-				.getMarketTradedVolume(marketId, twentyMinBeforeMarketTime, Long.MAX_VALUE, 200);
-		for (ValueAndDocumentRow<BaseDocument, MarketTradedVolume> row : marketTradedVolumeList.getRows())
-			epService.getEPRuntime().sendEvent(row.getDocument());
+				.getMarketTradedVolume(marketId, twentyMinBeforeMarketTime, Long.MAX_VALUE, PAGE_COUNT);
+		ViewAndDocumentsResult<BaseDocument, MarketPrices> marketPricesList = marketPricesDao
+		.get(marketId, twentyMinBeforeMarketTime, Long.MAX_VALUE, PAGE_COUNT);
+
+		for (int i=0;i< marketTradedVolumeList.getRows().size();i++) {
+			ValueAndDocumentRow<BaseDocument, MarketTradedVolume> marketTradedVolumeRow = marketTradedVolumeList.getRows().get(i);
+			ValueAndDocumentRow<BaseDocument, MarketPrices> marketPricesRow = marketPricesList.getRows().get(i);
+			
+			MarketDataEvent marketDataEvent = new MarketDataEvent(marketTradedVolumeRow.getDocument(), marketPricesRow.getDocument());
+			
+			epService.getEPRuntime().sendEvent(marketDataEvent);
+		}
 
 		/** Page through the rest of records. */
-		while (marketTradedVolumeList.getRows().size() > 0) {
+		while (marketTradedVolumeList.getRows().size() > 0 && marketPricesList.getRows().size() > 0) {
 			marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(marketId, marketTradedVolumeList
 					.getRows().get(marketTradedVolumeList.getRows().size() - 1).getDocument().getTimestamp() + 1,
-					Long.MAX_VALUE, 200);
+					Long.MAX_VALUE, PAGE_COUNT);
+			marketPricesList = marketPricesDao.get(marketId, marketPricesList
+					.getRows().get(marketPricesList.getRows().size() - 1).getDocument().getTimestamp() + 1, Long.MAX_VALUE, PAGE_COUNT);
 
-			for (ValueAndDocumentRow<BaseDocument, MarketTradedVolume> row : marketTradedVolumeList.getRows())
-				epService.getEPRuntime().sendEvent(row.getDocument());
+			for (int i=0;i< marketTradedVolumeList.getRows().size();i++) {
+				ValueAndDocumentRow<BaseDocument, MarketTradedVolume> marketTradedVolumeRow = marketTradedVolumeList.getRows().get(i);
+				ValueAndDocumentRow<BaseDocument, MarketPrices> marketPricesRow = marketPricesList.getRows().get(i);
+				
+				MarketDataEvent marketDataEvent = new MarketDataEvent(marketTradedVolumeRow.getDocument(), marketPricesRow.getDocument());
+				
+				epService.getEPRuntime().sendEvent(marketDataEvent);
+			}
 		}
 
 		System.out.println("Processing market traded volume: " + (System.currentTimeMillis() - now));
@@ -98,15 +128,14 @@ public class EsperMarketTradedVolumeAvgPriceTestApp {
 
 		@Override
 		public void update(EventBean[] newEvents, EventBean[] oldEvents) {
-			MarketTradedVolume firstEvent = (MarketTradedVolume) newEvents[0].get("firstEvent");
-			MarketTradedVolume lastEvent = (MarketTradedVolume) newEvents[0].get("lastEvent");
-			double delta = lastEvent.getTotalTradedVolume() - firstEvent.getTotalTradedVolume();
+			
+			MarketDataEvent firstEvent = (MarketDataEvent) newEvents[0].get("firstEvent");
+			MarketDataEvent lastEvent = (MarketDataEvent) newEvents[0].get("lastEvent");
 
 			BioHeatMapModel firstModel = HeatMapModelFactory.createHeatMap(HeatMapModelDataSourceFactory
-					.create(firstEvent), 0, 1);
+					.create(firstEvent.getMarketTradedVolume()), 0, 1);
 			BioHeatMapModel lastModel = HeatMapModelFactory.createHeatMap(HeatMapModelDataSourceFactory
-					.create(lastEvent), 0, 1);
-			double modelDetlaValue = lastModel.getTotal() - firstModel.getTotal();
+					.create(lastEvent.getMarketTradedVolume()), 0, 1);
 			BioHeatMapModel modelDelta = HeatMapModelFactory.delta(firstModel, lastModel);
 
 			for (HeatMapColumn column : modelDelta.getColumns()) {
@@ -119,14 +148,26 @@ public class EsperMarketTradedVolumeAvgPriceTestApp {
 						sumOfStakes += value.getCellValue();
 					}
 				}
-				/**Print avgPrice for a particular runner only.*/
-				if(column.getLabel().equals("2370221"))
-					System.out.println(newEvents.length + ":" + new Date(lastEvent.getTimestamp()) + ":"
-							+ MathUtils.round(lastEvent.getTotalTradedVolume(), 2) + ":" + MathUtils.round(delta, 2) + ":"
-							+ MathUtils.round(modelDetlaValue, 2) + ":" + MathUtils.round(modelDelta.getTotal(), 2) + ":" + MathUtils.round(sumOfPayouts / sumOfStakes,2));
+				
+				/** Print avgPrice for a particular runner only. */
+				long selectionId = Long.parseLong(column.getLabel());
+				if (selectionId ==2370221) {
+					RunnerPrices runnerPrices = lastEvent.getMarketPrices().getRunnerPrices(selectionId);	
+				
+					double avgPrice = sumOfPayouts / sumOfStakes;
+					double bestToBack = MarketPricesCalculator.getPriceToBack(runnerPrices);
+					double bestToLay = MarketPricesCalculator.getPriceToLay(runnerPrices); 
+					double priceFactor = (1/avgPrice) / (1/runnerPrices.getLastPriceMatched());
+					
+					System.out.println(newEvents.length + ":" + new Date(lastEvent.getMarketTradedVolume().getTimestamp()) + ":"
+							+ round(column.getTotal(), 2) + ":"
+							+ round(avgPrice, 2) + ":"
+							+ runnerPrices.getLastPriceMatched() + ":" 
+							+ round(bestToBack,2) + ":" 
+							+ round(bestToLay,2) + ":" 
+							+ round(priceFactor,2));
+				}
 			}
-
 		}
-
 	}
 }
