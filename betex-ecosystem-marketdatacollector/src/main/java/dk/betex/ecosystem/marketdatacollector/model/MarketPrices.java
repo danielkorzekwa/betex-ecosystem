@@ -29,6 +29,13 @@ public class MarketPrices extends BaseDocument implements Serializable{
 		this.marketId = marketId;
 	}
 
+	public RunnerPrices getRunnerPrices(long selectionId) {
+		for(RunnerPrices prices: runnerPrices) {
+			if(prices.getSelectionId()==selectionId) return prices;
+		}
+		return null;
+	}
+	
 	public List<RunnerPrices> getRunnerPrices() {
 		return runnerPrices;
 	}
