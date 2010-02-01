@@ -31,6 +31,8 @@ public class StoreMarketTradedVolumeTaskImpl implements StoreMarketTradedVolumeT
 	
 	private MarketDetails marketDetails;
 	
+	private MarketTradedVolume previousRecord;
+	
 	public StoreMarketTradedVolumeTaskImpl(BetFairService betfairService, MarketTradedVolumeDao marketTradedVolumeDao, MarketDetailsDao marketDetailsDao, MarketPricesDao marketPricesDao) {
 		this.betfairService = betfairService;
 		this.marketTradedVolumeDao = marketTradedVolumeDao;
@@ -52,7 +54,16 @@ public class StoreMarketTradedVolumeTaskImpl implements StoreMarketTradedVolumeT
 		/**Get market traded volume and add it to the database.*/
 		BFMarketTradedVolume bfMarketTradedVolume = betfairService.getMarketTradedVolume((int)marketId);
 		MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume, new Date(System.currentTimeMillis()));
-		marketTradedVolumeDao.addMarketTradedVolume(marketTradedVolume);
+		
+		MarketTradedVolume delta;
+		if(previousRecord!=null) {
+			delta = MarketTradedVolumeFactory.delta(previousRecord, marketTradedVolume);	
+		}
+		else {
+			delta = MarketTradedVolumeFactory.delta(marketTradedVolume, marketTradedVolume);
+		}
+		previousRecord=marketTradedVolume;
+		marketTradedVolumeDao.addMarketTradedVolume(delta);
 		
 		/**Get market prices and add it to the database.*/
 		BFMarketRunners bfMarketRunners = betfairService.getMarketRunners((int)marketId);
