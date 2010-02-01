@@ -41,6 +41,13 @@ public class RunnerTradedVolume implements Serializable {
 	public void setPriceTradedVolume(List<PriceTradedVolume> priceTradedVolume) {
 		this.priceTradedVolume = priceTradedVolume;
 	}
+	
+	public PriceTradedVolume getPriceTradedVolume(double price) {
+		for(PriceTradedVolume volume: priceTradedVolume) {
+			if(volume.getPrice()==price) return volume;
+		}
+		return null;
+	}
 
 	@Override
 	public String toString() {

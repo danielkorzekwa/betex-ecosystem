@@ -6,6 +6,8 @@ import java.util.List;
 import org.jcouchdb.document.BaseDocument;
 import org.svenson.JSONTypeHint;
 
+import dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices;
+
 /**
  * Represents traded volume at each price on all of the runners in a particular market.
  * 
@@ -64,6 +66,13 @@ public class MarketTradedVolume extends BaseDocument implements Serializable {
 		}
 		
 		return totalTradedVolume;
+	}
+	
+	public RunnerTradedVolume getRunnerTradedVolume(long selectionId) {
+		for(RunnerTradedVolume volume: runnerTradedVolume) {
+			if(volume.getSelectionId()==selectionId) return volume;
+		}
+		return null;
 	}
 
 	@Override
