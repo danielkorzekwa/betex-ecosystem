@@ -67,7 +67,7 @@ public class StoreMarketTradedVolumeTaskImpl implements StoreMarketTradedVolumeT
 		
 		/**Get market prices and add it to the database.*/
 		BFMarketRunners bfMarketRunners = betfairService.getMarketRunners((int)marketId);
-		MarketPrices marketPrices = MarketPricesFactory.create(bfMarketRunners);
+		MarketPrices marketPrices = MarketPricesFactory.create(bfMarketRunners,3);
 		marketPricesDao.add(marketPrices);
 		
 		/**Get market details and add to the database if not added yet.*/

@@ -21,7 +21,7 @@ public class MarketPricesFactoryTest {
 	public void testCreate() {
 		BFMarketRunners bfMarketRunners = createMarketRunners();
 		
-		MarketPrices marketPrices = MarketPricesFactory.create(bfMarketRunners);
+		MarketPrices marketPrices = MarketPricesFactory.create(bfMarketRunners,100);
 		
 		assertEquals(bfMarketRunners.getMarketId(), marketPrices.getMarketId());
 		assertEquals(bfMarketRunners.getTimestamp().getTime(), marketPrices.getTimestamp());
@@ -55,8 +55,12 @@ public class MarketPricesFactoryTest {
 	private BFMarketRunners createMarketRunners() {
 
 		List<BFRunnerPrice> priceVolumeList = new ArrayList<BFRunnerPrice>();
-		for (int i = 0; i < 10; i++) {
-			BFRunnerPrice priceVolume = new BFRunnerPrice(1d / ((double) i + 1),i*2,i*4);
+		for (int i = 10; i >= 6 ; i--) {
+			BFRunnerPrice priceVolume = new BFRunnerPrice(1d / ((double) i + 1),i*2,0);
+			priceVolumeList.add(priceVolume);
+		}
+		for (int i = 5; i >= 1 ; i--) {
+			BFRunnerPrice priceVolume = new BFRunnerPrice(1d / ((double) i + 1),0,i*4);
 			priceVolumeList.add(priceVolume);
 		}
 		
