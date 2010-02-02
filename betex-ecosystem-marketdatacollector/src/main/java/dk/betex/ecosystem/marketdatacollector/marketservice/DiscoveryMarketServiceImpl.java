@@ -78,7 +78,7 @@ public class DiscoveryMarketServiceImpl implements MarketService {
 			while (true) {
 				try {
 					
-					Thread.sleep(intervalInSec);
+					Thread.sleep(intervalInSec*1000);
 					
 					long now = System.currentTimeMillis();
 					Date dateFrom = new Date(now + startinMinutesFrom * 60000l);
@@ -86,7 +86,7 @@ public class DiscoveryMarketServiceImpl implements MarketService {
 					List<BFMarketData> markets = betFairService.getMarkets(dateFrom, dateTo, eventTypeIds);
 					List<Long> newMarketIds = new ArrayList<Long>();
 					for (BFMarketData marketData : markets) {
-						if (marketData.getEventHierarchy().startsWith(eventPath)
+						if (marketData.equals("ACTIVE") && marketData.getEventHierarchy().startsWith(eventPath)
 								&& (!turningInPlay || marketData.isTurningInPlay())) {
 							newMarketIds.add((long) marketData.getMarketId());
 						}
