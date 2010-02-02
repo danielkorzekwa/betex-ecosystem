@@ -26,11 +26,6 @@ public class CouchDbUpdateApp {
 
 		CouchDBUpdater updater = new CouchDBUpdater();	
 		
-		/**Update views for market_traded_volume db*/ 
-		updater.setDatabase(new Database(config[1].trim(), DbNames.MARKET_TRADED_VOLUME.getDbName() + config[2].trim()));
-		updater.setDesignDocumentDir(new File(config[0].trim() + "/markettradedvolume"));
-		updater.updateDesignDocuments();
-		
 		/**Update views for market_details db*/ 
 		updater.setDatabase(new Database(config[1].trim(), DbNames.MARKET_DETAILS.getDbName() + config[2].trim()));
 		updater.setDesignDocumentDir(new File(config[0].trim() + "/marketdetails"));

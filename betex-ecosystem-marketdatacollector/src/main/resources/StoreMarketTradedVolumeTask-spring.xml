@@ -10,7 +10,6 @@
 
 	<bean id="storeMarketTradedVolumeTask" class="dk.betex.ecosystem.marketdatacollector.task.StoreMarketTradedVolumeTaskImpl">
 		<constructor-arg ref="betfairService"/>
-		<constructor-arg ref="marketTradedVolumeDao"/>
 		<constructor-arg ref="marketDetailsDao"/>
 		<constructor-arg ref="marketPricesDao"/>
 	</bean>
@@ -22,9 +21,6 @@
 		<property name="productId" value="${bfProductId}" />
 	</bean>
 	
-	<bean id="marketTradedVolumeDao" class="dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDaoImpl">
-		<constructor-arg ref="marketTradedVolumeDb"/>
-	</bean>
 	<bean id="marketDetailsDao" class="dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDaoImpl">
 		<constructor-arg ref="marketDetailsDb"/>
 	</bean>
@@ -32,10 +28,6 @@
 		<constructor-arg ref="marketPricesDb"/>
 	</bean>
 	
-	<bean id="marketTradedVolumeDb" class="org.jcouchdb.db.Database">
-		<constructor-arg value="${couchdb.url}"/>
-        <constructor-arg value="${marketTradedVolumeDb.name}"/>
-	</bean>
 	<bean id="marketDetailsDb" class="org.jcouchdb.db.Database">
 		<constructor-arg value="${couchdb.url}"/>
         <constructor-arg value="${marketDetailsDb.name}"/>

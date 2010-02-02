@@ -10,7 +10,6 @@ import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.jcouchdb.document.ViewResult;
 
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
-import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
 
 /**
  * Data access object that represents volume of unmatched bets for all prices on all runners in a market at the given

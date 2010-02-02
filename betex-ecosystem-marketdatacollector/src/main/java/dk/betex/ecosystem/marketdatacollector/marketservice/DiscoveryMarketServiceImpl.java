@@ -86,7 +86,7 @@ public class DiscoveryMarketServiceImpl implements MarketService {
 					List<BFMarketData> markets = betFairService.getMarkets(dateFrom, dateTo, eventTypeIds);
 					List<Long> newMarketIds = new ArrayList<Long>();
 					for (BFMarketData marketData : markets) {
-						if (marketData.equals("ACTIVE") && marketData.getEventHierarchy().startsWith(eventPath)
+						if (marketData.getMarketStatus().equals("ACTIVE") && marketData.getEventHierarchy().startsWith(eventPath)
 								&& (!turningInPlay || marketData.isTurningInPlay())) {
 							newMarketIds.add((long) marketData.getMarketId());
 						}

@@ -9,15 +9,12 @@ import java.util.List;
 import org.jcouchdb.db.Database;
 import org.jcouchdb.document.BaseDocument;
 import org.jcouchdb.document.ViewAndDocumentsResult;
-import org.jcouchdb.document.ViewResult;
 import org.junit.Before;
 import org.junit.Test;
 
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
-import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
-import dk.betex.ecosystem.marketdatacollector.model.PriceTradedVolume;
-import dk.betex.ecosystem.marketdatacollector.model.RunnerTradedVolume;
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices;
+import dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices.PriceTradedVolume;
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices.PriceUnmatchedVolume;
 
 public class MarketPricesDaoImplTest {
@@ -69,6 +66,14 @@ public class MarketPricesDaoImplTest {
 				assertEquals(priceVolume.getPrice(), priceVolumeFromDb.getPrice(), 0);
 				assertEquals(priceVolume.getTotalToBack(), priceVolumeFromDb.getTotalToBack(), 0);
 				assertEquals(priceVolume.getTotalToLay(), priceVolumeFromDb.getTotalToLay(), 0);
+			}
+			
+			for(int tradedVolumeIndex=0;tradedVolumeIndex<runnerPrices.getPriceTradedVolume().size();tradedVolumeIndex++) {
+				PriceTradedVolume tradedVolume = runnerPrices.getPriceTradedVolume().get(tradedVolumeIndex);
+				PriceTradedVolume tradedVolumeFromDb = runnerPricesFromDb.getPriceTradedVolume().get(tradedVolumeIndex);
+				
+				assertEquals(tradedVolume.getPrice(), tradedVolumeFromDb.getPrice(),0);
+				assertEquals(tradedVolume.getTradedVolume(),tradedVolumeFromDb.getTradedVolume(),0);
 			}
 		}
 	}
@@ -244,6 +249,7 @@ public class MarketPricesDaoImplTest {
 			runnerPrices.setLastPriceMatched(2.35);
 			runnerPrices.setTotalAmountMatched(432.45);
 			runnerPrices.setPrices(createPrices(5));
+			runnerPrices.setPriceTradedVolume(createPriceTradedVolume(5));
 			runnerPricesList.add(runnerPrices);
 		}
 		return runnerPricesList;
@@ -259,5 +265,13 @@ public class MarketPricesDaoImplTest {
 			priceVolumeList.add(priceVolume);
 		}
 		return priceVolumeList;
+	}
+	
+	private List<PriceTradedVolume> createPriceTradedVolume(int numOfRecords) {
+		List<PriceTradedVolume> priceTradedVolume = new ArrayList<PriceTradedVolume>();
+		for (int i = 0; i < numOfRecords; i++) {
+			priceTradedVolume.add(new PriceTradedVolume(1d / ((double) i + 1), i*2));
+		}
+		return priceTradedVolume;
 	}
 }

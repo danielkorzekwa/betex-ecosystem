@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.jcouchdb.document.BaseDocument;
 import org.jcouchdb.document.ViewAndDocumentsResult;
-import org.jcouchdb.document.ViewResult;
 
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
 

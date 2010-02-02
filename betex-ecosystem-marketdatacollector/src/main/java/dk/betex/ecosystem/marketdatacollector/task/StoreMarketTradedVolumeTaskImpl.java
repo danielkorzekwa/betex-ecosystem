@@ -1,5 +1,6 @@
 package dk.betex.ecosystem.marketdatacollector.task;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -7,13 +8,15 @@ import java.util.Map;
 
 import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDao;
-import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
 import dk.betex.ecosystem.marketdatacollector.factory.MarketDetailsFactory;
 import dk.betex.ecosystem.marketdatacollector.factory.MarketPricesFactory;
 import dk.betex.ecosystem.marketdatacollector.factory.MarketTradedVolumeFactory;
 import dk.betex.ecosystem.marketdatacollector.model.MarketDetails;
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
+import dk.betex.ecosystem.marketdatacollector.model.RunnerTradedVolume;
+import dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices;
+import dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices.PriceTradedVolume;
 import dk.bot.betfairservice.BetFairService;
 import dk.bot.betfairservice.model.BFMarketDetails;
 import dk.bot.betfairservice.model.BFMarketRunners;
@@ -28,7 +31,7 @@ import dk.bot.betfairservice.model.BFMarketTradedVolume;
 public class StoreMarketTradedVolumeTaskImpl implements StoreMarketTradedVolumeTask{
 
 	private final BetFairService betfairService;
-	private final MarketTradedVolumeDao marketTradedVolumeDao;
+	
 	private final MarketDetailsDao marketDetailsDao;
 	private final MarketPricesDao marketPricesDao;
 	
@@ -37,9 +40,8 @@ public class StoreMarketTradedVolumeTaskImpl implements StoreMarketTradedVolumeT
 	/**key - marketId*/
 	private Map<Long,MarketTradedVolume> previousRecords = new HashMap<Long, MarketTradedVolume>();
 	
-	public StoreMarketTradedVolumeTaskImpl(BetFairService betfairService, MarketTradedVolumeDao marketTradedVolumeDao, MarketDetailsDao marketDetailsDao, MarketPricesDao marketPricesDao) {
+	public StoreMarketTradedVolumeTaskImpl(BetFairService betfairService, MarketDetailsDao marketDetailsDao, MarketPricesDao marketPricesDao) {
 		this.betfairService = betfairService;
-		this.marketTradedVolumeDao = marketTradedVolumeDao;
 		this.marketDetailsDao = marketDetailsDao;
 		this.marketPricesDao = marketPricesDao;
 	}
@@ -56,7 +58,7 @@ public class StoreMarketTradedVolumeTaskImpl implements StoreMarketTradedVolumeT
 				throw new IllegalArgumentException("Market Id value is bigger than Integer.MAX: " + marketId);
 			}
 			
-			/**Get market traded volume and add it to the database.*/
+			/**Get market traded volume and calculate delta between subsequent records.*/
 			BFMarketTradedVolume bfMarketTradedVolume = betfairService.getMarketTradedVolume((int)marketId);
 			MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume, new Date(System.currentTimeMillis()));
 			
@@ -69,11 +71,20 @@ public class StoreMarketTradedVolumeTaskImpl implements StoreMarketTradedVolumeT
 				delta = MarketTradedVolumeFactory.delta(marketTradedVolume, marketTradedVolume);
 			}
 			previousRecords.put(marketId,marketTradedVolume);
-			marketTradedVolumeDao.addMarketTradedVolume(delta);
-			
+						
 			/**Get market prices and add it to the database.*/
 			BFMarketRunners bfMarketRunners = betfairService.getMarketRunners((int)marketId);
 			MarketPrices marketPrices = MarketPricesFactory.create(bfMarketRunners,3);
+			for(RunnerPrices runnerPrices: marketPrices.getRunnerPrices()) {
+				RunnerTradedVolume runnerTradedVolume = delta.getRunnerTradedVolume(runnerPrices.getSelectionId());
+				List<PriceTradedVolume> priceTradedVolume = new ArrayList<PriceTradedVolume>();
+				if(runnerTradedVolume!=null) {
+					for(dk.betex.ecosystem.marketdatacollector.model.PriceTradedVolume volume: runnerTradedVolume.getPriceTradedVolume()) {
+						priceTradedVolume.add(new PriceTradedVolume(volume.getPrice(), volume.getTradedVolume()));
+					}
+				}
+				runnerPrices.setPriceTradedVolume(priceTradedVolume);
+			}
 			marketPricesDao.add(marketPrices);
 			
 			/**Get market details and add to the database if not added yet.*/

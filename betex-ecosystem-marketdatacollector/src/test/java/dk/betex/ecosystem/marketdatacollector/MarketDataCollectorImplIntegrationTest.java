@@ -12,7 +12,6 @@ import javax.annotation.Resource;
 
 import org.jcouchdb.document.BaseDocument;
 import org.jcouchdb.document.ViewAndDocumentsResult;
-import org.jcouchdb.document.ViewResult;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,9 +19,9 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
+import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDao;
 import dk.betex.ecosystem.marketdatacollector.marketservice.OneMarketServiceImpl;
-import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
+import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
 import dk.betex.ecosystem.marketdatacollector.task.StoreMarketTradedVolumeTask;
 import dk.bot.betfairservice.BetFairService;
 import dk.bot.betfairservice.model.BFMarketData;
@@ -36,7 +35,7 @@ public class MarketDataCollectorImplIntegrationTest {
 	@Resource
 	private BetFairService betfairService;
 	@Resource
-	private MarketTradedVolumeDao marketTradedVolumeDao;
+	private MarketPricesDao marketPricesDao;
 
 	private MarketDataCollectorImpl marketDataCollector;
 	private BFMarketData hrMarket;
@@ -68,15 +67,15 @@ public class MarketDataCollectorImplIntegrationTest {
 	@Test
 	public void test() throws Exception {
 		/** Check if market traded volume is stored in database */
-		 ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolumeBefore = marketTradedVolumeDao.getMarketTradedVolume(hrMarket
-				.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
+		ViewAndDocumentsResult<BaseDocument, MarketPrices> marketPricesBefore = marketPricesDao.get(hrMarket
+				.getMarketId(), 0, Long.MAX_VALUE, Integer.MAX_VALUE);
 
 		/** Wait 3 seconds, then check if some traded volume records are written to the database. */
 		Thread.sleep(3000);
-		 ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolumeAfter = marketTradedVolumeDao.getMarketTradedVolume(hrMarket
-				.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE);
-		assertTrue("Atleast 4 marketTradedVolume records should be stored in the database.", marketTradedVolumeAfter
-				.getRows().size() >= marketTradedVolumeBefore.getRows().size() + 4);
+		ViewAndDocumentsResult<BaseDocument, MarketPrices> marketPricesAfter = marketPricesDao.get(hrMarket
+				.getMarketId(), 0, Long.MAX_VALUE, Integer.MAX_VALUE);
+		assertTrue("Atleast 4 marketTradedVolume records should be stored in the database.", marketPricesAfter
+				.getRows().size() >= marketPricesBefore.getRows().size() + 4);
 
 		/**
 		 * Test stopping
@@ -84,10 +83,10 @@ public class MarketDataCollectorImplIntegrationTest {
 		 */
 		marketDataCollector.stop();
 		Thread.sleep(1000);
-		int before = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE).getRows()
+		int before = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE).getRows()
 				.size();
 		Thread.sleep(3000);
-		int after = marketTradedVolumeDao.getMarketTradedVolume(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE).getRows()
+		int after = marketPricesDao.get(hrMarket.getMarketId(), 0, Long.MAX_VALUE,Integer.MAX_VALUE).getRows()
 				.size();
 		assertEquals(before, after);
 	}
@@ -102,7 +101,7 @@ public class MarketDataCollectorImplIntegrationTest {
 		List<BFMarketData> markets = betfairService.getMarkets(new Date(now - (1000 * 3600 * 24 * 7)), new Date(now
 				+ (1000 * 3600 * 24 * 7)), eventIds);
 		for (BFMarketData market : markets) {
-			if (market.isBsbMarket() && market.isTurningInPlay()) {
+			if (market.getMarketStatus().equals("ACTIVE") && market.isBsbMarket() && market.isTurningInPlay()) {
 				return market;
 			}
 		}
