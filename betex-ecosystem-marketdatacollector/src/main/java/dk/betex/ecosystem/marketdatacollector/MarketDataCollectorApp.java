@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import dk.betex.ecosystem.marketdatacollector.marketservice.OneMarketServiceImpl;
 import dk.betex.ecosystem.marketdatacollector.task.StoreMarketTradedVolumeTask;
 
 /** Java main application for data collector. */
@@ -18,7 +19,7 @@ public class MarketDataCollectorApp {
 		System.setProperty("marketDetailsDb.name", DbNames.MARKET_DETAILS.getDbName());
 		System.setProperty("marketPricesDb.name", DbNames.MARKET_PRICES.getDbName());
 		
-		long markeId = askForMarketId();
+		long marketId = askForMarketId();
 		long pollingInterval = askForPollingInterval();
 		
 		System.out.println("MarketDataCollector - starting....");
@@ -26,7 +27,7 @@ public class MarketDataCollectorApp {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext("/StoreMarketTradedVolumeTask-spring.xml");
 		StoreMarketTradedVolumeTask storeMarketTradedVolumeTask = (StoreMarketTradedVolumeTask)ctx.getBean("storeMarketTradedVolumeTask");
 		
-		MarketDataCollectorImpl marketDataCollector = new MarketDataCollectorImpl(markeId, pollingInterval, storeMarketTradedVolumeTask);
+		MarketDataCollectorImpl marketDataCollector = new MarketDataCollectorImpl(new OneMarketServiceImpl(marketId), pollingInterval, storeMarketTradedVolumeTask);
 		marketDataCollector.start();
 		
 		System.out.println("MarketDataCollector - started.");

@@ -1,6 +1,9 @@
 package dk.betex.ecosystem.marketdatacollector.task;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDao;
@@ -31,7 +34,8 @@ public class StoreMarketTradedVolumeTaskImpl implements StoreMarketTradedVolumeT
 	
 	private MarketDetails marketDetails;
 	
-	private MarketTradedVolume previousRecord;
+	/**key - marketId*/
+	private Map<Long,MarketTradedVolume> previousRecords = new HashMap<Long, MarketTradedVolume>();
 	
 	public StoreMarketTradedVolumeTaskImpl(BetFairService betfairService, MarketTradedVolumeDao marketTradedVolumeDao, MarketDetailsDao marketDetailsDao, MarketPricesDao marketPricesDao) {
 		this.betfairService = betfairService;
@@ -46,39 +50,44 @@ public class StoreMarketTradedVolumeTaskImpl implements StoreMarketTradedVolumeT
 	 * @param marketId The market that the market traded volume is stored in a database.
 	 */
 	@Override
-	public void execute(long marketId) {
-		if(marketId>Integer.MAX_VALUE) {
-			throw new IllegalArgumentException("Market Id value is bigger than Integer.MAX: " + marketId);
-		}
-		
-		/**Get market traded volume and add it to the database.*/
-		BFMarketTradedVolume bfMarketTradedVolume = betfairService.getMarketTradedVolume((int)marketId);
-		MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume, new Date(System.currentTimeMillis()));
-		
-		MarketTradedVolume delta;
-		if(previousRecord!=null) {
-			delta = MarketTradedVolumeFactory.delta(previousRecord, marketTradedVolume);	
-		}
-		else {
-			delta = MarketTradedVolumeFactory.delta(marketTradedVolume, marketTradedVolume);
-		}
-		previousRecord=marketTradedVolume;
-		marketTradedVolumeDao.addMarketTradedVolume(delta);
-		
-		/**Get market prices and add it to the database.*/
-		BFMarketRunners bfMarketRunners = betfairService.getMarketRunners((int)marketId);
-		MarketPrices marketPrices = MarketPricesFactory.create(bfMarketRunners,3);
-		marketPricesDao.add(marketPrices);
-		
-		/**Get market details and add to the database if not added yet.*/
-		if(marketDetails==null) {
-			marketDetails = marketDetailsDao.getMarketDetails(marketId);
+	public void execute(List<Long> marketIds) {
+		for(long marketId : marketIds) {
+			if(marketId>Integer.MAX_VALUE) {
+				throw new IllegalArgumentException("Market Id value is bigger than Integer.MAX: " + marketId);
+			}
+			
+			/**Get market traded volume and add it to the database.*/
+			BFMarketTradedVolume bfMarketTradedVolume = betfairService.getMarketTradedVolume((int)marketId);
+			MarketTradedVolume marketTradedVolume = MarketTradedVolumeFactory.create(bfMarketTradedVolume, new Date(System.currentTimeMillis()));
+			
+			MarketTradedVolume delta;
+			MarketTradedVolume previousRecord = previousRecords.get(marketId);
+			if(previousRecord!=null) {
+				delta = MarketTradedVolumeFactory.delta(previousRecord, marketTradedVolume);	
+			}
+			else {
+				delta = MarketTradedVolumeFactory.delta(marketTradedVolume, marketTradedVolume);
+			}
+			previousRecords.put(marketId,marketTradedVolume);
+			marketTradedVolumeDao.addMarketTradedVolume(delta);
+			
+			/**Get market prices and add it to the database.*/
+			BFMarketRunners bfMarketRunners = betfairService.getMarketRunners((int)marketId);
+			MarketPrices marketPrices = MarketPricesFactory.create(bfMarketRunners,3);
+			marketPricesDao.add(marketPrices);
+			
+			/**Get market details and add to the database if not added yet.*/
 			if(marketDetails==null) {
-				BFMarketDetails bfMarketDetails = betfairService.getMarketDetails((int)marketId);
-				MarketDetails marketDetails = MarketDetailsFactory.create(bfMarketDetails);
-				marketDetailsDao.addMarketDetails(marketDetails);
+				marketDetails = marketDetailsDao.getMarketDetails(marketId);
+				if(marketDetails==null) {
+					BFMarketDetails bfMarketDetails = betfairService.getMarketDetails((int)marketId);
+					MarketDetails marketDetails = MarketDetailsFactory.create(bfMarketDetails);
+					marketDetailsDao.addMarketDetails(marketDetails);
+				}
 			}
 		}
+		
+		
 	}
 
 }

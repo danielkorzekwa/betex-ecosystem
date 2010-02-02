@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.betex.ecosystem.marketdatacollector.marketservice.MarketService;
 import dk.betex.ecosystem.marketdatacollector.task.StoreMarketTradedVolumeTask;
 
 /**
@@ -17,9 +18,6 @@ public class MarketDataCollectorImpl implements MarketDataCollector {
 
 	private static Logger logger = LoggerFactory.getLogger(MarketDataCollectorImpl.class);
 
-	/** What is the market that the traded volume is collected for. */
-	private final long marketId;
-
 	/** How often the traded volume for that market is collected. */
 	private final long intervalInMillis;
 
@@ -27,17 +25,21 @@ public class MarketDataCollectorImpl implements MarketDataCollector {
 
 	private AtomicBoolean stopped = new AtomicBoolean(false);
 
+	/**Provides list of markets that the market data is collected for.*/
+	private final MarketService marketService;
+
 	/**
 	 * 
-	 * @param marketId
-	 *            What is the market that the traded volume is collected for
+	 * @param marketService
+	 *            Provides list of markets that the market data is collected for
 	 * @param intervalInMillis
 	 *            How often the traded volume for that market is collected
 	 * @param storeMarketTradedVolumeTask
 	 */
-	public MarketDataCollectorImpl(long marketId, long intervalInMillis,
+	public MarketDataCollectorImpl(MarketService marketService, long intervalInMillis,
 			StoreMarketTradedVolumeTask storeMarketTradedVolumeTask) {
-		this.marketId = marketId;
+		
+		this.marketService = marketService;
 		this.intervalInMillis = intervalInMillis;
 		this.storeMarketTradedVolumeTask = storeMarketTradedVolumeTask;
 	}
@@ -61,7 +63,7 @@ public class MarketDataCollectorImpl implements MarketDataCollector {
 			while (!stopped.get()) {
 				try {
 					Thread.sleep(intervalInMillis);
-					storeMarketTradedVolumeTask.execute(marketId);
+					storeMarketTradedVolumeTask.execute(marketService.getMarketIds());
 				} catch (Exception e) {
 					logger.error("MArketDataCollector error", e);
 				}

@@ -21,6 +21,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
+import dk.betex.ecosystem.marketdatacollector.marketservice.OneMarketServiceImpl;
 import dk.betex.ecosystem.marketdatacollector.model.MarketTradedVolume;
 import dk.betex.ecosystem.marketdatacollector.task.StoreMarketTradedVolumeTask;
 import dk.bot.betfairservice.BetFairService;
@@ -60,7 +61,7 @@ public class MarketDataCollectorImplIntegrationTest {
 			fail("Cannot run test because of betfair market not found on the betting exchange");
 		}
 
-		marketDataCollector = new MarketDataCollectorImpl(hrMarket.getMarketId(), 500, storeMarketTradedVolumeTask);
+		marketDataCollector = new MarketDataCollectorImpl(new OneMarketServiceImpl(hrMarket.getMarketId()), 500, storeMarketTradedVolumeTask);
 		marketDataCollector.start();
 	}
 
