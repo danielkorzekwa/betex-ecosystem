@@ -1,8 +1,7 @@
 package dk.betex.ecosystem.marketdatacollector.marketservice;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +18,7 @@ import dk.bot.betfairservice.BetFairService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "/StoreMarketTradedVolumeTask-spring.xml")
-public class DiscoveryMarketServiceImplTest {
+public class DiscoveryMarketServiceImplIntegrationTest {
 
 	@Resource
 	private BetFairService betfairService;

@@ -3,7 +3,6 @@ package dk.betex.ecosystem.marketdatacollector;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,17 +35,18 @@ public class MarketDataCollectorApp {
 				.getBean("storeMarketTradedVolumeTask");
 
 		MarketService marketService;
-		if(marketId!=null) {
+		if (marketId != null) {
 			marketService = new OneMarketServiceImpl(marketId);
+		} else {
+			BetFairService betfairService = (BetFairService) ctx.getBean("betfairService");
+			Set<Integer> eventIds = new HashSet<Integer>();
+			eventIds.add(7);
+			marketService = new DiscoveryMarketServiceImpl(betfairService, 60, -60 * 2, 12, eventIds, "/7/298251/",
+					true);
+			((DiscoveryMarketServiceImpl)marketService).start();
 		}
-		else {
-			BetFairService betfairService = (BetFairService)ctx.getBean("betfairService");
-			 Set<Integer> eventIds = new HashSet<Integer>();
-			 eventIds.add(7);
-		//	marketService = new DiscoveryMarketServiceImpl(betfairService, 60,new Date(now - (1000*3600*4)), new Date(now+(1000*3600*48)), eventIds, "/7/298251/", true)
-		}
-		MarketDataCollectorImpl marketDataCollector = new MarketDataCollectorImpl(new OneMarketServiceImpl(marketId),
-				pollingInterval, storeMarketTradedVolumeTask);
+		MarketDataCollectorImpl marketDataCollector = new MarketDataCollectorImpl(marketService, pollingInterval,
+				storeMarketTradedVolumeTask);
 		marketDataCollector.start();
 
 		System.out.println("MarketDataCollector - started.");
@@ -59,7 +59,8 @@ public class MarketDataCollectorApp {
 	 * @throws IOException
 	 */
 	private static Long askForMarketId() throws IOException {
-		System.out.print("Enter market id (or none to collected all HR_UK_turningInPlay markets 10 min before market time): ");
+		System.out
+				.print("Enter market id (or none to collect all HR_UK_turningInPlay markets 10 min before market time): ");
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String marketIdData = reader.readLine();
@@ -71,8 +72,7 @@ public class MarketDataCollectorApp {
 				System.out.println("Can't parse marketId: " + marketIdData);
 				System.exit(-1);
 			}
-		}
-		else {
+		} else {
 			System.out.println("HR markets will be collected.");
 		}
 		return marketId;
