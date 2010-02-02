@@ -3,12 +3,11 @@ package dk.betex.ecosystem.webconsole.server.esper;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-
-import com.google.gwt.dev.util.collect.HashMap;
 
 import dk.betex.ecosystem.webconsole.server.esper.LiabilityCalculator.Bet;
 import dk.betex.ecosystem.webconsole.server.esper.LiabilityCalculator.MarketProb;

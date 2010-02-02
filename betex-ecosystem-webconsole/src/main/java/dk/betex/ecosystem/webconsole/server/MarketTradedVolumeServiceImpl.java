@@ -11,9 +11,7 @@ import org.apache.commons.math.util.MathUtils;
 import org.jcouchdb.db.Database;
 import org.jcouchdb.document.BaseDocument;
 import org.jcouchdb.document.ValueAndDocumentRow;
-import org.jcouchdb.document.ValueRow;
 import org.jcouchdb.document.ViewAndDocumentsResult;
-import org.jcouchdb.document.ViewResult;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
@@ -21,8 +19,6 @@ import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketDetailsDaoImpl;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDao;
 import dk.betex.ecosystem.marketdatacollector.dao.MarketPricesDaoImpl;
-import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDao;
-import dk.betex.ecosystem.marketdatacollector.dao.MarketTradedVolumeDaoImpl;
 import dk.betex.ecosystem.marketdatacollector.factory.MarketTradedVolumeFactory;
 import dk.betex.ecosystem.marketdatacollector.model.MarketDetails;
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
@@ -49,7 +45,6 @@ import dk.bot.betfairservice.model.BFMarketTradedVolume;
 public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implements MarketTradedVolumeService {
 
 	private BetFairService betfairService;
-	private MarketTradedVolumeDao marketTradedVolueDao;
 	private MarketDetailsDao marketDetailsDao;
 	private MarketPricesDao marketPricesDao;
 
@@ -75,7 +70,6 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 		}
 
 		/** Init DAOs */
-		marketTradedVolueDao = new MarketTradedVolumeDaoImpl(new Database("10.2.2.72", "market_traded_volume"));
 		marketDetailsDao = new MarketDetailsDaoImpl(new Database("10.2.2.72", "market_details"));
 		marketPricesDao = new MarketPricesDaoImpl(new Database("10.2.2.72", "market_prices"));
 	}
@@ -133,42 +127,11 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 		ArrayList<BioHeatMapModel> heatMapList = new ArrayList<BioHeatMapModel>();
 
 		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
-			ViewAndDocumentsResult<BaseDocument,MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(
-					marketId, from, to, limit);
-			for (ValueAndDocumentRow<BaseDocument,MarketTradedVolume> valueRow : marketTradedVolumeList.getRows()) {
-				MarketTradedVolume marketTradedVolume = valueRow.getDocument();
-
-				BioHeatMapModel ds = HeatMapModelDataSourceFactory.create(marketTradedVolume);
-				BioHeatMapModel marketHeatMap = HeatMapModelFactory.createHeatMap(ds, probMin, probMax);
-				heatMapList.add(marketHeatMap);
-			}
+			throw new UnsupportedOperationException("Not implemented.");
 
 		} 
 		else if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME_LAST_1_MIN) {
-			ViewAndDocumentsResult<BaseDocument, MarketTradedVolume> marketTradedVolumeList = marketTradedVolueDao.getMarketTradedVolume(marketId, from, to, limit);
-			for (ValueAndDocumentRow<BaseDocument,MarketTradedVolume> valueRow : marketTradedVolumeList.getRows()) {
-				
-				/**Calculate heatMapModel.*/
-				MarketTradedVolume marketTradedVolume = valueRow.getDocument();
-				BioHeatMapModel heatMap = HeatMapModelDataSourceFactory.create(marketTradedVolume);
-				BioHeatMapModel normalizedHeatMap = HeatMapModelFactory.createHeatMap(heatMap, probMin, probMax);
-				
-				/**Calculate heatMapModel for data 1 min ago.*/
-				BioHeatMapModel normalizedHeatMap1MinAgo;
-				ViewAndDocumentsResult<BaseDocument, MarketTradedVolume> marketTradedVolumeList1MinAgo = marketTradedVolueDao.getMarketTradedVolume(marketId, marketTradedVolume.getTimestamp()-(1000*60), marketTradedVolume.getTimestamp(), 1);
-				
-				if(marketTradedVolumeList1MinAgo.getRows().size()>0) {
-					BioHeatMapModel heatMap1MinAgo = HeatMapModelDataSourceFactory.create(marketTradedVolumeList1MinAgo.getRows().get(0).getDocument());
-					normalizedHeatMap1MinAgo = HeatMapModelFactory.createHeatMap(heatMap1MinAgo, probMin, probMax);
-				}
-				else {
-					normalizedHeatMap1MinAgo = HeatMapModelFactory.createHeatMap(heatMap, probMin, probMax);
-				}
-				
-				BioHeatMapModel delta = HeatMapModelFactory.delta(normalizedHeatMap1MinAgo, normalizedHeatMap);
-				heatMapList.add(delta);
-			}
-			
+			throw new UnsupportedOperationException("Not implemented.");		
 		}
 		else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
 			ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesList = marketPricesDao.get(marketId, from, to, limit);
@@ -206,10 +169,10 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	@Override
 	public long getNumOfRecords(long marketId, MarketFunctionEnum marketFunction) {
 		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
-			return marketTradedVolueDao.getNumOfRecords(marketId);
+			throw new UnsupportedOperationException("Not implemented.");
 		}
 		else if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME_LAST_1_MIN) {
-			return marketTradedVolueDao.getNumOfRecords(marketId);
+			throw new UnsupportedOperationException("Not implemented.");
 		} 
 		else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
 			return marketPricesDao.getNumOfRecords(marketId);
@@ -228,10 +191,10 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	@Override
 	public List<Long> getTimeRange(long marketId, MarketFunctionEnum marketFunction) {
 		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
-			return marketTradedVolueDao.getTimeRange(marketId);
+			throw new UnsupportedOperationException("Not implemented.");
 		} 
 		else if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME_LAST_1_MIN) {
-			return marketTradedVolueDao.getTimeRange(marketId);
+			throw new UnsupportedOperationException("Not implemented.");
 		} 
 		else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
 			return marketPricesDao.getTimeRange(marketId);

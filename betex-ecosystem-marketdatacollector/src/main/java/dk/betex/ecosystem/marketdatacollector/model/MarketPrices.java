@@ -12,12 +12,12 @@ import org.svenson.JSONTypeHint;
  * @author korzekwad
  * 
  */
-public class MarketPrices extends BaseDocument implements Serializable{
+public class MarketPrices extends BaseDocument implements Serializable {
 
 	private long marketId;
 	private List<RunnerPrices> runnerPrices;
 	private int inPlayDelay;
-	
+
 	/** The time at which the response was received from the betting exchange. */
 	private long timestamp;
 
@@ -30,12 +30,13 @@ public class MarketPrices extends BaseDocument implements Serializable{
 	}
 
 	public RunnerPrices getRunnerPrices(long selectionId) {
-		for(RunnerPrices prices: runnerPrices) {
-			if(prices.getSelectionId()==selectionId) return prices;
+		for (RunnerPrices prices : runnerPrices) {
+			if (prices.getSelectionId() == selectionId)
+				return prices;
 		}
 		return null;
 	}
-	
+
 	public List<RunnerPrices> getRunnerPrices() {
 		return runnerPrices;
 	}
@@ -60,20 +61,18 @@ public class MarketPrices extends BaseDocument implements Serializable{
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
-	
-	/**Returns total traded volume on market.*/
+
+	/** Returns total traded volume on market. */
 	public double getTotalTradedVolume() {
-		double totalTradedVolume=0;
-		
-		for(RunnerPrices runnerPrices: getRunnerPrices()) {
-			totalTradedVolume+=runnerPrices.getTotalAmountMatched();
+		double totalTradedVolume = 0;
+
+		for (RunnerPrices runnerPrices : getRunnerPrices()) {
+			totalTradedVolume += runnerPrices.getTotalAmountMatched();
 		}
-		
+
 		return totalTradedVolume;
 	}
-	
-	
-	
+
 	/**
 	 * Data model for volume of unmatched bets for all prices on a particular runner in a market.
 	 * 
@@ -82,7 +81,7 @@ public class MarketPrices extends BaseDocument implements Serializable{
 	 */
 	public static class RunnerPrices implements Serializable {
 
-		public RunnerPrices() {	
+		public RunnerPrices() {
 		}
 
 		private long selectionId;
@@ -150,7 +149,7 @@ public class MarketPrices extends BaseDocument implements Serializable{
 		public void setPrices(List<PriceUnmatchedVolume> prices) {
 			this.prices = prices;
 		}
-		
+
 		public List<PriceTradedVolume> getPriceTradedVolume() {
 			return priceTradedVolume;
 		}
@@ -160,22 +159,34 @@ public class MarketPrices extends BaseDocument implements Serializable{
 			this.priceTradedVolume = priceTradedVolume;
 		}
 
-		/**Data model for volume of unmatched bets for a particular price on a particular runner in a market.
+		/** Returns delta of total traded volume on runner. */
+		public double getTotalTradedVolume() {
+			double totalTradedVolume = 0;
+
+			for (PriceTradedVolume tradedVolume : this.priceTradedVolume) {
+				totalTradedVolume += tradedVolume.getTradedVolume();
+			}
+
+			return totalTradedVolume;
+		}
+
+		/**
+		 * Data model for volume of unmatched bets for a particular price on a particular runner in a market.
 		 * 
 		 * @author korzekwad
-		 *
+		 * 
 		 */
-		public static class PriceUnmatchedVolume implements Serializable{
+		public static class PriceUnmatchedVolume implements Serializable {
 
 			private double price;
 
 			private double totalToBack;
-			
+
 			private double totalToLay;
 
 			public PriceUnmatchedVolume() {
 			}
-			
+
 			public double getPrice() {
 				return price;
 			}
@@ -200,7 +211,7 @@ public class MarketPrices extends BaseDocument implements Serializable{
 				this.totalToLay = totalToLay;
 			}
 		}
-		
+
 		/**
 		 * Represents traded volume for the given price on the given runner in a particular market.
 		 * 
