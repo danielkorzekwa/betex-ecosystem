@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.text.DateFormatter;
-
 import org.jcouchdb.db.Database;
 import org.jcouchdb.document.BaseDocument;
 import org.jcouchdb.document.ValueAndDocumentRow;
@@ -35,7 +33,9 @@ import dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices;
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices.PriceTradedVolume;
 import dk.betex.ecosystem.webconsole.server.MarketPricesCalculator;
 import dk.betex.ecosystem.webconsole.server.esper.LiabilityCalculator.Bet;
+import dk.betex.ecosystem.webconsole.server.esper.LiabilityCalculator.MarketLiability;
 import dk.betex.ecosystem.webconsole.server.esper.LiabilityCalculator.MarketProb;
+import dk.betex.ecosystem.webconsole.server.esper.LiabilityCalculator.RunnerLiability;
 
 /**
  * Calculates avgPrice for all runners based on totalTradedVolume within time window and compare it to the best to
@@ -48,16 +48,27 @@ import dk.betex.ecosystem.webconsole.server.esper.LiabilityCalculator.MarketProb
  */
 public class EsperMarketTradedVolumeAvgPricesBettingSimulationTestApp {
 
-	private static final int PAGE_COUNT = 100;
+	private static final int PAGE_COUNT = 1000;
 
 	private EPServiceProvider epService;
 
 	private MarketPricesDao marketPricesDao;
 	private MarketDetailsDao marketDetailsDao;
 
+	private SimpleDateFormat df = new SimpleDateFormat();
 	private String dbUrl = "10.2.2.72";
-	private long marketId = 101112284;
-	private long twentyMinBeforeMarketTime;
+
+	private ViewAndDocumentsResult<BaseDocument, MarketDetails> marketDetailsList;
+
+	private EventLister eventListener = new EventLister();
+
+	private LiabilityCalculator liabilityCalc = new LiabilityCalculatorImpl();
+	private List<Bet> bets = new ArrayList<Bet>();
+	/** key - marketId */
+	private Map<Long, MarketProb> marketProbs = new HashMap<Long, MarketProb>();
+
+	/** Maximum number of bets to be processed within simulation. */
+	private int maxNumOfMarkets = 50;
 
 	@Before
 	public void before() {
@@ -67,14 +78,15 @@ public class EsperMarketTradedVolumeAvgPricesBettingSimulationTestApp {
 		epService = EPServiceProviderManager.getDefaultProvider(config);
 		epService.initialize();
 
+		EPStatement statement = epService.getEPAdministrator().createEPL("select * from MarketPrices as event");
+		statement.addListener(eventListener);
+
 		/** Init DAOs */
 		marketPricesDao = new MarketPricesDaoImpl(new Database(dbUrl, "market_prices"));
 		marketDetailsDao = new MarketDetailsDaoImpl(new Database(dbUrl, "market_details"));
 
 		/** Get market time. */
-		MarketDetails marketDetails = marketDetailsDao.getMarketDetails(marketId);
-		// twentyMinBeforeMarketTime = marketDetails.getMarketTime() - (1000 * 60 * 20);
-		twentyMinBeforeMarketTime = 0;
+		marketDetailsList = marketDetailsDao.getMarketDetailsList(100);
 
 	}
 
@@ -82,42 +94,85 @@ public class EsperMarketTradedVolumeAvgPricesBettingSimulationTestApp {
 	public void testProcessMarketTradedVolume() {
 		long now = System.currentTimeMillis();
 
-		EPStatement statement = epService.getEPAdministrator().createEPL("select * from MarketPrices as event");
-		statement.addListener(new EventLister());
+		/** Run simulation for all markets. */
+		int numberOfAnalyzedMarkets = 0;
+		for (int i = 0; i < marketDetailsList.getRows().size(); i++) {
+			if (numberOfAnalyzedMarkets > maxNumOfMarkets) {
+				break;
+			}
 
-		/** Get first 200 of records. */
-		ViewAndDocumentsResult<BaseDocument, MarketPrices> marketPricesList = marketPricesDao.get(marketId,
-				twentyMinBeforeMarketTime, Long.MAX_VALUE, PAGE_COUNT);
+			ValueAndDocumentRow<BaseDocument, MarketDetails> marketDetailsRow = marketDetailsList.getRows().get(i);
+			MarketDetails marketDetails = marketDetailsRow.getDocument();
+			//if (marketDetails.getMarketId() != 101113105)
+				//continue;
 
-		for (ValueAndDocumentRow<BaseDocument, MarketPrices> marketPricesRow : marketPricesList.getRows()) {
-			epService.getEPRuntime().sendEvent(marketPricesRow.getDocument());
-		}
-
-		/** Page through the rest of records. */
-		while (marketPricesList.getRows().size() > 0) {
-
-			marketPricesList = marketPricesDao
-					.get(marketId, marketPricesList.getRows().get(marketPricesList.getRows().size() - 1).getDocument()
-							.getTimestamp() + 1, Long.MAX_VALUE, PAGE_COUNT);
+			/** Get first 200 of records. */
+			ViewAndDocumentsResult<BaseDocument, MarketPrices> marketPricesList = marketPricesDao.get(marketDetails
+					.getMarketId(), 0, Long.MAX_VALUE, PAGE_COUNT);
 
 			for (ValueAndDocumentRow<BaseDocument, MarketPrices> marketPricesRow : marketPricesList.getRows()) {
 				epService.getEPRuntime().sendEvent(marketPricesRow.getDocument());
 			}
+
+			/** Page through the rest of records. */
+			while (marketPricesList.getRows().size() > 0) {
+
+				marketPricesList = marketPricesDao.get(marketDetails.getMarketId(), marketPricesList.getRows().get(
+						marketPricesList.getRows().size() - 1).getDocument().getTimestamp() + 1, Long.MAX_VALUE,
+						PAGE_COUNT);
+
+				for (ValueAndDocumentRow<BaseDocument, MarketPrices> marketPricesRow : marketPricesList.getRows()) {
+					epService.getEPRuntime().sendEvent(marketPricesRow.getDocument());
+				}
+			}
+
+			/** Calculate liability */
+			List<MarketLiability> liabilities = liabilityCalc.calculateLiability(bets);
+			double totalLiability = 0;
+
+			for (MarketLiability liability : liabilities) {
+				System.out.println("*****************************************************");
+				System.out.println("Market liabaility: " + liability.getMarketId());
+				double marketLiability = 0;
+				int marketNumOfBets = 0;
+				for (RunnerLiability runnerLiability : liability.getExpectedLiability()) {
+					double runnerProb = marketProbs.get(liability.getMarketId()).getRunnerProbs().get(
+							runnerLiability.getSelectionId());
+					marketLiability += runnerLiability.getRunnerLiability(runnerProb);
+					marketNumOfBets += runnerLiability.getNumberOfBets();
+
+					System.out.println("   - selectionId: " + runnerLiability.getSelectionId() + ",bets: "
+							+ runnerLiability.getNumberOfBets() + ", liability: "
+							+ round(runnerLiability.getRunnerLiability(runnerProb), 2) + ",ifWin: "
+							+ round(runnerLiability.getRunnerLiability(1), 2) + ",ifLose: "
+							+ round(runnerLiability.getRunnerLiability(0), 2));
+				}
+				totalLiability += marketLiability;
+
+				System.out.println("Total market liability: " + marketNumOfBets + ":" + round(marketLiability, 2));
+			}
+			System.out.println("*****************************************************");
+			System.out.println("Global liability: " + round(totalLiability, 2));
+			System.out.println("*****************************************************");
+			numberOfAnalyzedMarkets++;
 		}
 
-		System.out.println("Processing market prices: " + (System.currentTimeMillis() - now));
+		System.out.println("\nProcessing market prices. NumOfMarkets: " + numberOfAnalyzedMarkets + ", time: "
+				+ (System.currentTimeMillis() - now));
 
 	}
 
+	private List<Bet> filterBets(long marketId, long selectionId) {
+		List<Bet> filteredBets = new ArrayList<Bet>();
+		for (Bet bet : bets) {
+			if (bet.getMarketId() == marketId && bet.getSelectionId() == selectionId) {
+				filteredBets.add(bet);
+			}
+		}
+		return filteredBets;
+	}
+
 	private class EventLister implements UpdateListener {
-
-		private SimpleDateFormat df = new SimpleDateFormat();
-		
-		private LiabilityCalculator liabilityCalc = new LiabilityCalculatorImpl();
-
-		private List<Bet> bets = new ArrayList<Bet>();
-		/** key - marketId */
-		private Map<Long, MarketProb> marketProbs = new HashMap<Long, MarketProb>();
 
 		@Override
 		public void update(EventBean[] newEvents, EventBean[] oldEvents) {
@@ -135,30 +190,37 @@ public class EsperMarketTradedVolumeAvgPricesBettingSimulationTestApp {
 				double runnerProb = (1 / bestToBack + 1 / bestToLay) / 2;
 				runnerProbs.put(runnerPrices.getSelectionId(), runnerProb);
 
+				List<MarketLiability> marketLiabilities = liabilityCalc.calculateLiability(filterBets(marketPrices
+						.getMarketId(), runnerPrices.getSelectionId()));
+				RunnerLiability runnerLiability = new RunnerLiability(runnerPrices.getSelectionId());
+				if (marketLiabilities.size()>0) {
+					runnerLiability = marketLiabilities.get(0).getExpectedLiability(runnerPrices.getSelectionId());
+				}
+
 				Bet bet = null;
-				if (runnerPrices.getTotalTradedVolume() > 0 && priceFactor > 1.03) {
-					bet = new Bet(marketId, runnerPrices.getSelectionId(), 2, bestToBack);
+				if (runnerLiability.getRunnerLiability(0) > -4 && runnerPrices.totalTradedVolume() > 0
+						&& priceFactor > 1.03) {
+					bet = new Bet(marketPrices.getMarketId(), runnerPrices.getSelectionId(), 2, bestToBack);
 				}
-				if (runnerPrices.getTotalTradedVolume() > 0 && priceFactor < 0.95) {
-					bet = new Bet(marketId, runnerPrices.getSelectionId(), -2, bestToLay);
+				if (runnerLiability.getRunnerLiability(1) > -10 && runnerPrices.totalTradedVolume() > 0
+						&& priceFactor < 0.95) {
+					
+					bet = new Bet(marketPrices.getMarketId(), runnerPrices.getSelectionId(), -2, bestToLay);
 				}
+
 				if (marketPrices.getInPlayDelay() == 0 && (1 / runnerProb) < 5 && bet != null) {
 					bets.add(bet);
+
 					System.out.println(bet);
+					System.out.println(newEvents.length + ":" + df.format(new Date(marketPrices.getTimestamp())) + ":"
+							+ round(runnerPrices.totalTradedVolume(), 2) + ":" + round(avgPrice, 2) + ":"
+							+ runnerPrices.getLastPriceMatched() + ":" + round(bestToBack, 2) + ":"
+							+ round(bestToLay, 2) + ":" + round(priceFactor, 2));
+
 				}
 
-				System.out.println(newEvents.length + ":" + df.format(new Date(marketPrices.getTimestamp())) + ":"
-						+ round(runnerPrices.getTotalTradedVolume(), 2) + ":" + round(avgPrice, 2) + ":"
-						+ runnerPrices.getLastPriceMatched() + ":" + round(bestToBack, 2) + ":" + round(bestToLay, 2)
-						+ ":" + round(priceFactor, 2));
 			}
 			marketProbs.put(marketPrices.getMarketId(), new MarketProb(marketPrices.getMarketId(), runnerProbs));
-
-			if (marketPrices.getInPlayDelay() > 0) {
-				System.out.println("Market in play.");
-			}
-			System.out.println("Liability: " + df.format(new Date(marketPrices.getTimestamp())) + ":" + bets.size() + ":"
-					+ round(liabilityCalc.calculateLiability(bets, marketProbs), 2));
 		}
 
 		private double avgPrice(List<PriceTradedVolume> priceTradedVolume) {
@@ -172,5 +234,10 @@ public class EsperMarketTradedVolumeAvgPricesBettingSimulationTestApp {
 			double avgPrice = sumOfPayouts / sumOfStakes;
 			return avgPrice;
 		}
+
+		public String getLiabilityReport() {
+			return "dddd";
+		}
+
 	}
 }

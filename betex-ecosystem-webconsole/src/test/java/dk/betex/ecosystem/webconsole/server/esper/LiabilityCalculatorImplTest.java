@@ -27,7 +27,7 @@ public class LiabilityCalculatorImplTest {
 		runnerProbs.put(2l, 1 / 3d);
 		marketProbs.put(1l, new MarketProb(1, runnerProbs));
 
-		assertEquals(0, calc.calculateLiability(bets, marketProbs), 0);
+		assertEquals(0, calc.calculateLiability(bets).get(0).getExpectedLiability().get(0).getRunnerLiability(1/3d), 0);
 	}
 
 	@Test
@@ -38,7 +38,7 @@ public class LiabilityCalculatorImplTest {
 		runnerProbs.put(2l, 1 / 2d);
 		marketProbs.put(1l, new MarketProb(1, runnerProbs));
 
-		assertEquals(1, calc.calculateLiability(bets, marketProbs), 0);
+		assertEquals(1, calc.calculateLiability(bets).get(0).getExpectedLiability().get(0).getRunnerLiability(1/2d), 0);
 	}
 
 	@Test
@@ -49,7 +49,7 @@ public class LiabilityCalculatorImplTest {
 		runnerProbs.put(2l, 1 / 4d);
 		marketProbs.put(1l, new MarketProb(1, runnerProbs));
 
-		assertEquals(-0.5, calc.calculateLiability(bets, marketProbs), 0);
+		assertEquals(-0.5, calc.calculateLiability(bets).get(0).getExpectedLiability().get(0).getRunnerLiability(1/4d), 0);
 	}
 
 	@Test
@@ -60,7 +60,7 @@ public class LiabilityCalculatorImplTest {
 		runnerProbs.put(2l, 0d);
 		marketProbs.put(1l, new MarketProb(1, runnerProbs));
 
-		assertEquals(-2, calc.calculateLiability(bets, marketProbs), 0);
+		assertEquals(-2, calc.calculateLiability(bets).get(0).getExpectedLiability().get(0).getRunnerLiability(0d), 0);
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class LiabilityCalculatorImplTest {
 		runnerProbs.put(2l, 1d);
 		marketProbs.put(1l, new MarketProb(1, runnerProbs));
 
-		assertEquals(4, calc.calculateLiability(bets, marketProbs), 0);
+		assertEquals(4, calc.calculateLiability(bets).get(0).getExpectedLiability().get(0).getRunnerLiability(1d), 0);
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class LiabilityCalculatorImplTest {
 		runnerProbs.put(2l, 1 / 3d);
 		marketProbs.put(1l, new MarketProb(1, runnerProbs));
 
-		assertEquals(0, calc.calculateLiability(bets, marketProbs), 0);
+		assertEquals(0, calc.calculateLiability(bets).get(0).getExpectedLiability().get(0).getRunnerLiability(1/3d), 0);
 	}
 	
 	@Test
@@ -95,7 +95,7 @@ public class LiabilityCalculatorImplTest {
 		runnerProbs.put(2l, 1 / 3d);
 		marketProbs.put(1l, new MarketProb(1, runnerProbs));
 
-		assertEquals(0, calc.calculateLiability(bets, marketProbs), 0);
+		assertEquals(0, calc.calculateLiability(bets).get(0).getExpectedLiability().get(0).getRunnerLiability(1/3d), 0);
 	}
 	
 	@Test
@@ -103,11 +103,7 @@ public class LiabilityCalculatorImplTest {
 		bets.add(new Bet(1, 2, 2, 5));
 		bets.add(new Bet(1, 2, -2, 4)); // lay bet
 
-		Map<Long, Double> runnerProbs = new HashMap<Long, Double>();
-		runnerProbs.put(2l, 1 / 3d);
-		marketProbs.put(1l, new MarketProb(1, runnerProbs));
-
-		assertEquals(0.666, calc.calculateLiability(bets, marketProbs), 0.001);
+		assertEquals(0.666, calc.calculateLiability(bets).get(0).getExpectedLiability().get(0).getRunnerLiability(1/3d), 0.001);
 	}
 	
 	@Test
@@ -115,11 +111,7 @@ public class LiabilityCalculatorImplTest {
 		bets.add(new Bet(1, 2, 2, 4));
 		bets.add(new Bet(1, 2, -2, 5)); // lay bet
 
-		Map<Long, Double> runnerProbs = new HashMap<Long, Double>();
-		runnerProbs.put(2l, 1 / 3d);
-		marketProbs.put(1l, new MarketProb(1, runnerProbs));
-
-		assertEquals(-0.666, calc.calculateLiability(bets, marketProbs), 0.001);
+		assertEquals(-0.666, calc.calculateLiability(bets).get(0).getExpectedLiability().get(0).getRunnerLiability(1/3d), 0.001);
 	}
 	
 	@Test
@@ -127,15 +119,9 @@ public class LiabilityCalculatorImplTest {
 		bets.add(new Bet(1, 2, 2, 4));
 		bets.add(new Bet(2, 3, -2, 5)); // lay bet
 
-		Map<Long, Double> runnerProbs = new HashMap<Long, Double>();
-		runnerProbs.put(2l, 1 / 3d);
-		marketProbs.put(1l, new MarketProb(1, runnerProbs));
+		assertEquals(0.666, calc.calculateLiability(bets).get(0).getExpectedLiability().get(0).getRunnerLiability(1/3d), 0.001);
+		assertEquals(-1.333, calc.calculateLiability(bets).get(1).getExpectedLiability().get(0).getRunnerLiability(1/3d), 0.001);
 		
-		Map<Long, Double> runnerProbs2 = new HashMap<Long, Double>();
-		runnerProbs2.put(3l, 1 / 3d);
-		marketProbs.put(2l, new MarketProb(2, runnerProbs2));
-
-		assertEquals(-0.666, calc.calculateLiability(bets, marketProbs), 0.001);
 	}
 
 }

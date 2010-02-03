@@ -1,26 +1,36 @@
 package dk.betex.ecosystem.webconsole.server.esper;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**Calculates market liability based on bets and probabilities.
+import dk.betex.ecosystem.webconsole.server.esper.LiabilityCalculator.MarketLiability;
+
+/**
+ * Calculates market liability based on bets and probabilities.
  * 
  * @author korzekwad
- *
+ * 
  */
-public class LiabilityCalculatorImpl implements LiabilityCalculator{
+public class LiabilityCalculatorImpl implements LiabilityCalculator {
 
 	@Override
-	public double calculateLiability(List<Bet> bets, Map<Long, MarketProb> marketProbs) {
-		double liability=0;
-		for(Bet bet: bets) {
-			double prob = marketProbs.get(bet.getMarketId()).getRunnerProbs().get(bet.getSelectionId());
-			liability += bet.getBetSize()*bet.getBetPrice()*prob - bet.getBetSize();
-		}
-		return liability;
-	}
+	public List<MarketLiability> calculateLiability(List<Bet> bets) {
 
-	
-	
+		/** key - marketId */
+		Map<Long, MarketLiability> liabilitiesMap = new HashMap<Long, MarketLiability>();
+
+		for (Bet bet : bets) {
+			
+			MarketLiability marketLiability = liabilitiesMap.get(bet.getMarketId());
+			if (marketLiability == null) {
+				marketLiability = new MarketLiability(bet.getMarketId());
+				liabilitiesMap.put(bet.getMarketId(), marketLiability);
+			}
+			marketLiability.addBetPayout(bet.getSelectionId(),bet.getBetSize(),bet.getBetPrice());
+		}
+		return new ArrayList<MarketLiability>(liabilitiesMap.values());
+	}
 
 }
