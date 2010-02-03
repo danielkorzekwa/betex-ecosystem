@@ -35,7 +35,8 @@ public class StoreMarketTradedVolumeTaskImpl implements StoreMarketTradedVolumeT
 	private final MarketDetailsDao marketDetailsDao;
 	private final MarketPricesDao marketPricesDao;
 	
-	private MarketDetails marketDetails;
+	/**key - marketId*/
+	private Map<Long,MarketDetails> marketDetailsMap = new HashMap<Long, MarketDetails>();
 	
 	/**key - marketId*/
 	private Map<Long,MarketTradedVolume> previousRecords = new HashMap<Long, MarketTradedVolume>();
@@ -88,12 +89,13 @@ public class StoreMarketTradedVolumeTaskImpl implements StoreMarketTradedVolumeT
 			marketPricesDao.add(marketPrices);
 			
 			/**Get market details and add to the database if not added yet.*/
-			if(marketDetails==null) {
-				marketDetails = marketDetailsDao.getMarketDetails(marketId);
+			if(marketDetailsMap.get(marketId)==null) {
+				MarketDetails marketDetails = marketDetailsDao.getMarketDetails(marketId);
 				if(marketDetails==null) {
 					BFMarketDetails bfMarketDetails = betfairService.getMarketDetails((int)marketId);
-					MarketDetails marketDetails = MarketDetailsFactory.create(bfMarketDetails);
+					marketDetails = MarketDetailsFactory.create(bfMarketDetails);
 					marketDetailsDao.addMarketDetails(marketDetails);
+					marketDetailsMap.put(marketId,marketDetails);
 				}
 			}
 		}

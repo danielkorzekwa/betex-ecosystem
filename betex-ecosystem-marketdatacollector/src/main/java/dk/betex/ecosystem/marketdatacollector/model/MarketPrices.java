@@ -160,7 +160,7 @@ public class MarketPrices extends BaseDocument implements Serializable {
 		}
 
 		/** Returns delta of total traded volume on runner. */
-		public double getTotalTradedVolume() {
+		public double totalTradedVolume() {
 			double totalTradedVolume = 0;
 
 			for (PriceTradedVolume tradedVolume : this.priceTradedVolume) {

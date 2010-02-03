@@ -41,7 +41,7 @@ public class MarketDataCollectorApp {
 			Set<Integer> eventIds = new HashSet<Integer>();
 			eventIds.add(7);
 			marketService = new DiscoveryMarketServiceImpl(betfairService, 60, -60 * 2, 12, eventIds, "/7/298251/",
-					true);
+					true,true);
 			((DiscoveryMarketServiceImpl)marketService).start();
 		}
 		MarketDataCollectorImpl marketDataCollector = new MarketDataCollectorImpl(marketService, pollingInterval,
@@ -59,7 +59,7 @@ public class MarketDataCollectorApp {
 	 */
 	private static Long askForMarketId() throws IOException {
 		System.out
-				.print("Enter market id (or none to collect all HR_UK_turningInPlay markets 10 min before market time): ");
+				.print("Enter market id (or none to collect all HR_UK_turningInPlay_bsb markets 10 min before market time): ");
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String marketIdData = reader.readLine();

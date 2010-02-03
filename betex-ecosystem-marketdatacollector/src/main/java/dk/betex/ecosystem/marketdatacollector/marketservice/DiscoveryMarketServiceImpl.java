@@ -37,6 +37,8 @@ public class DiscoveryMarketServiceImpl implements MarketService {
 
 	private final long intervalInSec;
 
+	private final boolean bsbMarket;
+
 	/**
 	 * 
 	 * @param betFairService
@@ -50,7 +52,7 @@ public class DiscoveryMarketServiceImpl implements MarketService {
 	 *            If true then only markets that turns in play are returned.
 	 */
 	public DiscoveryMarketServiceImpl(BetFairService betFairService, long intervalInSec, int startinMinutesFrom,
-			int startinMinutesTo, Set<Integer> eventTypeIds, String eventPath, boolean turningInPlay) {
+			int startinMinutesTo, Set<Integer> eventTypeIds, String eventPath, boolean turningInPlay, boolean bsbMarket) {
 		this.betFairService = betFairService;
 		this.intervalInSec = intervalInSec;
 		this.startinMinutesFrom = startinMinutesFrom;
@@ -58,6 +60,7 @@ public class DiscoveryMarketServiceImpl implements MarketService {
 		this.eventTypeIds = eventTypeIds;
 		this.eventPath = eventPath;
 		this.turningInPlay = turningInPlay;
+		this.bsbMarket = bsbMarket;
 	}
 
 	/** Start discovering markets. */
@@ -87,7 +90,7 @@ public class DiscoveryMarketServiceImpl implements MarketService {
 					List<Long> newMarketIds = new ArrayList<Long>();
 					for (BFMarketData marketData : markets) {
 						if (marketData.getMarketStatus().equals("ACTIVE") && marketData.getEventHierarchy().startsWith(eventPath)
-								&& (!turningInPlay || marketData.isTurningInPlay())) {
+								&& (!turningInPlay || marketData.isTurningInPlay()) && (!bsbMarket || marketData.isBsbMarket())) {
 							newMarketIds.add((long) marketData.getMarketId());
 						}
 					}

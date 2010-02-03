@@ -43,7 +43,7 @@ public class DiscoveryMarketServiceImplIntegrationTest {
 		long now = System.currentTimeMillis();
 		 Set<Integer> eventIds = new HashSet<Integer>();
 		 eventIds.add(7);
-		marketService = new DiscoveryMarketServiceImpl(betfairService, 1,-240, 60*24*2, eventIds, "/7/298251/", true);
+		marketService = new DiscoveryMarketServiceImpl(betfairService, 1,-240, 60*24*2, eventIds, "/7/298251/", true,true);
 		
 		marketService.start();
 	}
