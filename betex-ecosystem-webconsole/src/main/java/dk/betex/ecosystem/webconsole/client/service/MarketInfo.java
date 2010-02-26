@@ -13,8 +13,15 @@ public class MarketInfo implements IsSerializable{
 
 	private long marketId;
 	private String menuPath;
+	private String marketName;
 	private Date marketTime;
 	
+	public String getMarketName() {
+		return marketName;
+	}
+	public void setMarketName(String marketName) {
+		this.marketName = marketName;
+	}
 	public long getMarketId() {
 		return marketId;
 	}

@@ -70,8 +70,8 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 		}
 
 		/** Init DAOs */
-		marketDetailsDao = new MarketDetailsDaoImpl(new Database("10.2.2.72", "market_details"));
-		marketPricesDao = new MarketPricesDaoImpl(new Database("10.2.2.72", "market_prices"));
+		marketDetailsDao = new MarketDetailsDaoImpl(new Database("10.2.4.191", "market_details"));
+		marketPricesDao = new MarketPricesDaoImpl(new Database("10.2.4.191", "market_prices"));
 	}
 
 	@Override
@@ -219,6 +219,7 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 		for (ValueAndDocumentRow<BaseDocument,MarketDetails> row : marketDetailsList.getRows()) {
 			MarketInfo marketInfo = new MarketInfo();
 			marketInfo.setMarketId(row.getDocument().getMarketId());
+			marketInfo.setMarketName(row.getDocument().getMarketName());
 			marketInfo.setMenuPath(row.getDocument().getMenuPath());
 			marketInfo.setMarketTime(new Date(row.getDocument().getMarketTime()));
 			marketInfos.add(marketInfo);

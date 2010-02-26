@@ -65,7 +65,7 @@ public class MarketHistory extends Composite {
 			@Override
 			public void onSuccess(List<MarketInfo> marketInfos) {		
 				for(MarketInfo marketInfo: marketInfos) {
-					marketsList.addItem(marketInfo.getMenuPath(),"" + marketInfo.getMarketId());
+					marketsList.addItem(marketInfo.getMenuPath() + "," + marketInfo.getMarketName() + "(" + marketInfo.getMarketId() + ")","" + marketInfo.getMarketId());
 				}
 			}
 		};	
