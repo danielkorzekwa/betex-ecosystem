@@ -126,12 +126,14 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 
 		ArrayList<BioHeatMapModel> heatMapList = new ArrayList<BioHeatMapModel>();
 
-		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
-			throw new UnsupportedOperationException("Not implemented.");
-
-		} 
-		else if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME_LAST_1_MIN) {
-			throw new UnsupportedOperationException("Not implemented.");		
+		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME_LAST_1_MIN) {
+			ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesList = marketPricesDao.get(marketId, from, to, limit);
+			for (ValueAndDocumentRow<BaseDocument,MarketPrices> valueRow : marketPricesList.getRows()) {
+				
+				BioHeatMapModel ds = HeatMapModelDataSourceFactory.createMarketTradedVolume(valueRow.getDocument());
+				BioHeatMapModel model = HeatMapModelFactory.createHeatMap(ds, probMin, probMax);
+				heatMapList.add(model);
+			}
 		}
 		else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
 			ViewAndDocumentsResult<BaseDocument,MarketPrices> marketPricesList = marketPricesDao.get(marketId, from, to, limit);
@@ -168,11 +170,8 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	 */
 	@Override
 	public long getNumOfRecords(long marketId, MarketFunctionEnum marketFunction) {
-		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
-			throw new UnsupportedOperationException("Not implemented.");
-		}
-		else if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME_LAST_1_MIN) {
-			throw new UnsupportedOperationException("Not implemented.");
+		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME_LAST_1_MIN) {
+			return marketPricesDao.getNumOfRecords(marketId);
 		} 
 		else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
 			return marketPricesDao.getNumOfRecords(marketId);
@@ -190,11 +189,8 @@ public class MarketTradedVolumeServiceImpl extends RemoteServiceServlet implemen
 	 */
 	@Override
 	public List<Long> getTimeRange(long marketId, MarketFunctionEnum marketFunction) {
-		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME) {
-			throw new UnsupportedOperationException("Not implemented.");
-		} 
-		else if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME_LAST_1_MIN) {
-			throw new UnsupportedOperationException("Not implemented.");
+		if (marketFunction == MarketFunctionEnum.MARKET_TRADED_VOLUME_LAST_1_MIN) {
+			return marketPricesDao.getTimeRange(marketId);
 		} 
 		else if (marketFunction == MarketFunctionEnum.LAST_MATCHED_PRICE) {
 			return marketPricesDao.getTimeRange(marketId);

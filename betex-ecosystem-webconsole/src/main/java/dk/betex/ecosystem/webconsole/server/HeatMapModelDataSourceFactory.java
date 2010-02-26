@@ -38,12 +38,42 @@ public class HeatMapModelDataSourceFactory {
 		List<HeatMapColumn> columns = new ArrayList<HeatMapColumn>();
 		for (RunnerPrices runnerPrices : marketPrices.getRunnerPrices()) {
 			List<HeatMapValue> values = new ArrayList<HeatMapValue>();
-			
-			values.add(new HeatMapValue(runnerPrices.getLastPriceMatched(),1d));
+
+			values.add(new HeatMapValue(runnerPrices.getLastPriceMatched(), 1d));
 			columns.add(new HeatMapColumn("" + runnerPrices.getSelectionId(), values));
 		}
 
 		BioHeatMapModel ds = new BioHeatMapModel(columns);
 		return ds;
+	}
+
+	public static BioHeatMapModel createMarketTradedVolume(MarketPrices marketPrices) {
+		List<HeatMapColumn> columns = new ArrayList<HeatMapColumn>();
+		for (RunnerPrices runnerPrices : marketPrices.getRunnerPrices()) {
+			List<HeatMapValue> values = new ArrayList<HeatMapValue>();
+
+			values.add(new HeatMapValue(avgPrice(runnerPrices.getPriceTradedVolume()), 1d));
+			values.add(new HeatMapValue(runnerPrices.getLastPriceMatched(), -1d));
+
+			values.add(new HeatMapValue(1, 1d));
+			values.add(new HeatMapValue(1000, 1d));
+
+			columns.add(new HeatMapColumn("" + runnerPrices.getSelectionId(), values));
+		}
+
+		BioHeatMapModel ds = new BioHeatMapModel(columns);
+		return ds;
+	}
+	
+	private static double avgPrice(List<dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices.PriceTradedVolume> priceTradedVolume) {
+		double sumOfPayouts = 0;
+		double sumOfStakes = 0;
+		/** Calculate avgPrices based on traded volume */
+		for (dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices.PriceTradedVolume volume : priceTradedVolume) {
+			sumOfPayouts += volume.getPrice() * volume.getTradedVolume();
+			sumOfStakes += volume.getTradedVolume();
+		}
+		double avgPrice = sumOfPayouts / sumOfStakes;
+		return avgPrice;
 	}
 }

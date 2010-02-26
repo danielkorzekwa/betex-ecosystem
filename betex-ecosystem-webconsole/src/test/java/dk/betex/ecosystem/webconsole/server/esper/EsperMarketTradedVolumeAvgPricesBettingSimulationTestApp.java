@@ -56,8 +56,8 @@ public class EsperMarketTradedVolumeAvgPricesBettingSimulationTestApp {
 	private MarketPricesDao marketPricesDao;
 	private MarketDetailsDao marketDetailsDao;
 
-	private SimpleDateFormat df = new SimpleDateFormat();
-	private String dbUrl = "10.2.2.72";
+	private SimpleDateFormat df = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss");
+	private String dbUrl = "10.2.4.191";
 
 	private ViewAndDocumentsResult<BaseDocument, MarketDetails> marketDetailsList;
 
@@ -87,7 +87,7 @@ public class EsperMarketTradedVolumeAvgPricesBettingSimulationTestApp {
 		marketDetailsDao = new MarketDetailsDaoImpl(new Database(dbUrl, "market_details"));
 
 		/** Get market time. */
-		marketDetailsList = marketDetailsDao.getMarketDetailsList(100);
+		marketDetailsList = marketDetailsDao.getMarketDetailsList(10000);
 
 	}
 
@@ -104,7 +104,7 @@ public class EsperMarketTradedVolumeAvgPricesBettingSimulationTestApp {
 
 			ValueAndDocumentRow<BaseDocument, MarketDetails> marketDetailsRow = marketDetailsList.getRows().get(i);
 			MarketDetails marketDetails = marketDetailsRow.getDocument();
-			 if (marketDetails.getMarketId() != 101117703)
+			 if (marketDetails.getMarketId() != 101181193)
 			 continue;
 
 			/** Get first 200 of records. */
@@ -127,37 +127,37 @@ public class EsperMarketTradedVolumeAvgPricesBettingSimulationTestApp {
 				}
 			}
 
-			/** Calculate liability */
-			List<MarketLiability> liabilities = liabilityCalc.calculateLiability(bets);
-			double totalLiability = 0;
+		}
 
-			for (MarketLiability liability : liabilities) {
-				System.out.println("*****************************************************");
-				System.out.println("Market liabaility: " + liability.getMarketId());
-				double marketLiability = 0;
-				int marketNumOfBets = 0;
-				for (RunnerLiability runnerLiability : liability.getExpectedLiability()) {
-					double runnerProb = marketProbs.get(liability.getMarketId()).getRunnerProbs().get(
-							runnerLiability.getSelectionId());
-					marketLiability += runnerLiability.getRunnerLiability(runnerProb);
-					marketNumOfBets += runnerLiability.getNumberOfBets();
+		/** Calculate liability */
+		List<MarketLiability> liabilities = liabilityCalc.calculateLiability(bets);
+		double totalLiability = 0;
+		for (MarketLiability liability : liabilities) {
+			System.out.println("*****************************************************");
+			System.out.println("Market liabaility: " + liability.getMarketId());
+			double marketLiability = 0;
+			int marketNumOfBets = 0;
+			for (RunnerLiability runnerLiability : liability.getExpectedLiability()) {
+				double runnerProb = marketProbs.get(liability.getMarketId()).getRunnerProbs().get(
+						runnerLiability.getSelectionId());
+				marketLiability += runnerLiability.getRunnerLiability(runnerProb);
+				marketNumOfBets += runnerLiability.getNumberOfBets();
 
-					System.out.println("   - selectionId: " + runnerLiability.getSelectionId() + ",bets: "
-							+ runnerLiability.getNumberOfBets() + ", liability: "
-							+ round(runnerLiability.getRunnerLiability(runnerProb), 2) + ",ifWin: "
-							+ round(runnerLiability.getRunnerLiability(1), 2) + ",ifLose: "
-							+ round(runnerLiability.getRunnerLiability(0), 2) + ",runnerPrice: "
-							+ round(1/runnerProb, 2));
-				}
-				totalLiability += marketLiability;
-
-				System.out.println("Total market liability: " + marketNumOfBets + ":" + round(marketLiability, 2));
+				System.out
+						.println("   - selectionId: " + runnerLiability.getSelectionId() + ",bets: "
+								+ runnerLiability.getNumberOfBets() + ", liability: "
+								+ round(runnerLiability.getRunnerLiability(runnerProb), 2) + ",ifWin: "
+								+ round(runnerLiability.getRunnerLiability(1), 2) + ",ifLose: "
+								+ round(runnerLiability.getRunnerLiability(0), 2) + ",runnerPrice: "
+								+ round(1 / runnerProb, 2));
 			}
-			System.out.println("*****************************************************");
-			System.out.println("Global liability: " + round(totalLiability, 2));
-			System.out.println("*****************************************************");
+			totalLiability += marketLiability;
+			System.out.println("Total market liability: " + marketNumOfBets + ":" + round(marketLiability, 2));
 			numberOfAnalyzedMarkets++;
 		}
+		System.out.println("*****************************************************");
+		System.out.println("Global liability: " + round(totalLiability, 2));
+		System.out.println("*****************************************************");
 
 		System.out.println("\nProcessing market prices. NumOfMarkets: " + numberOfAnalyzedMarkets + ", time: "
 				+ (System.currentTimeMillis() - now));
@@ -201,34 +201,25 @@ public class EsperMarketTradedVolumeAvgPricesBettingSimulationTestApp {
 				}
 
 				Bet bet = null;
-				if (runnerPrices.totalTradedVolume()>1000 &&runnerLiability.getRunnerLiability(0) > -1000 && runnerPrices.totalTradedVolume() > 0
-						&& ((1 / avgPrice) / (1 / bestToBack)) > 1.05) {
+				if (runnerPrices.totalTradedVolume() > 100 && runnerLiability.getRunnerLiability(0) > -1000
+						&& ((1 / avgPrice) / (1 / bestToBack)) > 1.04) {
 					bet = new Bet(marketPrices.getMarketId(), runnerPrices.getSelectionId(), 2, bestToBack);
 				}
-				if (runnerPrices.totalTradedVolume()>1000 && runnerLiability.getRunnerLiability(1) > -100 && runnerPrices.totalTradedVolume() > 0
-						&& ((1 / avgPrice) / (1 / bestToLay)) < 0.95) {
+				if (runnerPrices.totalTradedVolume() > 100 && runnerLiability.getRunnerLiability(1) > -100
+						&& ((1 / avgPrice) / (1 / bestToLay)) < 0.96) {
 
 					bet = new Bet(marketPrices.getMarketId(), runnerPrices.getSelectionId(), -2, bestToLay);
 				}
-				// if (runnerLiability.getRunnerLiability(0) > -1000 && runnerPrices.totalTradedVolume() > 0
-				// && priceFactor > 1.03) {
-				// bet = new Bet(marketPrices.getMarketId(), runnerPrices.getSelectionId(), 2, bestToBack);
-				// }
-				// if (runnerLiability.getRunnerLiability(1) > -1000 && runnerPrices.totalTradedVolume() > 0
-				// && priceFactor < 0.95) {
-				// bet = new Bet(marketPrices.getMarketId(), runnerPrices.getSelectionId(), -2, bestToLay);
-				// }
-
+				
 				if (marketPrices.getInPlayDelay() == 0 && (1 / runnerProb) < 5 && bet != null) {
 					bets.add(bet);
 					List<MarketLiability> betLiabilities = liabilityCalc.calculateLiability(Arrays.asList(bet));
 					System.out.println("Bet liability: "
-							+ betLiabilities.get(0).getExpectedLiability().get(0).getRunnerLiability(runnerProb));
+							+ round(betLiabilities.get(0).getExpectedLiability().get(0).getRunnerLiability(runnerProb),2));
 					System.out.println(df.format(new Date(marketPrices.getTimestamp())) + ",tV="
-							+ round(runnerPrices.totalTradedVolume(), 2) + ",avgP/lM/bB/bL="
-							+ round(avgPrice, 2) + "/" + runnerPrices.getLastPriceMatched() + "/"
-							+ round(bestToBack, 2) + "/" + round(bestToLay, 2)
-							+ ", " + bet);
+							+ round(runnerPrices.totalTradedVolume(), 2) + ",avgP/lM/bB/bL=" + round(avgPrice, 2) + "/"
+							+ runnerPrices.getLastPriceMatched() + "/" + round(bestToBack, 2) + "/"
+							+ round(bestToLay, 2) + ", " + bet);
 				}
 
 			}
