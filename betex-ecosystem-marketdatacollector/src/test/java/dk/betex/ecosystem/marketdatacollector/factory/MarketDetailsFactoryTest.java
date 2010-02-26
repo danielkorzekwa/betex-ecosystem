@@ -26,10 +26,12 @@ public class MarketDetailsFactoryTest {
 
 		assertEquals("" + expected.getMarketId(), actual.getId());
 		assertEquals(expected.getMarketId(), actual.getMarketId());
+		assertEquals(expected.getMarketId(), actual.getMarketId());
 		assertEquals(expected.getMenuPath(), actual.getMenuPath());
 		assertEquals(expected.getMarketTime().getTime(), actual.getMarketTime());
 		assertEquals(expected.getMarketSuspendTime().getTime(), actual.getSuspendTime());
-
+		assertEquals(expected.getNumOfWinners(), actual.getNumOfWinners());
+		
 		assertEquals(expected.getRunners().get(0).getSelectionId(), actual.getRunners().get(0).getSelectionId());
 		assertEquals(expected.getRunners().get(0).getSelectionName(), actual.getRunners().get(0).getSelectionName());
 
@@ -44,8 +46,8 @@ public class MarketDetailsFactoryTest {
 		runners.add(new BFMarketDetailsRunner(234, "Man Utd"));
 		runners.add(new BFMarketDetailsRunner(456, "Arsenal"));
 
-		BFMarketDetails marketDetails = new BFMarketDetails(marketId, "uk/soccer/MatUtd vs Arsenal", new Date(
-				marketTime), new Date(marketTime - 1000), runners);
+		BFMarketDetails marketDetails = new BFMarketDetails(marketId, "Match Odds","uk/soccer/MatUtd vs Arsenal", new Date(
+				marketTime), new Date(marketTime - 1000), 3,runners);
 
 		return marketDetails;
 	}

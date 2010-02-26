@@ -20,10 +20,12 @@ public class MarketDetailsFactory {
 		MarketDetails marketDetails = new MarketDetails();
 		
 		marketDetails.setId("" + bfMarketDetails.getMarketId());
+		marketDetails.setMarketName(bfMarketDetails.getMarketName());
 		marketDetails.setMarketId(bfMarketDetails.getMarketId());
 		marketDetails.setMenuPath(bfMarketDetails.getMenuPath());
 		marketDetails.setMarketTime(bfMarketDetails.getMarketTime().getTime());
 		marketDetails.setSuspendTime(bfMarketDetails.getMarketSuspendTime().getTime());
+		marketDetails.setNumOfWinners(bfMarketDetails.getNumOfWinners());
 		
 		List<MarketDetailsRunner> marketDetailsRunners = new ArrayList<MarketDetailsRunner>();
 		for(BFMarketDetailsRunner bfRunner: bfMarketDetails.getRunners()) {

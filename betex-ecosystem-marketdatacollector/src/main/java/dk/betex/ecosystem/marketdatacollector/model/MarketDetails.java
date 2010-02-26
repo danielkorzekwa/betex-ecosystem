@@ -17,7 +17,23 @@ public class MarketDetails extends BaseDocument implements Serializable{
 	private long marketTime;
 	private long suspendTime;
 	private String menuPath;
+	private String marketName;
+	private int numOfWinners;
+		
 	private List<MarketDetailsRunner> runners;
+	
+	public String getMarketName() {
+		return marketName;
+	}
+	public void setMarketName(String marketName) {
+		this.marketName = marketName;
+	}
+	public int getNumOfWinners() {
+		return numOfWinners;
+	}
+	public void setNumOfWinners(int numOfWinners) {
+		this.numOfWinners = numOfWinners;
+	}
 	
 	public long getMarketId() {
 		return marketId;

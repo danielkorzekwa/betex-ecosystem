@@ -80,10 +80,12 @@ public class MarketDetailsDaoImplTest {
 	private void assertMarketDetails(MarketDetails expected, MarketDetails actual) {
 
 		assertEquals(expected.getMarketId(), actual.getMarketId());
+		assertEquals(expected.getMarketName(), actual.getMarketName());
 		assertEquals(expected.getMenuPath(), actual.getMenuPath());
 		assertEquals(expected.getMarketTime(), actual.getMarketTime());
 		assertEquals(expected.getSuspendTime(), actual.getSuspendTime());
-
+		assertEquals(expected.getNumOfWinners(), actual.getNumOfWinners());
+		
 		assertEquals(expected.getRunners().get(0).getSelectionId(), actual.getRunners().get(0).getSelectionId());
 		assertEquals(expected.getRunners().get(0).getSelectionName(), actual.getRunners().get(0).getSelectionName());
 
@@ -95,9 +97,11 @@ public class MarketDetailsDaoImplTest {
 	private MarketDetails createMarketDetails(long marketId, long marketTime) {
 		MarketDetails marketDetails = new MarketDetails();
 		marketDetails.setMarketId(marketId);
+		marketDetails.setMarketName("Match Odds");
 		marketDetails.setMarketTime(marketTime);
 		marketDetails.setSuspendTime(marketTime - 1000);
 		marketDetails.setMenuPath("uk/soccer/MatUtd vs Arsenal");
+		marketDetails.setNumOfWinners(3);
 
 		List<MarketDetailsRunner> runners = new ArrayList<MarketDetailsRunner>();
 		MarketDetailsRunner runner1 = new MarketDetailsRunner();

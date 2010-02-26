@@ -78,6 +78,8 @@ public class StoreMarketTradedVolumeTaskImplIntegrationTest {
 		MarketDetails marketDetails = marketDetailsDao.getMarketDetails(hrMarket.getMarketId());
 		assertNotNull("Market details is null", marketDetails);
 		assertEquals(hrMarket.getMarketId(), marketDetails.getMarketId());
+		assertEquals(hrMarket.getMarketName(), marketDetails.getMarketName());
+		assertEquals(hrMarket.getNumberOfWinners(), marketDetails.getNumOfWinners());
 		assertTrue("No runners in marketDetails", marketDetails.getRunners().size() > 0);
 	}
 
