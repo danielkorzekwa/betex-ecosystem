@@ -44,7 +44,7 @@ public class CouchDbUpdateApp {
 	 */
 	public static String[] askForConfig() throws IOException {
 		System.out.println("Enter path to the couch db documents and database url in the format [db views directory path, db address, db suffix]");
-		System.out.println("Example: ./designdocs,10.2.2.72,_test");
+		System.out.println("Example: ./designdocs,10.2.4.191,_test");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String inputData = reader.readLine();
 

@@ -12,6 +12,7 @@ import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.junit.Before;
 import org.junit.Test;
 
+import dk.betex.ecosystem.marketdatacollector.ConfigEnum;
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices;
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices;
 import dk.betex.ecosystem.marketdatacollector.model.MarketPrices.RunnerPrices.PriceTradedVolume;
@@ -24,7 +25,7 @@ public class MarketPricesDaoImplTest {
 
 	@Before
 	public void setUp() {
-		database = new Database("10.2.2.72", "market_prices_test");
+		database = new Database(ConfigEnum.COUCHDB_ADDRESS.getValue(), "market_prices_test");
 		marketPricesDao = new MarketPricesDaoImpl(database);
 	}
 

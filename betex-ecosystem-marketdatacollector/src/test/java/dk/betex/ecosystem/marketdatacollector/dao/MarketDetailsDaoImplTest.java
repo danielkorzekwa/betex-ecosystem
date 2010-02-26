@@ -13,6 +13,7 @@ import org.jcouchdb.document.ViewAndDocumentsResult;
 import org.junit.Before;
 import org.junit.Test;
 
+import dk.betex.ecosystem.marketdatacollector.ConfigEnum;
 import dk.betex.ecosystem.marketdatacollector.model.MarketDetails;
 import dk.betex.ecosystem.marketdatacollector.model.MarketDetailsRunner;
 
@@ -23,7 +24,7 @@ public class MarketDetailsDaoImplTest {
 
 	@Before
 	public void setUp() {
-		database = new Database("10.2.2.72", "market_details_test");
+		database = new Database( ConfigEnum.COUCHDB_ADDRESS.getValue(), "market_details_test");
 		marketDetailsDao = new MarketDetailsDaoImpl(database);
 	}
 

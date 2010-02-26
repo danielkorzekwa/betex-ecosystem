@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import dk.betex.ecosystem.marketdatacollector.ConfigEnum;
 import dk.bot.betfairservice.BetFairService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -32,7 +33,7 @@ public class DiscoveryMarketServiceImplIntegrationTest {
 		 * bfPassword.
 		 */
 		System.setProperty("bfProductId", "82");
-		System.setProperty("couchdb.url", "10.2.2.72");
+		System.setProperty("couchdb.url",  ConfigEnum.COUCHDB_ADDRESS.getValue());
 		System.setProperty("marketTradedVolumeDb.name", "market_traded_volume_test");
 		System.setProperty("marketDetailsDb.name", "market_details_test");
 		System.setProperty("marketPricesDb.name", "market_prices_test");

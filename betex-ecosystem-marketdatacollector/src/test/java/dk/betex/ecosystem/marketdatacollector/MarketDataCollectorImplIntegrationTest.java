@@ -47,7 +47,7 @@ public class MarketDataCollectorImplIntegrationTest {
 		 * bfPassword.
 		 */
 		System.setProperty("bfProductId", "82");
-		System.setProperty("couchdb.url", "10.2.2.72");
+		System.setProperty("couchdb.url", ConfigEnum.COUCHDB_ADDRESS.getValue());
 		System.setProperty("marketTradedVolumeDb.name", "market_traded_volume_test");
 		System.setProperty("marketDetailsDb.name", "market_details_test");
 		System.setProperty("marketPricesDb.name", "market_prices_test");
